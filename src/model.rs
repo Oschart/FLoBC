@@ -17,17 +17,17 @@ pub struct Model {
 
 impl Model {
     /// Creates a new model.
-    pub fn new<Clone>(
+    pub fn new(
         version: u32,
         size: u32,
-        weights: &Vec<f32>,
+        weights: Vec<f32>,
     ) -> Self {
         Self {
             version,
             size,
             weights,
         }
-    } 
+    }
 
     pub fn aggregate(self, gradients: Vec<f32>) {
         for i in 0..self.size as usize {

@@ -6,12 +6,11 @@ use exonum::{
 use exonum_derive::{exonum_interface, interface_method, BinaryValue, ExecutionFail, ObjectHash};
 use exonum_proto::ProtobufConvert;
 
-use crate::{proto, schema::SchemaImpl, CryptocurrencyService};
+use crate::{proto, schema::SchemaImpl, MachineLearningService};
 
 
 /// Transfer `amount` of the currency from one wallet to another.
 #[derive(Clone, Debug)]
-#[#[derive(Serialize, Deserialize)]
 #[derive(ProtobufConvert, BinaryValue, ObjectHash)]
 #[protobuf_convert(source = "proto::TxShareUpdates", serde_pb_convert)]
 pub struct ShareUpdates {
@@ -36,7 +35,7 @@ pub trait MachineLearningInterface<Ctx> {
 
 }
 
-impl MachineLearningInterface<ExecutionContext<'_>> for CryptocurrencyService {
+impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
     type Output = Result<(), ExecutionError>;
 
     fn shareUpdates(&self, context: ExecutionContext<'_>, arg: ShareUpdates) -> Self::Output {
