@@ -25,7 +25,7 @@ use exonum::{
 use exonum_derive::{FromAccess, RequireArtifact};
 
 // modified
-use crate::{model::Model, WEIGHTS};
+use crate::{model::Model};
 
 /// Database schema for the cryptocurrency.
 ///
@@ -37,16 +37,16 @@ pub(crate) struct SchemaImpl<T: Access> {
     pub public: Schema<T>,
     /// History for specific wallets.
     // modified
-    pub model_history: Group<T, Address, ProofListIndex<T::Base, Hash>>,
+    pub model_history: Group<T, u32, ProofListIndex<T::Base, Hash>>,
 }
 
 /// Public part of the cryptocurrency schema.
 #[derive(Debug, FromAccess, RequireArtifact)]
 #[require_artifact(name = "exonum-cryptocurrency")]
 pub struct Schema<T: Access> {
-    /// Map of wallet keys to information about the corresponding account.
+    /// Map of model keys to information about the corresponding account.
     // modified
-    pub models: RawProofMapIndex<T::Base, Address, model>,
+    pub models: RawProofMapIndex<T::Base, u32, Model>,
 }
 
 impl<T: Access> SchemaImpl<T> {
@@ -54,9 +54,9 @@ impl<T: Access> SchemaImpl<T> {
         Self::from_root(access).unwrap()
     }
     // modified
-    pub fn wallet(&self, address: Address) -> Option<Model> {
+    pub fn wallet(&self, version: u32) -> Option<Model> {
         // modified
-        self.public.models.get(&address)
+        self.public.models.get(&version)
     }
 }
 
@@ -66,7 +66,16 @@ where
     T::Base: RawAccessMut,
 {
     // modified
-    pub fn update_weights(&mut self, model: newModel){
-        // call aggregate
+    pub fn update_weights(&mut self, updates: Vec<Vec<f32>>){
+        let latest_model : Model; 
+        let model_keys = self.public.models.keys();
+        if model_keys.isEmpty() {
+            
+            latest_model = Model::new();
+        }
+        for i in 0..model.size as usize {
+            model.aggregate(updates[i]);
+        }
     }
+
 }
