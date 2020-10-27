@@ -17,6 +17,10 @@ extern crate serde_derive; // Required for Protobuf.
 mod tx_tests;
 pub mod proto;
 
+pub const INIT_WEIGHT : f32 = 0.0;
+pub const MODEL_SIZE : u32 = 10;
+
+
 pub mod schema {
     use exonum::{
         crypto::PublicKey,
