@@ -25,7 +25,7 @@ use exonum::{
 use exonum_derive::{FromAccess, RequireArtifact};
 
 // modified
-use crate::{model::Model};
+use crate::{model::Model, INIT_WEIGHT, MODEL_SIZE};
 
 /// Database schema for the cryptocurrency.
 ///
@@ -53,11 +53,7 @@ impl<T: Access> SchemaImpl<T> {
     pub fn new(access: T) -> Self {
         Self::from_root(access).unwrap()
     }
-    // modified
-    pub fn wallet(&self, version: u32) -> Option<Model> {
-        // modified
-        self.public.models.get(&version)
-    }
+
 }
 
 impl<T> SchemaImpl<T>
@@ -68,14 +64,25 @@ where
     // modified
     pub fn update_weights(&mut self, updates: Vec<Vec<f32>>){
         let latest_model : Model; 
-        let model_keys = self.public.models.keys();
-        if model_keys.isEmpty() {
-            
-            latest_model = Model::new();
+        let model_values = self.public.models.values();
+        if model_values.isEmpty() {
+            let version: u32 = 0;
+            latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT: MODEL_SIZE]);
+            self.public.models.put(&version, latest_model);
         }
-        for i in 0..model.size as usize {
-            model.aggregate(updates[i]);
-        }
-    }
 
+        latest_model = self.public.models.last();
+
+        let new_model: Model = Model::new(
+            latest_model.version+1,
+            latest_model.size,
+            latest_model.weights,
+        );
+        for i in 0..model.size as usize {
+            new_model.aggregate(updates[i]);
+        }
+
+
+        self.public.models.put(&new_model.version, new_model);
+    }
 }
