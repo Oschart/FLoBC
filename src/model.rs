@@ -7,10 +7,8 @@ use exonum_proto::ProtobufConvert;
 use crate::proto;
 
 /// Model information stored in the database.
-#[derive(Clone, Debug)]
-#[derive(Serialize, Deserialize)]
-#[derive(ProtobufConvert, BinaryValue, ObjectHash)]
-#[protobuf_convert(source = "proto::Model")]
+#[derive(Clone, Debug, ProtobufConvert, BinaryValue, ObjectHash)]
+#[protobuf_convert(source = "proto::Model", serde_pb_convert)]
 pub struct Model {
     pub version: u32,
     pub size: u32,

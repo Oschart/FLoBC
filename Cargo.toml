@@ -37,3 +37,7 @@ pretty_assertions = "0.6.1"
 [dev-dependencies.tokio]
 version = "0.2.13"
 features = ["blocking", "dns", "io-util", "macros", "rt-threaded", "tcp", "time"]
+
+[features]
+default = ["with-serde"]
+with-serde = []

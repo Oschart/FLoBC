@@ -10,10 +10,8 @@ use crate::{proto, schema::SchemaImpl, MachineLearningService};
 
 
 /// Transfer `amount` of the currency from one wallet to another.
-#[derive(Clone, Debug)]
-#[derive(Serialize, Deserialize)]
-#[derive(ProtobufConvert, BinaryValue, ObjectHash)]
-#[protobuf_convert(source = "proto::TxShareUpdates")]
+#[derive(Clone, Debug, ProtobufConvert, BinaryValue, ObjectHash)]
+#[protobuf_convert(source = "proto::TxShareUpdates", serde_pb_convert)]
 pub struct ShareUpdates {
 
     pub gradients: Vec<f32>,
