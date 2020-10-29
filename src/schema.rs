@@ -56,7 +56,7 @@ impl<T: Access> SchemaImpl<T> {
     pub fn new(access: T) -> Self {
         Self::from_root(access).unwrap()
     }
-
+ 
 }
 
 impl<T> SchemaImpl<T>
@@ -66,7 +66,7 @@ where
 {
     // modified
     pub fn update_weights(&mut self, updates: Vec<Vec<f32>>){
-        let latest_model : Model;
+        let mut latest_model : Model;
         let model_values = self.public.models.values();
         if model_values.count() == 0 {
             let version: u32 = 0;
@@ -76,16 +76,16 @@ where
 
         latest_model = self.public.models.values().last().unwrap();
 
-        let new_model: Model = Model::new(
+        let mut new_model: Model = Model::new(
             latest_model.version+1,
             latest_model.size,
             latest_model.weights.clone(),
         );
         for i in 0..updates.len() as usize {
-            new_model.aggregate(updates[i]);
+            new_model.aggregate(&updates[i]);
         }
 
-
-        self.public.models.put(&new_model.version, new_model);
+        let new_version = new_model.version;
+        self.public.models.put(&new_version, new_model);
     }
 }

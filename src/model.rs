@@ -29,7 +29,7 @@ impl Model {
         }
     }
 
-    pub fn aggregate(self, gradients: Vec<f32>) {
+    pub fn aggregate(&mut self, gradients: &Vec<f32>) {
         for i in 0..self.size as usize {
             self.weights[i] += gradients[i]
         }
