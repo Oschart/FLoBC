@@ -46,7 +46,7 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         // Some logic and an if statement either storing or updating TODO
 
         //Updating the most recent model using schema TODO
-        let updates : Vec<Vec<f32>> = [arg.gradients];
+        let updates : Vec<Vec<f32>> = vec![arg.gradients];
         schema.update_weights(updates);
 
         Ok(())
