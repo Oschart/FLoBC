@@ -5,25 +5,18 @@ syntax = "proto3";
 import "exonum/crypto/types.proto";
 
 // Wallet structure used to persist data within the service.
-message Wallet {
-  exonum.crypto.PublicKey pub_key = 1;
-  string name = 2;
-  uint64 balance = 3;
+message Model {
+  uint32 version = 1;
+  uint32 size = 2;
+  repeated float weights = 3[packed=true];
+
 }
 
-// Transaction type for creating a new wallet.
-message TxCreateWallet {
-  // UTF-8 string with the owner's name.
-  string name = 1;
-}
 
 // Transaction type for transferring tokens between two wallets.
-message TxTransfer {
-  // Public key of the receiver.
-  exonum.crypto.PublicKey to = 1;
-  // Number of tokens to transfer from the sender's account to the receiver's
-  // account.
-  uint64 amount = 2;
+message TxShareUpdates {
+
+  repeated float gradients = 1[packed=true];
   // Auxiliary number to guarantee non-idempotence of transactions.
-  uint64 seed = 3;
+  uint64 seed = 2;
 }
