@@ -88,7 +88,8 @@ impl PublicApi {
     
         let model_history = model.map(|_| {
             // `history` is always present for existing wallets.
-            let history = currency_schema.model_history.get(&address);
+            let tempAddress: u32 = 0;
+            let history = currency_schema.model_history.get(&tempAddress);
             let proof = history.get_range_proof(..);
     
             let transactions = state.data().for_core().transactions();

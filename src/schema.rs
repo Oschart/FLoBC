@@ -15,7 +15,7 @@
 //! Cryptocurrency database schema.
 
 use exonum::{
-    crypto::Hash,
+    crypto::{Hash, PublicKey},
     merkledb::{
         access::{Access, FromAccess, RawAccessMut},
         Group, ObjectHash, ProofListIndex, RawProofMapIndex, MapIndex,
@@ -25,10 +25,8 @@ use exonum::{
 use exonum_derive::{FromAccess, RequireArtifact};
 
 // modified
-use crate::{  INIT_WEIGHT, MODEL_SIZE };
+use crate::{  INIT_WEIGHT, MODEL_SIZE, model::Model };
 #[path="model.rs"]
-pub mod model;
-use model::Model;
 
 /// Database schema for the cryptocurrency.
 ///
@@ -49,7 +47,7 @@ pub(crate) struct SchemaImpl<T: Access> {
 pub struct Schema<T: Access> {
     /// Map of model keys to information about the corresponding account.
     // modified
-    pub models: MapIndex<T::Base, u32, Model>,
+    pub models: RawProofMapIndex<T::Base, Address, Model>,
 }
 
 impl<T: Access> SchemaImpl<T> {
@@ -70,8 +68,9 @@ where
         let model_values = self.public.models.values();
         if model_values.count() == 0 {
             let version: u32 = 0;
+            let versionHash = Address::from_key(PublicKey::zero());
             latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize]);
-            self.public.models.put(&version, latest_model);
+            self.public.models.put(&versionHash, latest_model);
         }
 
         latest_model = self.public.models.values().last().unwrap();
@@ -86,6 +85,7 @@ where
         }
 
         let new_version = new_model.version;
-        self.public.models.put(&new_version, new_model);
+        let new_versionHash = Address::from_key(PublicKey::zero());
+        self.public.models.put(&new_versionHash, new_model);
     }
 }
