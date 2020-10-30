@@ -1,5 +1,5 @@
 .DS_Store
 
-/target/
+backend/target/
 
 Cargo.lock
