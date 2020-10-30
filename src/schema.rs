@@ -68,7 +68,8 @@ where
         let model_values = self.public.models.values();
         if model_values.count() == 0 {
             let version: u32 = 0;
-            let versionHash = Address::from_key(PublicKey::zero());
+            
+            let versionHash = Address::from_key(PublicKey::new(self.byte_array_from_version(version)));
             latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize]);
             self.public.models.put(&versionHash, latest_model);
         }
@@ -85,7 +86,17 @@ where
         }
 
         let new_version = new_model.version;
-        let new_versionHash = Address::from_key(PublicKey::zero());
+        let new_versionHash = Address::from_key(PublicKey::new(self.byte_array_from_version(new_version)));
         self.public.models.put(&new_versionHash, new_model);
+    }
+
+    pub fn byte_array_from_version(&self, version: u32) -> [u8; 32] {
+        let mut byte_array: [u8; 32] = [0 as u8; 32];
+        let _2b = version.to_be_bytes();
+        for i in 0..4 as usize {
+            byte_array[i] = _2b[i];
+        }
+
+        return byte_array;
     }
 }
