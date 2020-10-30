@@ -23,28 +23,27 @@ use exonum::{
 use exonum_merkledb::{proof_map::Raw, ListProof, MapProof};
 use exonum_rust_runtime::api::{self, ServiceApiBuilder, ServiceApiState};
 
-// use crate::{schema::SchemaImpl, wallet::Wallet};
-use crate::{schema::SchemaImpl};
+use crate::{schema::SchemaImpl, model::Model};
 
 /// Describes the query parameters for the `get_wallet` endpoint.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct WalletQuery {
+pub struct ModelQuery {
     /// Public key of the queried wallet.
     pub pub_key: PublicKey,
 }
 
 /// Proof of existence for specific wallet.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct WalletProof {
-    // /// Proof of the whole wallets table.
-    // pub to_table: MapProof<String, Hash>,
-    // /// Proof of the specific wallet in this table.
-    // pub to_wallet: MapProof<Address, Wallet, Raw>,
+pub struct ModelProof {
+    /// Proof of the whole wallets table.
+    pub to_table: MapProof<String, Hash>,
+    /// Proof of the specific wallet in this table.
+    pub to_model: MapProof<Address, Model, Raw>,
 }
 
 /// Wallet history.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct WalletHistory {
+pub struct ModelHistory {
     /// Proof of the list of transaction hashes.
     pub proof: ListProof<Hash>,
     /// List of above transactions.
@@ -53,13 +52,13 @@ pub struct WalletHistory {
 
 /// Wallet information.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct WalletInfo {
+pub struct ModelInfo {
     /// Proof of the last block.
     pub block_proof: BlockProof,
     /// Proof of the appropriate wallet.
-    pub wallet_proof: WalletProof,
+    pub model_proof: ModelProof,
     /// History of the appropriate wallet.
-    pub wallet_history: Option<WalletHistory>,
+    pub model_history: Option<ModelHistory>,
 }
 
 /// Public service API description.
@@ -67,54 +66,54 @@ pub struct WalletInfo {
 pub struct PublicApi;
 
 impl PublicApi {
-    // Endpoint for getting a single wallet.
-    // pub async fn wallet_info(
-    //     state: ServiceApiState,
-    //     query: WalletQuery,
-    // ) -> api::Result<WalletInfo> {
-    //     let IndexProof {
-    //         block_proof,
-    //         index_proof,
-    //         ..
-    //     } = state.data().proof_for_service_index("wallets").unwrap();
-    //
-    //     let currency_schema = SchemaImpl::new(state.service_data());
-    //     let address = Address::from_key(query.pub_key);
-    //     let to_wallet = currency_schema.public.wallets.get_proof(address);
-    //     let wallet_proof = WalletProof {
-    //         to_table: index_proof,
-    //         to_wallet,
-    //     };
-    //     let wallet = currency_schema.public.wallets.get(&address);
-    //
-    //     let wallet_history = wallet.map(|_| {
-    //         // `history` is always present for existing wallets.
-    //         let history = currency_schema.wallet_history.get(&address);
-    //         let proof = history.get_range_proof(..);
-    //
-    //         let transactions = state.data().for_core().transactions();
-    //         let transactions = history
-    //             .iter()
-    //             .map(|tx_hash| transactions.get(&tx_hash).unwrap())
-    //             .collect();
-    //
-    //         WalletHistory {
-    //             proof,
-    //             transactions,
-    //         }
-    //     });
-    //
-    //     Ok(WalletInfo {
-    //         block_proof,
-    //         wallet_proof,
-    //         wallet_history,
-    //     })
-    // }
-    //
+    /// Endpoint for getting a single wallet.
+    pub async fn model_info(
+        state: ServiceApiState,
+        query: ModelQuery,
+    ) -> api::Result<ModelInfo> {
+        let IndexProof {
+            block_proof,
+            index_proof,
+            ..
+        } = state.data().proof_for_service_index("models").unwrap();
+        //rename "currency_schema"
+        let currency_schema = SchemaImpl::new(state.service_data());
+        let address = Address::from_key(query.pub_key);
+        let to_model = currency_schema.public.models.get_proof(address);
+        let model_proof = ModelProof {
+            to_table: index_proof,
+            to_model,
+        };
+        let model = currency_schema.public.models.get(&address);
+    
+        let model_history = model.map(|_| {
+            // `history` is always present for existing wallets.
+            let history = currency_schema.model_history.get(&address);
+            let proof = history.get_range_proof(..);
+    
+            let transactions = state.data().for_core().transactions();
+            let transactions = history
+                .iter()
+                .map(|tx_hash| transactions.get(&tx_hash).unwrap())
+                .collect();
+    
+            ModelHistory {
+                proof,
+                transactions,
+            }
+        });
+    
+        Ok(ModelInfo {
+            block_proof,
+            model_proof,
+            model_history,
+        })
+    }
+    
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
         builder
-            .public_scope();
-            // .endpoint("v1/wallets/info", Self::wallet_info);
+            .public_scope()
+            .endpoint("v1/models/info", Self::model_info);
     }
 }

@@ -27,7 +27,7 @@ pub mod api;
 pub mod proto;
 pub mod schema;
 pub mod transactions;
-//pub mod wallet;
+pub mod model;
 
 use exonum::runtime::{ExecutionContext, ExecutionError, InstanceId};
 use exonum_derive::{ServiceDispatcher, ServiceFactory};
