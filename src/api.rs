@@ -23,21 +23,21 @@ use exonum::{
 use exonum_merkledb::{proof_map::Raw, ListProof, MapProof};
 use exonum_rust_runtime::api::{self, ServiceApiBuilder, ServiceApiState};
 
-use crate::{schema::SchemaImpl, model::Model};
+use crate::{schema::{SchemaImpl, SchemaUtils}, model::Model};
 
-/// Describes the query parameters for the `get_wallet` endpoint.
+/// Describes the query parameters for the `get_model` endpoint.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct ModelQuery {
-    /// Public key of the queried wallet.
-    pub pub_key: PublicKey,
+    /// Public key of the queried model.
+    pub version: u32,
 }
 
-/// Proof of existence for specific wallet.
+/// Proof of existence for specific model.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ModelProof {
-    /// Proof of the whole wallets table.
+    /// Proof of the whole models table.
     pub to_table: MapProof<String, Hash>,
-    /// Proof of the specific wallet in this table.
+    /// Proof of the specific model in this table.
     pub to_model: MapProof<Address, Model, Raw>,
 }
 
@@ -55,9 +55,9 @@ pub struct ModelHistory {
 pub struct ModelInfo {
     /// Proof of the last block.
     pub block_proof: BlockProof,
-    /// Proof of the appropriate wallet.
+    /// Proof of the appropriate model.
     pub model_proof: ModelProof,
-    /// History of the appropriate wallet.
+    /// History of the appropriate model.
     pub model_history: Option<ModelHistory>,
 }
 
@@ -66,7 +66,7 @@ pub struct ModelInfo {
 pub struct PublicApi;
 
 impl PublicApi {
-    /// Endpoint for getting a single wallet.
+    /// Endpoint for getting a single model.
     pub async fn model_info(
         state: ServiceApiState,
         query: ModelQuery,
@@ -76,20 +76,20 @@ impl PublicApi {
             index_proof,
             ..
         } = state.data().proof_for_service_index("models").unwrap();
-        //rename "currency_schema"
-        let currency_schema = SchemaImpl::new(state.service_data());
-        let address = Address::from_key(query.pub_key);
-        let to_model = currency_schema.public.models.get_proof(address);
+
+        let model_schema = SchemaImpl::new(state.service_data());
+        let address = Address::from_key(SchemaUtils::pubKey_from_version(query.version));
+        let to_model = model_schema.public.models.get_proof(address);
         let model_proof = ModelProof {
             to_table: index_proof,
             to_model,
         };
-        let model = currency_schema.public.models.get(&address);
+        let model = model_schema.public.models.get(&address);
     
         let model_history = model.map(|_| {
-            // `history` is always present for existing wallets.
+            // `history` is always present for existing models.
             let tempAddress: u32 = 0;
-            let history = currency_schema.model_history.get(&tempAddress);
+            let history = model_schema.model_history.get(&tempAddress);
             let proof = history.get_range_proof(..);
     
             let transactions = state.data().for_core().transactions();
