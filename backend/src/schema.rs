@@ -43,7 +43,7 @@ pub(crate) struct SchemaImpl<T: Access> {
 
 /// Public part of the cryptocurrency schema.
 #[derive(Debug, FromAccess, RequireArtifact)]
-#[require_artifact(name = "exonum-cryptocurrency")]
+#[require_artifact(name = "exonum-ML")]
 pub struct Schema<T: Access> {
     /// Map of model keys to information about the corresponding account.
     // modified

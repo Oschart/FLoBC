@@ -14,7 +14,7 @@
 
 use exonum_cli::{NodeBuilder, Spec};
 
-use cryptocurrency::MachineLearningService;
+use exonum_ML::MachineLearningService;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

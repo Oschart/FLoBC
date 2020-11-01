@@ -33,7 +33,7 @@ use exonum::runtime::{ExecutionContext, ExecutionError, InstanceId};
 use exonum_derive::{ServiceDispatcher, ServiceFactory};
 use exonum_rust_runtime::{api::ServiceApiBuilder, DefaultInstance, Service};
 
-use crate::{api::PublicApi as CryptocurrencyApi, schema::SchemaImpl};
+use crate::{api::PublicApi as MLApi, schema::SchemaImpl};
 
 /// Initial balance of the model.
 pub const INIT_WEIGHT : f32 = 0.0;
@@ -42,7 +42,7 @@ pub const MODEL_SIZE : u32 = 10;
 /// Cryptocurrency service implementation.
 #[derive(Debug, ServiceDispatcher, ServiceFactory)]
 #[service_dispatcher(implements("MachineLearningInterface"))]
-#[service_factory(artifact_name = "exonum-cryptocurrency", proto_sources = "proto")]
+#[service_factory(artifact_name = "exonum-ML", proto_sources = "proto")]
 pub struct MachineLearningService;
 
 impl Service for MachineLearningService {
@@ -58,7 +58,7 @@ impl Service for MachineLearningService {
     }
 
     fn wire_api(&self, builder: &mut ServiceApiBuilder) {
-        CryptocurrencyApi::wire(builder);
+        MLApi::wire(builder);
     }
 }
 
