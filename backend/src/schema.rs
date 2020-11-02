@@ -66,6 +66,14 @@ where
     pub fn update_weights(&mut self, updates: Vec<Vec<f32>>){
         let mut latest_model : Model;
         let model_values = self.public.models.values();
+        let model_values1 = self.public.models.values();
+
+        println!("Displaying all models on the DB:");
+        for val in model_values1 {
+            println!("Model {:?}", val);
+        }
+        println!("Count: {:?}", self.public.models.values().count()); 
+        
         if model_values.count() == 0 {
             let version: u32 = 0;
             let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(version));
@@ -73,15 +81,22 @@ where
             println!("Initial Model: {:?}", latest_model);  
             self.public.models.put(&versionHash, latest_model);
         }
-        
-        latest_model = self.public.models.values().last().unwrap();
-        // println!("WTF ARE YOU?? {:?}", self.public.models.first().values());
-        println!("Latest Model: {:?}", latest_model); 
+
+        let model_values2 = self.public.models.values();
+        let mut max_v = 0;
+        for val in model_values2 {
+            if (val.version >= max_v){
+                max_v = val.version;
+            }
+        }
+        let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(max_v));
+        latest_model = self.public.models.get(&versionHash).unwrap();
+        println!("Latest Model: {:?}", (&latest_model)); 
 
         let mut new_model: Model = Model::new(
-            latest_model.version+1,
-            latest_model.size,
-            latest_model.weights.clone(),
+            (&latest_model).version+1,
+            (&latest_model).size,
+            (&latest_model).weights.clone(),
         );
         for i in 0..updates.len() as usize {
             new_model.aggregate(&updates[i]);
