@@ -1,6 +1,7 @@
 .DS_Store
 
 backend/target/
+backend/example/
 target/
 
 Cargo.lock
