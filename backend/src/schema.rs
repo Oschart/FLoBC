@@ -66,13 +66,6 @@ where
     pub fn update_weights(&mut self, updates: Vec<Vec<f32>>){
         let mut latest_model : Model;
         let model_values = self.public.models.values();
-        let model_values1 = self.public.models.values();
-
-        println!("Displaying all models on the DB:");
-        for val in model_values1 {
-            println!("Model {:?}", val);
-        }
-        println!("Count: {:?}", self.public.models.values().count()); 
         
         if model_values.count() == 0 {
             let version: u32 = 0;
