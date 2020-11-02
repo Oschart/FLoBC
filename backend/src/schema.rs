@@ -68,13 +68,15 @@ where
         let model_values = self.public.models.values();
         if model_values.count() == 0 {
             let version: u32 = 0;
-            
             let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(version));
             latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize]);
+            println!("Initial Model: {:?}", latest_model);  
             self.public.models.put(&versionHash, latest_model);
         }
-
+        
         latest_model = self.public.models.values().last().unwrap();
+        // println!("WTF ARE YOU?? {:?}", self.public.models.first().values());
+        println!("Latest Model: {:?}", latest_model); 
 
         let mut new_model: Model = Model::new(
             latest_model.version+1,
@@ -87,6 +89,7 @@ where
 
         let new_version = new_model.version;
         let new_versionHash = Address::from_key(SchemaUtils::pubKey_from_version(new_version));
+        println!("Created New Model: {:?}", new_model);   
         self.public.models.put(&new_versionHash, new_model);
     }
 

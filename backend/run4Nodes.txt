@@ -43,25 +43,25 @@ exonum-ML finalize \
   example/4/sec.toml example/4/node.toml \
   --public-configs example/{1,2,3,4}/pub.toml
 
-RUST_LOG=info exonum-ML run \
+exonum-ML run \
   --node-config example/1/node.toml \
   --db-path example/1/db \
   --public-api-address 0.0.0.0:9000 \
   --master-key-pass pass
 
-  RUST_LOG=info exonum-ML run \
+exonum-ML run \
   --node-config example/2/node.toml \
   --db-path example/2/db \
   --public-api-address 0.0.0.0:9002 \
   --master-key-pass pass
 
-    RUST_LOG=info exonum-ML run \
+exonum-ML run \
   --node-config example/3/node.toml \
   --db-path example/3/db \
   --public-api-address 0.0.0.0:9003 \
   --master-key-pass pass
 
-    RUST_LOG=info exonum-ML run \
+exonum-ML run \
   --node-config example/4/node.toml \
   --db-path example/4/db \
   --public-api-address 0.0.0.0:9004 \
