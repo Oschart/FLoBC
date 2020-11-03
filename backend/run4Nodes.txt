@@ -1,0 +1,68 @@
+cargo install --path .
+
+mkdir example
+
+exonum-ML generate-template \
+  example/common.toml \
+  --validators-count 4
+
+exonum-ML generate-config \
+  example/common.toml example/1 \
+  --peer-address 127.0.0.1:6331 -n
+exonum-ML generate-config \
+  example/common.toml example/2 \
+  --peer-address 127.0.0.1:6332 -n
+exonum-ML generate-config \
+  example/common.toml example/3 \
+  --peer-address 127.0.0.1:6333 -n
+exonum-ML generate-config \
+  example/common.toml example/4 \
+  --peer-address 127.0.0.1:6334 -n
+
+exonum-ML finalize \
+  --public-api-address 0.0.0.0:9000 \
+  --private-api-address 0.0.0.0:7091 \
+  example/1/sec.toml example/1/node.toml \
+  --public-configs example/{1,2,3,4}/pub.toml
+
+exonum-ML finalize \
+  --public-api-address 0.0.0.0:9002 \
+  --private-api-address 0.0.0.0:7092 \
+  example/2/sec.toml example/2/node.toml \
+  --public-configs example/{1,2,3,4}/pub.toml
+
+exonum-ML finalize \
+  --public-api-address 0.0.0.0:9003 \
+  --private-api-address 0.0.0.0:7093 \
+  example/3/sec.toml example/3/node.toml \
+  --public-configs example/{1,2,3,4}/pub.toml
+
+exonum-ML finalize \
+  --public-api-address 0.0.0.0:9004 \
+  --private-api-address 0.0.0.0:7094 \
+  example/4/sec.toml example/4/node.toml \
+  --public-configs example/{1,2,3,4}/pub.toml
+
+exonum-ML run \
+  --node-config example/1/node.toml \
+  --db-path example/1/db \
+  --public-api-address 0.0.0.0:9000 \
+  --master-key-pass pass
+
+exonum-ML run \
+  --node-config example/2/node.toml \
+  --db-path example/2/db \
+  --public-api-address 0.0.0.0:9002 \
+  --master-key-pass pass
+
+exonum-ML run \
+  --node-config example/3/node.toml \
+  --db-path example/3/db \
+  --public-api-address 0.0.0.0:9003 \
+  --master-key-pass pass
+
+exonum-ML run \
+  --node-config example/4/node.toml \
+  --db-path example/4/db \
+  --public-api-address 0.0.0.0:9004 \
+  --master-key-pass pass

@@ -1,5 +1,9 @@
 .DS_Store
 
-/target/
+backend/target/
+backend/example/
+target/
 
 Cargo.lock
+lightclient/node_modules
+lightclient/dist

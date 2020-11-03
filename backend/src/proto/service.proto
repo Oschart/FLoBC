@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+// Allows to use `exonum.PublicKey` structure already described in `exonum`
+// library.
+import "exonum/crypto/types.proto";
+
+// Wallet structure used to persist data within the service.
+message Model {
+  uint32 version = 1;
+  uint32 size = 2;
+  repeated float weights = 3[packed=true];
+
+}
+
+
+// Transaction type for transferring tokens between two wallets.
+message TxShareUpdates {
+
+  repeated float gradients = 1[packed=true];
+  // Auxiliary number to guarantee non-idempotence of transactions.
+  uint64 seed = 2;
+}

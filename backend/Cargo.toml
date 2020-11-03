@@ -1,5 +1,5 @@
 [package]
-name = "cryptocurrency"
+name = "exonum-ML"
 version = "0.1.0"
 authors = ["habibagamal <habibabassem@aucegypt.edu>"]
 edition = "2018"

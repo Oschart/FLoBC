@@ -15,20 +15,18 @@
 //! Cryptocurrency database schema.
 
 use exonum::{
-    crypto::Hash,
+    crypto::{Hash, PublicKey},
     merkledb::{
         access::{Access, FromAccess, RawAccessMut},
-        Group, ObjectHash, ProofListIndex, RawProofMapIndex, MapIndex,
+        Group, ObjectHash, ProofListIndex, RawProofMapIndex, Entry,
     },
     runtime::CallerAddress as Address,
 };
 use exonum_derive::{FromAccess, RequireArtifact};
 
 // modified
-use crate::{  INIT_WEIGHT, MODEL_SIZE };
+use crate::{  INIT_WEIGHT, MODEL_SIZE, model::Model };
 #[path="model.rs"]
-pub mod model;
-use model::Model;
 
 /// Database schema for the cryptocurrency.
 ///
@@ -45,11 +43,12 @@ pub(crate) struct SchemaImpl<T: Access> {
 
 /// Public part of the cryptocurrency schema.
 #[derive(Debug, FromAccess, RequireArtifact)]
-#[require_artifact(name = "exonum-cryptocurrency")]
+#[require_artifact(name = "exonum-ML")]
 pub struct Schema<T: Access> {
     /// Map of model keys to information about the corresponding account.
     // modified
-    pub models: MapIndex<T::Base, u32, Model>,
+    pub models: RawProofMapIndex<T::Base, Address, Model>,
+    pub latest_version_addr: Entry<T::Base, Address>,
 }
 
 impl<T: Access> SchemaImpl<T> {
@@ -68,24 +67,57 @@ where
     pub fn update_weights(&mut self, updates: Vec<Vec<f32>>){
         let mut latest_model : Model;
         let model_values = self.public.models.values();
+        
         if model_values.count() == 0 {
             let version: u32 = 0;
+            let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(version));
             latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize]);
-            self.public.models.put(&version, latest_model);
+            println!("Initial Model: {:?}", latest_model);  
+            self.public.models.put(&versionHash, latest_model);
+            self.public.latest_version_addr.set(versionHash);
         }
 
-        latest_model = self.public.models.values().last().unwrap();
+        /*
+        let model_values2 = self.public.models.values();
+        println!("Printing all models:");
+        for val in model_values2 {
+            println!("{:?}", val);
+        }
+        */
+
+        let versionHash = self.public.latest_version_addr.get().unwrap();
+        latest_model = self.public.models.get(&versionHash).unwrap();
+        println!("Latest Model: {:?}", (&latest_model)); 
 
         let mut new_model: Model = Model::new(
-            latest_model.version+1,
-            latest_model.size,
-            latest_model.weights.clone(),
+            (&latest_model).version+1,
+            (&latest_model).size,
+            (&latest_model).weights.clone(),
         );
         for i in 0..updates.len() as usize {
             new_model.aggregate(&updates[i]);
         }
 
         let new_version = new_model.version;
-        self.public.models.put(&new_version, new_model);
+        let new_versionHash = Address::from_key(SchemaUtils::pubKey_from_version(new_version));
+        println!("Created New Model: {:?}", new_model);   
+        self.public.models.put(&new_versionHash, new_model);
+        self.public.latest_version_addr.set(new_versionHash);
+    }
+
+
+}
+
+pub struct SchemaUtils {}
+
+impl SchemaUtils {
+    pub fn pubKey_from_version(version: u32) -> PublicKey {
+        let mut byte_array: [u8; 32] = [0 as u8; 32];
+        let _2b = version.to_be_bytes();
+        for i in 0..4 as usize {
+            byte_array[i] = _2b[i];
+        }
+
+        return PublicKey::new(byte_array);
     }
 }
