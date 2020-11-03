@@ -65,5 +65,5 @@ impl Service for MachineLearningService {
 /// Use predefined instance name and id for frontend.
 impl DefaultInstance for MachineLearningService {
     const INSTANCE_ID: InstanceId = 3;
-    const INSTANCE_NAME: &'static str = "crypto";
+    const INSTANCE_NAME: &'static str = "ml_service";
 }

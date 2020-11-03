@@ -116,10 +116,11 @@ impl PublicApi {
         query: ModelQuery,
     ) -> api::Result<Model>{
         let model_schema = SchemaImpl::new(state.service_data());
-        //let version_to_get = 7;
         let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(query.version));
         let latest_model = model_schema.public.models.get(&versionHash).unwrap();
-        Ok(latest_model)
+        let res = Some(latest_model);
+        res.ok_or_else(|| api::Error::not_found().title("No model with that version"))
+        
     }
 
     // pub async fn get_all_models(
