@@ -18,7 +18,7 @@ use exonum::{
     crypto::{Hash, PublicKey},
     merkledb::{
         access::{Access, FromAccess, RawAccessMut},
-        Group, ObjectHash, ProofListIndex, RawProofMapIndex, MapIndex,
+        Group, ObjectHash, ProofListIndex, RawProofMapIndex, Entry,
     },
     runtime::CallerAddress as Address,
 };
@@ -48,6 +48,7 @@ pub struct Schema<T: Access> {
     /// Map of model keys to information about the corresponding account.
     // modified
     pub models: RawProofMapIndex<T::Base, Address, Model>,
+    pub latest_version_addr: Entry<T::Base, Address>,
 }
 
 impl<T: Access> SchemaImpl<T> {
@@ -73,16 +74,18 @@ where
             latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize]);
             println!("Initial Model: {:?}", latest_model);  
             self.public.models.put(&versionHash, latest_model);
+            self.public.latest_version_addr.set(versionHash);
         }
 
+        /*
         let model_values2 = self.public.models.values();
-        let mut max_v = 0;
+        println!("Printing all models:");
         for val in model_values2 {
-            if (val.version >= max_v){
-                max_v = val.version;
-            }
+            println!("{:?}", val);
         }
-        let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(max_v));
+        */
+
+        let versionHash = self.public.latest_version_addr.get().unwrap();
         latest_model = self.public.models.get(&versionHash).unwrap();
         println!("Latest Model: {:?}", (&latest_model)); 
 
@@ -99,6 +102,7 @@ where
         let new_versionHash = Address::from_key(SchemaUtils::pubKey_from_version(new_version));
         println!("Created New Model: {:?}", new_model);   
         self.public.models.put(&new_versionHash, new_model);
+        self.public.latest_version_addr.set(new_versionHash);
     }
 
 
