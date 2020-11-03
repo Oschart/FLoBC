@@ -11,6 +11,38 @@ const SERVICE_ID = 3
 // Numeric ID of the `TxShareUpdates` transaction within the service
 const SHAREUPDATES_ID = 0
 
+//Default weights to be sent in a transaction
+const DEFAULT_WEIGHTS =  [0.4, 0.2, 0.3, 0.5, 0.6, 0.4, 0.2, 0.3, 0.5, 0.6];
+
+//Default weights length
+const WEIGHTS_LENGTH = 10;
+
+// Parsing CLI weights
+let model_weights;
+if (process.argv.length < 3){
+    model_weights = DEFAULT_WEIGHTS;
+}
+else {
+    let in_arr = process.argv[2].trim()
+    if (in_arr[0] != '[' || in_arr[in_arr.length-1] != ']') {
+        console.log("Syntax Error: Check the array syntax and use square brackets");
+        process.exit();
+    }
+    let weights = in_arr.slice(1, in_arr.length - 1).split(',')
+    if (weights.length != WEIGHTS_LENGTH){
+        console.log("We only support weights of length ", WEIGHTS_LENGTH);
+        process.exit();
+    }
+    for (let i = 0 ; i < WEIGHTS_LENGTH ; i++){
+        if (isNaN(weights[i])){
+            console.log("Error: ", weights[i], " is not a number");
+            process.exit();
+        }
+        weights[i] = parseFloat(weights[i]);
+    }
+    model_weights = weights;
+}
+
 const ShareUpdates = new exonum.Transaction({
    schema: proto.TxShareUpdates,
    serviceId: SERVICE_ID,
@@ -21,7 +53,7 @@ const ShareUpdates = new exonum.Transaction({
 const alice = exonum.keyPair()
 
 const shareUpdatesPayload = {
-  gradients: [0.4, 0.2, 0.3, 0.5, 0.6, 0.4, 0.2, 0.3, 0.5, 0.6],
+  gradients: model_weights,
   seed: exonum.randomUint64(),
 }
 
