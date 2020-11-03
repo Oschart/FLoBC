@@ -1,6 +1,6 @@
 
 
-node_count=4
+node_count=$(($1))
 start_peer_port=7091
 start_public_port=9000
 
