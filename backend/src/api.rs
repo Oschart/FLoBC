@@ -110,11 +110,35 @@ impl PublicApi {
             model_history,
         })
     }
+
+    pub async fn get_model(
+        state: ServiceApiState,
+        query: ModelQuery,
+    ) -> api::Result<Model>{
+        let model_schema = SchemaImpl::new(state.service_data());
+        //let version_to_get = 7;
+        let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(query.version));
+        let latest_model = model_schema.public.models.get(&versionHash).unwrap();
+        Ok(latest_model)
+    }
+
+    // pub async fn get_all_models(
+    //     state: ServiceApiState,
+    //     query: ()
+    // ) -> api::Result<Model>{
+    //     let model_schema = SchemaImpl::new(state.service_data());
+    //     let version_to_get = 7;
+    //     let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(version_to_get));
+    //     let latest_model = model_schema.public.models.get(&versionHash).unwrap();
+    //     Ok(latest_model)
+    // }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
         builder
             .public_scope()
-            .endpoint("v1/models/info", Self::model_info);
+            .endpoint("v1/models/info", Self::model_info)
+            .endpoint("v1/models/getmodel", Self::get_model);
+            //.endpoint("v1/models/getmodels", Self::get_all_models);
     }
 }
