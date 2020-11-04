@@ -1,20 +1,24 @@
 start_peer_port=7091
 start_public_port=9000
 
-while getopts "n:c" arg; do
+while getopts "n:c:s" arg; do
     case $arg in
     n) node_count=$(($OPTARG)) ;;
     c) rm -r example ;;
+    s) build=0
     esac
 done
 
 echo "node count = $node_count"
 
-cargo install --path .
-ret=$?
-if [ "$ret" != "0" ]; then
-    exit 1
+if build; then
+    cargo install --path .
+    ret=$?
+    if [ "$ret" != "0" ]; then
+        exit 1
+    fi
 fi
+
 
 if [ -d ./example ]; then
     echo "example dir exists"
