@@ -1,17 +1,20 @@
 start_peer_port=7091
 start_public_port=9000
 
-while getopts "n:c:s" arg; do
+build=0
+while getopts "n:cb" arg; do
     case $arg in
     n) node_count=$(($OPTARG)) ;;
     c) rm -r example ;;
-    s) build=0
+    b) build=1 ;;
     esac
 done
 
 echo "node count = $node_count"
 
-if build; then
+echo "build = $build"
+
+if [ "$build" -eq "1" ]; then
     cargo install --path .
     ret=$?
     if [ "$ret" != "0" ]; then
