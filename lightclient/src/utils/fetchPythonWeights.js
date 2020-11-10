@@ -1,11 +1,15 @@
 import parsePythonList from './parsePythonList';
 
-const DATASET_PATH = 'data.csv';
+const MODELS_DIR_PATH = './models/';
+const MODEL_NAME = 'test_model';
 
 let runPy = new Promise(function(success, nosuccess) {
 
     const { spawn } = require('child_process');
-    const pyprog = spawn('python', ['./script.py', DATASET_PATH]);
+    const pyprog = spawn('python', [
+        MODELS_DIR_PATH + MODEL_NAME + '/training_script.py',
+        MODELS_DIR_PATH + MODEL_NAME + '/data.csv'
+    ]);
 
     pyprog.stdout.on('data', function(data) {
         success(data);

@@ -8,4 +8,8 @@ df = pd.read_csv(sys.argv[1])
 if len(df) == 0:
     raise Exception('Empty dataset')
 
-print(df.iloc[0].to_numpy())
+# TODO: training and all
+update_vector = df.iloc[0].to_numpy()
+
+# returning the array
+print(update_vector)
