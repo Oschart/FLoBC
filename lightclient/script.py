@@ -1,10 +1,11 @@
 import sys
-import numpy as np
+import pandas as pd
 
-N = 10
+if len(sys.argv) < 2:
+    raise Exception('No dataset path found')
 
-if len(sys.argv) > 1:
-    temp = int(sys.argv[1])
-    N = temp
+df = pd.read_csv(sys.argv[1])
+if len(df) == 0:
+    raise Exception('Empty dataset')
 
-print(np.random.rand(N))
+print(df.iloc[0].to_numpy())
