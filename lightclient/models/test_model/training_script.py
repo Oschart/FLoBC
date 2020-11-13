@@ -1,5 +1,17 @@
 import sys
 import pandas as pd
+import numpy as np
+
+# Formatted print back to node
+def send_to_node(update_vector):
+    if len(update_vector) == 0:
+        print("[]")
+    else:
+        print("[", end='')
+        for i in range(len(update_vector) - 1):
+            print(update_vector[i], end=',')
+        print(update_vector[-1], end='')
+        print("]")
 
 if len(sys.argv) < 2:
     raise Exception('No dataset path found')
@@ -12,4 +24,4 @@ if len(df) == 0:
 update_vector = df.iloc[0].to_numpy()
 
 # returning the array
-print(update_vector)
+send_to_node(update_vector)

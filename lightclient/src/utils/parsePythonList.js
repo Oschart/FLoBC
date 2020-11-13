@@ -7,7 +7,7 @@ export default function parsePythonList(list){
         console.log("Syntax Error: Python returned a faulty array");
         process.exit();
     }
-    let weights = in_arr.slice(1, in_arr.length - 1).split(' ').filter((el) => el != "")
+    let weights = in_arr.slice(1, in_arr.length - 1).split(',').filter((el) => el != "")
     if (weights.length != WEIGHTS_LENGTH){
         console.log("We only support weights of length ", WEIGHTS_LENGTH);
         process.exit();
