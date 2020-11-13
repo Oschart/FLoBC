@@ -1,5 +1,5 @@
 //Default weights length
-const WEIGHTS_LENGTH = 10;
+const WEIGHTS_LENGTH = 607394;
 
 export default function parsePythonList(list){
     let in_arr = list.trim().replace(/(\r\n|\n|\r)/gm, "");
