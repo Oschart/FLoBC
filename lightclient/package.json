@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "exonum-client": "^0.18.3",
-    "pbjs": "0.0.14"
+    "pbjs": "0.0.14",
+    "python-shell": "^2.0.2"
   }
 }

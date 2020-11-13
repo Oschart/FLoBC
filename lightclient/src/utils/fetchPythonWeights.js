@@ -5,17 +5,18 @@ const MODEL_NAME = 'test_model';
 
 let runPy = new Promise(function(success, nosuccess) {
 
-    const { spawn } = require('child_process');
-    const pyprog = spawn('python', [
-        MODELS_DIR_PATH + MODEL_NAME + '/training_script.py',
-        MODELS_DIR_PATH + MODEL_NAME + '/data.csv'
-    ]);
+    const { PythonShell } = require('python-shell');
 
-    pyprog.stdout.on('data', function(data) {
-        success(data);
-    });
-    pyprog.stderr.on('data', function(data) {
-        nosuccess(data);
+    const options = {
+        mode: 'text',
+        scriptPath: MODELS_DIR_PATH + MODEL_NAME,
+        args: [MODELS_DIR_PATH + MODEL_NAME + '/data.csv']
+    };
+
+    PythonShell.run('training_script.py', options, function (err, results) {
+        if (err) throw err;
+        // results is an array consisting of messages collected during execution
+        success(results);
     });
 });
 
@@ -23,7 +24,6 @@ let runPy = new Promise(function(success, nosuccess) {
 //onFailure prints the python error and terminates by default
 export default function fetchPythonWeights(onSuccess){
     runPy
-    .catch((res) => { console.log("PythonError: ", res.toString()); process.exit() })
     .then((res) => {
         let model_weights = parsePythonList(res.toString());
         onSuccess(model_weights);
