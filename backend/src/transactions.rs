@@ -22,6 +22,13 @@ pub struct ShareUpdates {
 }
 
 
+/// Error codes emitted by model transactions during execution.
+#[derive(Debug, ExecutionFail)]
+pub enum Error {
+    /// Model fails passing score
+    BadModel = 0,
+}
+
 /// Cryptocurrency service transactions.
 #[exonum_interface]
 pub trait MachineLearningInterface<Ctx> {
