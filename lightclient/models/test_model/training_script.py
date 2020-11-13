@@ -7,13 +7,13 @@ import tensorflow as tf
 # Formatted print back to node
 def send_to_node(update_vector):
     if len(update_vector) == 0:
-        print("[]")
+        print("VECTOR[]ENDVECTOR")
     else:
-        print("[", end='')
+        print("VECTOR[", end='')
         for i in range(len(update_vector) - 1):
             print(update_vector[i], end=',')
         print(update_vector[-1], end='')
-        print("]")
+        print("]ENDVECTOR")
 
 if len(sys.argv) < 2:
     raise Exception('No dataset path found')

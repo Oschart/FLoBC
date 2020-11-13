@@ -3,6 +3,10 @@ const WEIGHTS_LENGTH = 607394;
 
 export default function parsePythonList(list){
     let in_arr = list.trim().replace(/(\r\n|\n|\r)/gm, "");
+    let st = in_arr.search("VECTOR");
+    let end = in_arr.search("ENDVECTOR");
+    in_arr = in_arr.substring(st + 6, end);
+
     if (in_arr[0] != '[' || in_arr[in_arr.length-1] != ']') {
         console.log("Syntax Error: Python returned a faulty array");
         process.exit();
