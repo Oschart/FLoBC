@@ -27,7 +27,7 @@ serde_json = "1.0"
 
 [patch.crates-io]
 exonum-node = { path = "./patches/exonum-node" }
-
+exonum-api = { path = "./patches/exonum-api"}
 
 [dependencies.tokio]
 version = "0.2.22"
