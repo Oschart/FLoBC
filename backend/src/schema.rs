@@ -18,7 +18,7 @@ use exonum::{
     crypto::{Hash, PublicKey},
     merkledb::{
         access::{Access, FromAccess, RawAccessMut},
-        Group, ObjectHash, ProofListIndex, RawProofMapIndex, Entry,
+        Group, ProofListIndex, RawProofMapIndex, Entry,
     },
     runtime::CallerAddress as Address,
 };
@@ -70,11 +70,11 @@ where
         
         if model_values.count() == 0 {
             let version: u32 = 0;
-            let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(version));
+            let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(version));
             latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize]);
             println!("Initial Model: {:?}", latest_model);  
-            self.public.models.put(&versionHash, latest_model);
-            self.public.latest_version_addr.set(versionHash);
+            self.public.models.put(&version_hash, latest_model);
+            self.public.latest_version_addr.set(version_hash);
         }
 
         /*
@@ -85,8 +85,8 @@ where
         }
         */
 
-        let versionHash = self.public.latest_version_addr.get().unwrap();
-        latest_model = self.public.models.get(&versionHash).unwrap();
+        let version_hash = self.public.latest_version_addr.get().unwrap();
+        latest_model = self.public.models.get(&version_hash).unwrap();
         println!("Latest Model: {:?}", (&latest_model)); 
 
         let mut new_model: Model = Model::new(
@@ -99,19 +99,21 @@ where
         }
 
         let new_version = new_model.version;
-        let new_versionHash = Address::from_key(SchemaUtils::pubKey_from_version(new_version));
+        let new_version_hash = Address::from_key(SchemaUtils::pubkey_from_version(new_version));
         println!("Created New Model: {:?}", new_model);   
-        self.public.models.put(&new_versionHash, new_model);
-        self.public.latest_version_addr.set(new_versionHash);
+        self.public.models.put(&new_version_hash, new_model);
+        self.public.latest_version_addr.set(new_version_hash);
     }
 
 
 }
 
+/// Schema Helpers
+#[derive(Debug)]
 pub struct SchemaUtils {}
 
 impl SchemaUtils {
-    pub fn pubKey_from_version(version: u32) -> PublicKey {
+    pub fn pubkey_from_version(version: u32) -> PublicKey {
         let mut byte_array: [u8; 32] = [0 as u8; 32];
         let _2b = version.to_be_bytes();
         for i in 0..4 as usize {
