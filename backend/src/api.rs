@@ -78,7 +78,7 @@ impl PublicApi {
         } = state.data().proof_for_service_index("models").unwrap();
 
         let model_schema = SchemaImpl::new(state.service_data());
-        let address = Address::from_key(SchemaUtils::pubKey_from_version(query.version));
+        let address = Address::from_key(SchemaUtils::pubkey_from_version(query.version));
         let to_model = model_schema.public.models.get_proof(address);
         let model_proof = ModelProof {
             to_table: index_proof,
@@ -116,7 +116,7 @@ impl PublicApi {
         query: ModelQuery,
     ) -> api::Result<Model>{
         let model_schema = SchemaImpl::new(state.service_data());
-        let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(query.version));
+        let versionHash = Address::from_key(SchemaUtils::pubkey_from_version(query.version));
         let latest_model = model_schema.public.models.get(&versionHash).unwrap();
         let res = Some(latest_model);
         res.ok_or_else(|| api::Error::not_found().title("No model with that version"))
@@ -129,7 +129,7 @@ impl PublicApi {
     // ) -> api::Result<Model>{
     //     let model_schema = SchemaImpl::new(state.service_data());
     //     let version_to_get = 7;
-    //     let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(version_to_get));
+    //     let versionHash = Address::from_key(SchemaUtils::pubkey_from_version(version_to_get));
     //     let latest_model = model_schema.public.models.get(&versionHash).unwrap();
     //     Ok(latest_model)
     // }
