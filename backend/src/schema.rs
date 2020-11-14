@@ -48,6 +48,7 @@ pub struct Schema<T: Access> {
     /// Map of model keys to information about the corresponding account.
     // modified
     pub models: RawProofMapIndex<T::Base, Address, Model>,
+    /// Lastest model Addr
     pub latest_version_addr: Entry<T::Base, Address>,
 }
 
@@ -113,6 +114,7 @@ where
 pub struct SchemaUtils {}
 
 impl SchemaUtils {
+    /// Transform version number into public key
     pub fn pubkey_from_version(version: u32) -> PublicKey {
         let mut byte_array: [u8; 32] = [0 as u8; 32];
         let _2b = version.to_be_bytes();

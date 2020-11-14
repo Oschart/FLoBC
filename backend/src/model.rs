@@ -10,8 +10,11 @@ use crate::proto;
 #[derive(Clone, Debug, ProtobufConvert, BinaryValue, ObjectHash)]
 #[protobuf_convert(source = "proto::Model", serde_pb_convert)]
 pub struct Model {
+    /// Model version
     pub version: u32,
+    /// Model size
     pub size: u32,
+    /// Model weights
     pub weights: Vec<f32>,
 }
 
@@ -29,6 +32,7 @@ impl Model {
         }
     }
 
+    /// Aggregate model updates
     pub fn aggregate(&mut self, gradients: &Vec<f32>) {
         for i in 0..self.size as usize {
             self.weights[i] += gradients[i]
