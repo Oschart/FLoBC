@@ -1,9 +1,11 @@
 
 #In[1]
 import sys
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-#ln[3]
+import tensorflow as tf
+
 # Formatted print back to node
 def send_to_node(update_vector):
     if len(update_vector) == 0:
@@ -18,43 +20,53 @@ def send_to_node(update_vector):
 if len(sys.argv) < 2:
     raise Exception('No dataset path found')
 
-dataset = pd.read_csv(sys.argv[1])
-if len(dataset) == 0:
+data_train = pd.read_csv(sys.argv[1])
+if len(data_train) == 0:
     raise Exception('Empty dataset')
+
+#In[2]
+# data_train = pd.read_csv("resized_train.csv")
+label_train = data_train.iloc[:, 0]
+label_train = label_train.to_numpy()
+data_train = data_train.drop(data_train.columns[0], axis = 1)
+data_train = data_train.values.reshape(data_train.shape[0], 20, 20)
+
+#In[4]
+# Reshaping the array to 4-dims so that it can work with the Keras API
+data_train = data_train.reshape(data_train.shape[0], 20, 20, 1)
+input_shape = (20, 20, 1)
+# Making sure that the values are float so that we can get decimal points after division
+data_train = data_train.astype('float32')
+# Normalizing the RGB codes by dividing it to the max RGB value.
+data_train /= 255
+
+#In[5]
+model = tf.keras.models.Sequential([
+  tf.keras.layers.Flatten(input_shape=(20, 20)),
+  # tf.keras.layers.Dense(10, activation='relu'),
+  # tf.keras.layers.Dropout(0.2),
+  tf.keras.layers.Dense(10)
+])
+
 # %%
-# first neural network with keras tutorial
-from numpy import loadtxt
-from keras.models import Sequential
-from keras.layers import Dense
-# load the dataset
-# split into input (X) and output (y) variables
-X = dataset.iloc[:,0:8]
-y = dataset.iloc[:,8]
-# define the keras model
-model = Sequential()
-model.add(Dense(12, input_dim=8, activation='relu'))
-model.add(Dense(8, activation='relu'))
-model.add(Dense(1, activation='sigmoid'))
-# compile the keras model
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-# fit the keras model on the dataset
-model.fit(X, y, epochs=150, batch_size=10)
-# evaluate the keras model
-_, accuracy = model.evaluate(X, y)
-print('Accuracy: %.2f' % (accuracy*100))
+predictions = model(data_train[:1]).numpy()
+tf.nn.softmax(predictions).numpy()
+
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 # %%
-print(model.summary())
+model.compile(optimizer='adam',
+              loss=loss_fn,
+              metrics=['accuracy'])
 # %%
+model.fit(data_train, label_train, epochs=20, verbose = 0)
 
 # %%
 arr = np.array(model.get_weights())
 
 for i in range (0, len(arr)):
-    arr[i] = arr[i].flatten()
+        arr[i] = arr[i].flatten()
 
 arr = np.concatenate(arr)
 list = arr.tolist()
-list = list[0:4061]
-# print(list)
 send_to_node(list)
 # %%

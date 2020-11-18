@@ -37,7 +37,7 @@ use crate::{api::PublicApi as MLApi, schema::SchemaImpl};
 
 /// Initial balance of the model.
 pub const INIT_WEIGHT : f32 = 0.0;
-pub const MODEL_SIZE : u32 = 221;
+pub const MODEL_SIZE : u32 = 4010;
 
 /// Cryptocurrency service implementation.
 #[derive(Debug, ServiceDispatcher, ServiceFactory)]
