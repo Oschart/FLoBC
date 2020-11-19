@@ -1,44 +1,38 @@
 
 #In[1]
-import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-# Formatted print back to node
-def send_to_node(update_vector):
-    if len(update_vector) == 0:
-        print("VECTOR[]ENDVECTOR")
-    else:
-        print("VECTOR[", end='')
-        for i in range(len(update_vector) - 1):
-            print(update_vector[i], end=',')
-        print(update_vector[-1], end='')
-        print("]ENDVECTOR")
-
-if len(sys.argv) < 2:
-    raise Exception('No dataset path found')
-
-data_train = pd.read_csv(sys.argv[1])
-if len(data_train) == 0:
-    raise Exception('Empty dataset')
-
 #In[2]
-# data_train = pd.read_csv("resized_train.csv")
+data_train = pd.read_csv("resized_train.csv")
 label_train = data_train.iloc[:, 0]
 label_train = label_train.to_numpy()
 data_train = data_train.drop(data_train.columns[0], axis = 1)
 data_train = data_train.values.reshape(data_train.shape[0], 20, 20)
 
+#In[3]
+data_test = pd.read_csv("resized_test.csv")
+label_test = data_test.iloc[:, 0]
+label_test = label_test.to_numpy()
+data_test = data_test.drop(data_test.columns[0], axis = 1)
+data_test = data_test.values.reshape(data_test.shape[0], 20, 20)
+
 #In[4]
 # Reshaping the array to 4-dims so that it can work with the Keras API
 data_train = data_train.reshape(data_train.shape[0], 20, 20, 1)
+data_test = data_test.reshape(data_test.shape[0], 20, 20, 1)
 input_shape = (20, 20, 1)
 # Making sure that the values are float so that we can get decimal points after division
 data_train = data_train.astype('float32')
+data_test = data_test.astype('float32')
 # Normalizing the RGB codes by dividing it to the max RGB value.
 data_train /= 255
+data_test /= 255
+print('x_train shape:', data_train.shape)
+print('Number of images in x_train', data_train.shape[0])
+print('Number of images in x_test', data_test.shape[0])
 
 #In[5]
 model = tf.keras.models.Sequential([
@@ -58,8 +52,13 @@ model.compile(optimizer='adam',
               loss=loss_fn,
               metrics=['accuracy'])
 # %%
-model.fit(data_train, label_train, epochs=20, verbose = 0)
+model.fit(data_train, label_train, epochs=20)
 
+# %%
+model.evaluate(data_test,  label_test, verbose=2)
+
+# %%
+model.summary()
 # %%
 arr = np.array(model.get_weights())
 
@@ -68,5 +67,6 @@ for i in range (0, len(arr)):
 
 arr = np.concatenate(arr)
 list = arr.tolist()
-send_to_node(list)
+print(list)
+print(len(list))
 # %%
