@@ -48,12 +48,11 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         let (from, tx_hash) = extract_info(&context)?;
         let mut schema = SchemaImpl::new(context.service_data());
 
-        schema.register_trainer(from);
+        schema.register_trainer(&from);
         // Some logic and an if statement either storing or updating TODO
 
         //Updating the most recent model using schema TODO
-        let updates : Vec<Vec<f32>> = vec![arg.gradients];
-        schema.update_weights(updates);
+        schema.update_weights(&from, arg.gradients);
 
         Ok(())
 

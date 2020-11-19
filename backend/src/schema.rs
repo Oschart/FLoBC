@@ -27,7 +27,7 @@ use exonum_derive::{FromAccess, RequireArtifact};
 use crate::{model::Model, INIT_WEIGHT, LAMBDA, MODEL_SIZE};
 #[path = "model.rs"]
 
-const DEBUG: bool = false;
+const DEBUG: bool = true;
 
 /// Database schema for the cryptocurrency.
 ///
@@ -67,14 +67,14 @@ where
     T::Base: RawAccessMut,
 {
     // Register a trainer's identity
-    pub fn register_trainer(&mut self, trainer_addr: Address) {
+    pub fn register_trainer(&mut self, trainer_addr: &Address) {
         println!("Registering {:?}...", trainer_addr);
         let num_of_trainers = (self.trainers_scores.values().count() + 1) as f64;
         let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
         // Insert new score only if trainer wasn't registered
-        if self.trainers_scores.contains(&trainer_addr) == false {
+        if self.trainers_scores.contains(trainer_addr) == false {
             self.trainers_scores
-                .put(&trainer_addr, starter_score.to_string());
+                .put(trainer_addr, starter_score.to_string());
         }
         if DEBUG {
             println!("Printing trainer addr / scores:");
@@ -83,8 +83,9 @@ where
             }
         }
     }
+
     // modified
-    pub fn update_weights(&mut self, updates: Vec<Vec<f32>>) {
+    pub fn update_weights(&mut self, trainer_addr: &Address, updates: Vec<f32>) {
         let mut latest_model: Model;
         let model_values = self.public.models.values();
         if model_values.count() == 0 {
@@ -96,14 +97,6 @@ where
             self.public.latest_version_addr.set(version_hash);
         }
 
-        /*
-        let model_values2 = self.public.models.values();
-        println!("Printing all models:");
-        for val in model_values2 {
-            println!("{:?}", val);
-        }
-        */
-
         let version_hash = self.public.latest_version_addr.get().unwrap();
         latest_model = self.public.models.get(&version_hash).unwrap();
         println!("Latest Model: {:?}", (&latest_model));
@@ -113,9 +106,10 @@ where
             (&latest_model).size,
             (&latest_model).weights.clone(),
         );
-        for i in 0..updates.len() as usize {
-            new_model.aggregate(&updates[i]);
-        }
+
+        let trainer_score = self.trainers_scores.get(trainer_addr).unwrap();
+        let tw_f32 = trainer_score.parse::<f32>().unwrap();
+        new_model.aggregate(&updates, tw_f32);
 
         let new_version = new_model.version;
         let new_version_hash = Address::from_key(SchemaUtils::pubkey_from_version(new_version));
