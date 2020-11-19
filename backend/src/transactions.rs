@@ -48,8 +48,7 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         let (from, tx_hash) = extract_info(&context)?;
         let mut schema = SchemaImpl::new(context.service_data());
 
-        //Logic for testing the update TODO
-
+        schema.register_trainer(from);
         // Some logic and an if statement either storing or updating TODO
 
         //Updating the most recent model using schema TODO

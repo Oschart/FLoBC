@@ -13,19 +13,19 @@
 // limitations under the License.
 
 //! Cryptocurrency database schema.
-
+use std::collections::HashMap;
 use exonum::{
     crypto::{Hash, PublicKey},
     merkledb::{
         access::{Access, FromAccess, RawAccessMut},
-        Group, ProofListIndex, RawProofMapIndex, Entry,
+        Group, ProofListIndex, RawProofMapIndex, Entry, MapIndex
     },
     runtime::CallerAddress as Address,
 };
 use exonum_derive::{FromAccess, RequireArtifact};
 
 // modified
-use crate::{  INIT_WEIGHT, MODEL_SIZE, model::Model };
+use crate::{  INIT_WEIGHT, MODEL_SIZE, LAMBDA, model::Model };
 #[path="model.rs"]
 
 /// Database schema for the cryptocurrency.
@@ -39,6 +39,8 @@ pub(crate) struct SchemaImpl<T: Access> {
     /// History for specific wallets.
     // modified
     pub model_history: Group<T, u32, ProofListIndex<T::Base, Hash>>,
+    /// Trainer scores mapped by their addresses
+    pub trainers_scores: HashMap<Address, f64>,
 }
 
 /// Public part of the cryptocurrency schema.
@@ -64,6 +66,19 @@ where
     T: Access,
     T::Base: RawAccessMut,
 {
+
+    // Register a trainer's identity
+    pub fn register_trainer(&mut self, trainer_addr: Address){
+        let num_of_trainers = self.trainers_scores.len() as f64;
+        let starter_score: f64 = 1.0/(LAMBDA*num_of_trainers); 
+        // Insert new score only if trainer wasn't registered
+        self.trainers_scores.entry(trainer_addr).or_insert(starter_score);
+
+        println!("Printing trainer addr / scores");
+        for (addr, score) in &self.trainers_scores {
+            println!("{:?} / {}", addr, score);
+        }
+    }
     // modified
     pub fn update_weights(&mut self, updates: Vec<Vec<f32>>){
         let mut latest_model : Model;

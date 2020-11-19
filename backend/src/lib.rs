@@ -35,9 +35,12 @@ use exonum_rust_runtime::{api::ServiceApiBuilder, DefaultInstance, Service};
 
 use crate::{api::PublicApi as MLApi, schema::SchemaImpl};
 
-/// Initial balance of the model.
+/// Initial weights of the model.
 pub const INIT_WEIGHT : f32 = 0.0;
+/// Model size
 pub const MODEL_SIZE : u32 = 4010;
+/// Regularization factor
+pub const LAMBDA: f64 = 4.0;
 
 /// Cryptocurrency service implementation.
 #[derive(Debug, ServiceDispatcher, ServiceFactory)]
