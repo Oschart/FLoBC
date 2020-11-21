@@ -116,7 +116,7 @@ impl PublicApi {
         query: ModelQuery,
     ) -> api::Result<Model>{
         let model_schema = SchemaImpl::new(state.service_data());
-        let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(query.version));
+        let versionHash = Address::from_key(SchemaUtils::pubkey_from_version(query.version));
         let model = model_schema.public.models.get(&versionHash).unwrap();
         let res = Some(model);
         res.ok_or_else(|| api::Error::not_found().title("No model with that version"))
