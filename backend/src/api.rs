@@ -117,29 +117,29 @@ impl PublicApi {
     ) -> api::Result<Model>{
         let model_schema = SchemaImpl::new(state.service_data());
         let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(query.version));
-        let latest_model = model_schema.public.models.get(&versionHash).unwrap();
-        let res = Some(latest_model);
+        let model = model_schema.public.models.get(&versionHash).unwrap();
+        let res = Some(model);
         res.ok_or_else(|| api::Error::not_found().title("No model with that version"))
         
     }
 
-    // pub async fn get_all_models(
-    //     state: ServiceApiState,
-    //     query: ()
-    // ) -> api::Result<Model>{
-    //     let model_schema = SchemaImpl::new(state.service_data());
-    //     let version_to_get = 7;
-    //     let versionHash = Address::from_key(SchemaUtils::pubKey_from_version(version_to_get));
-    //     let latest_model = model_schema.public.models.get(&versionHash).unwrap();
-    //     Ok(latest_model)
-    // }
+    //returns -1 in case of the absence of models
+    pub async fn latest_model(
+        state: ServiceApiState,
+        query: (),
+    ) -> api::Result<i32>{
+        let model_schema = SchemaImpl::new(state.service_data());
+        let versionsNum = model_schema.public.models.keys().count() as i32;
+        let latest = versionsNum - 1;
+        Ok(latest)
+    }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
         builder
             .public_scope()
             .endpoint("v1/models/info", Self::model_info)
-            .endpoint("v1/models/getmodel", Self::get_model);
-            //.endpoint("v1/models/getmodels", Self::get_all_models);
+            .endpoint("v1/models/getmodel", Self::get_model)
+            .endpoint("v1/models/latestmodel", Self::latest_model);
     }
 }
