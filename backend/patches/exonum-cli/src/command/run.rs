@@ -44,6 +44,8 @@ pub struct NodeRunConfig {
     pub db_path: PathBuf,
     /// User-provided path to the node configuration file.
     pub node_config_path: PathBuf,
+    /// Path to validation dataset
+    pub validation_path: PathBuf,
 }
 
 /// Run the node with provided node config.
@@ -56,6 +58,9 @@ pub struct Run {
     /// Path to a database directory.
     #[structopt(long, short = "d")]
     pub db_path: PathBuf,
+    /// Path to validation dataset
+    #[structopt(long, short = "d")]
+    pub validation_path: PathBuf,
     /// Listen address for node public API.
     ///
     /// Public API is used mainly for sending API requests to user services.
@@ -107,6 +112,7 @@ impl ExonumCommand for Run {
             node_keys,
             db_path: self.db_path,
             node_config_path: self.node_config,
+            validation_path: self.validation_path,
         };
 
         Ok(StandardResult::Run(Box::new(run_config)))

@@ -979,6 +979,7 @@ pub struct Node {
     api_manager_config: ApiManagerConfig,
     api_options: NodeApiConfig,
     network_config: NetworkConfiguration,
+    validation_path: String,
     handler: NodeHandler,
     channel: NodeChannel,
     max_message_len: u32,
@@ -1037,6 +1038,7 @@ pub struct NodeBuilder {
     block_proposer: Box<dyn ProposeBlock>,
     plugins: Vec<Box<dyn NodePlugin>>,
     disable_signals: bool,
+    validation_path: String,
 }
 
 impl fmt::Debug for NodeBuilder {
@@ -1056,6 +1058,7 @@ impl NodeBuilder {
         database: impl Into<Arc<dyn Database>>,
         node_config: NodeConfig,
         node_keys: Keys,
+        validation_path: String,
     ) -> Self {
         node_config
             .validate()
@@ -1074,6 +1077,7 @@ impl NodeBuilder {
             plugins: vec![],
             block_proposer: Box::new(StandardProposer),
             disable_signals: false,
+            validation_path,
         }
     }
 
@@ -1153,6 +1157,7 @@ impl NodeBuilder {
             self.config_manager,
             self.plugins,
             self.block_proposer,
+            self.validation_path,
         );
         node.disable_signals = self.disable_signals;
         node
@@ -1169,6 +1174,7 @@ impl Node {
         config_manager: Option<Box<dyn ConfigManager>>,
         plugins: Vec<Box<dyn NodePlugin>>,
         block_proposer: Box<dyn ProposeBlock>,
+        validation_path: String,
     ) -> Self {
         crypto::init();
 
@@ -1234,6 +1240,7 @@ impl Node {
             thread_pool_size: node_cfg.thread_pool_size,
             api_manager_config: api_runtime_config,
             disable_signals: false,
+            validation_path,
         }
     }
 
@@ -1265,6 +1272,7 @@ impl Node {
     pub async fn run(self) -> anyhow::Result<()> {
         trace!("Running node.");
 
+        println!("Node launched with valiadtion dataset path of {}", self.validation_path);
         // Runs NodeHandler.
         let handshake_params = HandshakeParams::new(
             &self.state().keys().consensus,
