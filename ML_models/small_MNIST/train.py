@@ -28,6 +28,7 @@ def read_input(index):
         raise Exception('No dataset path found')
 
     df = pd.read_csv(sys.argv[index])
+    # df = pd.read_csv("resized_train.csv")
     if len(df) == 0:
         raise Exception('Empty dataset')
     return df
@@ -38,6 +39,7 @@ def read_input(index):
 ################################
 def reshapeData(index):
   df = read_input(index)
+  df = df.sample(int(0.5*len(data_train)))
   label = df.iloc[:, 0]
   label = label.to_numpy()
   df = df.drop(df.columns[0], axis = 1)
@@ -66,12 +68,7 @@ def createModel():
 
 # %%
 def trainModel(model, data_train, label_train):
-  model.fit(data_train, label_train, epochs=20)
-  return model
-
-# %%
-def evaluateModel(model, data_test, label_test):
-  model.evaluate(data_test,  label_test, verbose=2)
+  model.fit(data_train, label_train, epochs=10, verbose=0)
   return model
 
 # %%
@@ -101,34 +98,22 @@ def rebuildModel(list):
         new_model.layers[i].set_weights(weights)
   return new_model
 # %%
-################################
-# Training, validation, flattening and rebuilding
-################################
 
 ################################
 # 1) Training
 ################################
 data_train, label_train = reshapeData(1)
+print(len(data_train))
+print(len(label_train))
 list = [0] * 4010
 model = rebuildModel(list)
 model = trainModel(model, data_train, label_train)
 
 ################################
-# 2) Validation
-################################
-data_test, label_test = reshapeData(2)
-model = evaluateModel(model, data_test, label_test)
-
-################################
-# 3) Flattening
+# 2) Flattening
 ################################
 list = flattenWeights(model)
 send_to_node(list)
-
-################################
-# 4) Rebuilding
-################################
-new_model = rebuildModel(list)
-new_model = evaluateModel(new_model, data_test, label_test)
-
+# import validate
+# validate.validate(list)
 # %%

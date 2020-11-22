@@ -28,6 +28,7 @@ def read_input(index):
         raise Exception('No dataset path found')
 
     df = pd.read_csv(sys.argv[index])
+    # df = pd.read_csv("resized_test.csv")
     if len(df) == 0:
         raise Exception('Empty dataset')
     return df
@@ -65,14 +66,12 @@ def createModel():
   return model
 
 # %%
-def trainModel(model, data_train, label_train):
-  model.fit(data_train, label_train, epochs=20)
-  return model
-
-# %%
 def evaluateModel(model, data_test, label_test):
-  model.evaluate(data_test,  label_test, verbose=2)
-  return model
+  results = model.evaluate(data_test, label_test, verbose=2)
+  if(results[1] > 0.7):
+    return True
+  else:
+    return False
 
 # %%
 def flattenWeights(model):
@@ -101,34 +100,14 @@ def rebuildModel(list):
         new_model.layers[i].set_weights(weights)
   return new_model
 # %%
-################################
-# Training, validation, flattening and rebuilding
-################################
 
 ################################
-# 1) Training
+# Validation
 ################################
-data_train, label_train = reshapeData(1)
-list = [0] * 4010
-model = rebuildModel(list)
-model = trainModel(model, data_train, label_train)
-
-################################
-# 2) Validation
-################################
-data_test, label_test = reshapeData(2)
-model = evaluateModel(model, data_test, label_test)
-
-################################
-# 3) Flattening
-################################
-list = flattenWeights(model)
-send_to_node(list)
-
-################################
-# 4) Rebuilding
-################################
-new_model = rebuildModel(list)
-new_model = evaluateModel(new_model, data_test, label_test)
-
+def validate(list):
+  data_test, label_test = reshapeData(1)
+  # list = [0.5] * 4010
+  model = rebuildModel(list)
+  result = evaluateModel(model, data_test, label_test)
+  print(result)
 # %%
