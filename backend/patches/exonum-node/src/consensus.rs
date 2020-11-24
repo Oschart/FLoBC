@@ -26,7 +26,7 @@ use exonum::{
 };
 use log::{error, info, trace, warn};
 
-use std::{collections::HashSet, convert::TryFrom, fmt};
+use std::{collections::HashSet, convert::TryFrom, fmt, process::Command};
 
 use crate::{
     events::InternalRequest,
@@ -813,6 +813,10 @@ impl NodeHandler {
 
         let outcome;
         println!("Inside handle_tx: the validation path is {}", self.validation_path);
+        let output = Command::new("python")
+            .arg("../".to_string() + &self.validation_path)
+            .output().expect("failed to execute process");
+        println!("Testing command: {}", String::from_utf8_lossy(&output.stdout));
         if let Err(e) = Blockchain::check_tx(&snapshot, &msg) {
             // Store transaction as invalid to know it if it'll be included into a proposal.
             // Please note that it **must** happen before calling `check_incomplete_proposes`,
