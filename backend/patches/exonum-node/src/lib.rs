@@ -206,6 +206,8 @@ pub(crate) struct NodeHandler {
     allow_expedited_propose: bool,
     /// Block proposer.
     block_proposer: Box<dyn ProposeBlock>,
+    /// Path to validation script
+    validation_path: String,
 }
 
 /// HTTP API configuration options.
@@ -529,6 +531,7 @@ impl NodeHandler {
         api_state: SharedNodeState,
         config_manager: Option<Box<dyn ConfigManager>>,
         block_proposer: Box<dyn ProposeBlock>,
+        validation_path: String,
     ) -> Self {
         let snapshot = blockchain.snapshot();
         let schema = Schema::new(&snapshot);
@@ -576,6 +579,7 @@ impl NodeHandler {
             config_manager,
             allow_expedited_propose: true,
             block_proposer,
+            validation_path,
         }
     }
 
@@ -1228,6 +1232,7 @@ impl Node {
             api_state,
             config_manager,
             block_proposer,
+            validation_path.clone(),
         );
         handler.plugins = plugins;
 
