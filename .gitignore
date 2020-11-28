@@ -2,6 +2,8 @@
 
 backend/target/
 backend/example/
+backend/tx_validator/node_modules/
+backend/tx_validator/dist
 target/
 
 Cargo.lock
