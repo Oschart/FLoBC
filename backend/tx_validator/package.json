@@ -15,6 +15,7 @@
     "babel-preset-latest": "^6.24.1"
   },
   "dependencies": {
-    "exonum-client": "^0.18.3"
+    "exonum-client": "^0.18.3",
+    "python-shell": "^2.0.3"
   }
 }

@@ -1,10 +1,13 @@
 import * as exonum from 'exonum-client'
 import * as proto from './proto'
+import validate_vector from './validate_vector'
 
-// console.log("Hello. The path passed from rust is " + process.argv[2]);
-// console.log("The hash is ", process.argv[3]);
-// console.log("The length of the hash is ", process.argv[3].length)
-
-
-//console.log(proto.TxShareUpdates.decode(exonum.hexadecimalToUint8Array(process.argv[3])))
-console.log("VALID");
+let transaction = proto.TxShareUpdates.decode(exonum.hexadecimalToUint8Array(process.argv[3]));
+validate_vector(transaction.gradients.join("|"), process.argv[2], (valid) => {
+  if (valid){
+    console.log("VALID");
+  }
+  else {
+    console.log("INVALID");
+  }
+});
