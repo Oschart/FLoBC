@@ -68,21 +68,21 @@ function getModelByIndex(index){
 
 export default function fetchLatestModel(){
     return new Promise((resolve, reject) => {
-        getLatestModelIndex()
+        getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
             latestIndex = parseInt(latestIndex)
-            if([0, -1].includes(latestIndex)){ //new model
+            if([0, -1].includes(latestIndex)){ //new model 
                 let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
                 resolve(zerosArr);
             }
             else{
-                readMetadataFile()
+                readMetadataFile() 
                 .then(fileContent => {
-                    if(latestIndex > fileContent){
-                        getModelByIndex(latestIndex)
+                    if(latestIndex > fileContent){          //if there is a new model (relative to the latest model this LC trained on )
+                        getModelByIndex(latestIndex)        //fetch latest model weights
                         .then(res => {
                             let latestModelWeights = JSON.parse(res).weights
-                            writeToMetadataFile(latestIndex)
+                            writeToMetadataFile(latestIndex)        //update metadata file
                             .then(() => {
                                 resolve(latestModelWeights)
                             })
