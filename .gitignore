@@ -7,3 +7,4 @@ target/
 Cargo.lock
 lightclient/node_modules
 lightclient/dist
+lightclient/ModelMetadata
