@@ -51,6 +51,6 @@ setInterval(() => {
             console.log("New model fetched")
             //trainNewModel(newModel)
         }
-        else console.log("No New model to fetch will retry in a bit")
+        else console.log("No New model to fetch, will retry in a bit")
     })
 }, INTERVAL_DURATION)
