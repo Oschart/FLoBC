@@ -2,39 +2,55 @@ import * as exonum from 'exonum-client'
 import * as proto from './proto'
 import fetchPythonWeights from './utils/fetchPythonWeights';
 import fetchDatasetDirectory from './utils/fetchDatasetDirectory';
+import fetchLatestModel from './utils/fetchLatestModel';
 
-const explorerPath = 'http://127.0.0.1:9000/api/explorer/v1/transactions'
+const INTERVAL_DURATION = 5000
 
-require("regenerator-runtime/runtime");
+function trainNewModel(modelWeights=1){
+    const explorerPath = 'http://127.0.0.1:9000/api/explorer/v1/transactions'
 
-// Numeric identifier of the machinelearning service
-const SERVICE_ID = 3
+    require("regenerator-runtime/runtime");
 
-// Numeric ID of the `TxShareUpdates` transaction within the service
-const SHAREUPDATES_ID = 0
+    // Numeric identifier of the machinelearning service
+    const SERVICE_ID = 3
 
-let dataset_directory = fetchDatasetDirectory();
+    // Numeric ID of the `TxShareUpdates` transaction within the service
+    const SHAREUPDATES_ID = 0
 
-fetchPythonWeights(dataset_directory, (model_weights) => {
-    const ShareUpdates = new exonum.Transaction({
-       schema: proto.TxShareUpdates,
-       serviceId: SERVICE_ID,
-       methodId: SHAREUPDATES_ID,
+    let dataset_directory = fetchDatasetDirectory();
+
+    fetchPythonWeights(dataset_directory, (model_weights) => {
+        const ShareUpdates = new exonum.Transaction({
+        schema: proto.TxShareUpdates,
+        serviceId: SERVICE_ID,
+        methodId: SHAREUPDATES_ID,
+        })
+
+        // Assume key for the owner:
+        const alice = exonum.keyPair()
+
+        const shareUpdatesPayload = {
+        gradients: model_weights,
+        seed: exonum.randomUint64(),
+        }
+
+        const transaction = ShareUpdates.create(shareUpdatesPayload, alice)
+        const serialized = transaction.serialize()
+        console.log(serialized)
+
+        exonum.send(explorerPath, serialized)
+        .then((obj) => console.log(obj))
+        .catch((obj) => console.log(obj))
+    });
+}
+
+setInterval(() => {
+    fetchLatestModel()
+    .then(newModel => {
+        if(newModel !== -1){
+            console.log("New model fetched")
+            //trainNewModel(newModel)
+        }
+        else console.log("No New model to fetch will retry in a bit")
     })
-
-    // Assume key for the owner:
-    const alice = exonum.keyPair()
-
-    const shareUpdatesPayload = {
-      gradients: model_weights,
-      seed: exonum.randomUint64(),
-    }
-
-    const transaction = ShareUpdates.create(shareUpdatesPayload, alice)
-    const serialized = transaction.serialize()
-    console.log(serialized)
-
-    exonum.send(explorerPath, serialized)
-    .then((obj) => console.log(obj))
-    .catch((obj) => console.log(obj))
-});
+}, INTERVAL_DURATION)
