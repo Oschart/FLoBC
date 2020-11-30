@@ -70,9 +70,20 @@ where
     pub fn register_trainer(&mut self, trainer_addr: &Address) {
         println!("Registering {:?}...", trainer_addr);
         let num_of_trainers = (self.trainers_scores.values().count() + 1) as f64;
-        let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
+        //let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
+        let starter_score: f64 = 1.0 / (num_of_trainers);
         // Insert new score only if trainer wasn't registered
         if self.trainers_scores.contains(trainer_addr) == false {
+            // Modify existing scores
+            let mut existing_addrs: Vec<Address> = Vec::new(); 
+            for existing_addr in self.trainers_scores.keys(){
+                existing_addrs.push(existing_addr);
+            }
+            self.trainers_scores.clear();
+            for existing_addr in existing_addrs{
+                self.trainers_scores.put(&existing_addr, starter_score.to_string());
+            }
+            // Adding new score
             self.trainers_scores
                 .put(trainer_addr, starter_score.to_string());
         }
