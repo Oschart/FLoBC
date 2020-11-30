@@ -71,18 +71,22 @@ export default function fetchLatestModel(){
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
             latestIndex = parseInt(latestIndex)
-            if([0, -1].includes(latestIndex)){ //new model 
-                let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
-                resolve(zerosArr);
-            }
-            else{
-                readMetadataFile() 
-                .then(fileContent => {
-                    if(latestIndex > fileContent){          //if there is a new model (relative to the latest model this LC trained on )
-                        getModelByIndex(latestIndex)        //fetch latest model weights
+            readMetadataFile() 
+            .then(fileContent => {
+                if(latestIndex > fileContent){          //if there is a new model (relative to the latest model this LC trained on )
+                    if([0, -1].includes(latestIndex)){  //new model 
+                        let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
+                        writeToMetadataFile(0)          //update metadata file to indicate working on an empty model 
+                        .then(() => {
+                            resolve(zerosArr);
+                        })
+                        .catch(err => reject(err))
+                    }
+                    else{
+                        getModelByIndex(latestIndex)    //fetch latest model weights
                         .then(res => {
                             let latestModelWeights = JSON.parse(res).weights
-                            writeToMetadataFile(latestIndex)        //update metadata file
+                            writeToMetadataFile(latestIndex)    //update metadata file
                             .then(() => {
                                 resolve(latestModelWeights)
                             })
@@ -90,9 +94,9 @@ export default function fetchLatestModel(){
                             
                         })
                     }
-                    else resolve(-1); //the LC doesn't need to train (already trained this model)
-                })
-            }
+                }
+                else resolve(-1); //the LC doesn't need to train (already trained this model)
+            })
         })
         .catch(err => reject(err))
     })
