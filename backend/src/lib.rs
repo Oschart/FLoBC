@@ -14,7 +14,8 @@
 
 //! Cryptocurrency implementation example using [exonum](http://exonum.com/).
 
-#![deny(unsafe_code, bare_trait_objects)]
+// Had to remove restriction on unsafe code to save float transactions
+#![deny(bare_trait_objects)]
 #![warn(missing_docs, missing_debug_implementations)]
 
 #[macro_use]
@@ -41,6 +42,8 @@ pub const INIT_WEIGHT : f32 = 0.0;
 pub const MODEL_SIZE : u32 = 4010;
 /// Regularization factor
 pub const LAMBDA: f64 = 4.0;
+/// Minimum ratio of a majority of clients
+pub const MAJORITY_RATIO: f32 = 2.0 / 3.0;
 
 /// Cryptocurrency service implementation.
 #[derive(Debug, ServiceDispatcher, ServiceFactory)]

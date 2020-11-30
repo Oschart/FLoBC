@@ -24,7 +24,7 @@ use exonum::{
 use exonum_derive::{FromAccess, RequireArtifact};
 
 // modified
-use crate::{model::Model, INIT_WEIGHT, LAMBDA, MODEL_SIZE};
+use crate::{model::Model, INIT_WEIGHT, LAMBDA, MODEL_SIZE, MAJORITY_RATIO};
 #[path = "model.rs"]
 
 const DEBUG: bool = true;
@@ -42,6 +42,8 @@ pub(crate) struct SchemaImpl<T: Access> {
     pub model_history: Group<T, u32, ProofListIndex<T::Base, Hash>>,
     /// Trainer scores mapped by their addresses
     pub trainers_scores: MapIndex<T::Base, Address, String>,
+    /// Pending transactions of the current round
+    pub pending_transactions: MapIndex<T::Base, Address, Vec<u8>>,
 }
 
 /// Public part of the cryptocurrency schema.
@@ -96,7 +98,7 @@ where
     }
 
     // modified
-    pub fn update_weights(&mut self, trainer_addr: &Address, updates: Vec<f32>) {
+    pub fn update_weights(&mut self) {
         let mut latest_model: Model;
         let model_values = self.public.models.values();
         if model_values.count() == 0 {
@@ -118,15 +120,44 @@ where
             (&latest_model).weights.clone(),
         );
 
-        let trainer_score = self.trainers_scores.get(trainer_addr).unwrap();
-        let tw_f32 = trainer_score.parse::<f32>().unwrap();
-        new_model.aggregate(&updates, tw_f32);
-
+        /// Aggregating all pending transactions
+        for pending_transaction in self.pending_transactions.iter(){
+            let trainer_addr = pending_transaction.0;
+            let updates = SchemaUtils::byte_slice_to_float_vec(&pending_transaction.1);
+            let trainer_score = self.trainers_scores.get(&trainer_addr).unwrap();
+            let tw_f32 = trainer_score.parse::<f32>().unwrap();
+            new_model.aggregate(&updates, tw_f32);
+        }
+        self.pending_transactions.clear();
+    
         let new_version = new_model.version;
         let new_version_hash = Address::from_key(SchemaUtils::pubkey_from_version(new_version));
         println!("Created New Model: {:?}", new_model);
         self.public.models.put(&new_version_hash, new_model);
         self.public.latest_version_addr.set(new_version_hash);
+    }
+
+    pub fn check_pending(&mut self, trainer_addr: &Address, updates: &Vec<f32>) -> bool{
+        if self.pending_transactions.contains(trainer_addr) {
+            return false;
+        }
+        else {
+            self.pending_transactions.put(&trainer_addr, 
+                SchemaUtils::float_vec_to_byte_slice(&updates));
+            
+            // Check ratio of contributors
+            let mut ratio = 0.0; 
+            for contributor_addr in self.pending_transactions.keys(){
+                ratio += self.trainers_scores.get(&contributor_addr).unwrap()
+                    .parse::<f32>().unwrap();
+            }
+            if ratio >= MAJORITY_RATIO {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
     }
 }
 
@@ -144,5 +175,17 @@ impl SchemaUtils {
         }
 
         return PublicKey::new(byte_array);
+    }
+
+    pub fn float_vec_to_byte_slice<'a>(floats: &Vec<f32>) -> Vec<u8> {
+        unsafe {
+            std::slice::from_raw_parts(floats.as_ptr() as *const _, (MODEL_SIZE * 4) as usize).to_vec()
+        }
+    }
+    
+    pub fn byte_slice_to_float_vec<'a>(bytes: &Vec<u8>) -> Vec<f32> {
+        unsafe {
+            std::slice::from_raw_parts(bytes.as_ptr() as *const f32, MODEL_SIZE as usize).to_vec()
+        }
     }
 }

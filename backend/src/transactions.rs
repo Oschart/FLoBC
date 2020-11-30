@@ -49,28 +49,14 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         let mut schema = SchemaImpl::new(context.service_data());
 
         schema.register_trainer(&from);
-        // Some logic and an if statement either storing or updating TODO
-
-        //Updating the most recent model using schema TODO
-        schema.update_weights(&from, arg.gradients);
-
+        
+        // Checking if a majority has been achieved
+        let ready = schema.check_pending(&from, &arg.gradients);        
+        if (ready){
+            //Updating the most recent model using schema
+            schema.update_weights();
+        }
         Ok(())
-
-        // let to = arg.to;
-        // let amount = arg.amount;
-        // if from == to {
-        //     return Err(Error::SenderSameAsReceiver.into());
-        // }
-        //
-        // let sender = schema.wallet(from).ok_or(Error::SenderNotFound)?;
-        // let receiver = schema.wallet(arg.to).ok_or(Error::ReceiverNotFound)?;
-        // if sender.balance < amount {
-        //     Err(Error::InsufficientCurrencyAmount.into())
-        // } else {
-        //     schema.decrease_wallet_balance(sender, amount, tx_hash);
-        //     schema.increase_wallet_balance(receiver, amount, tx_hash);
-        //     Ok(())
-        // }
     }
 }
 
