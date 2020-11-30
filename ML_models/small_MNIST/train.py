@@ -24,7 +24,7 @@ def send_to_node(update_vector):
 # Reading dataframe
 ################################
 def read_input(index):
-    if len(sys.argv) < (index+1):
+    if len(sys.argv) < 2:
         raise Exception('No dataset path found')
 
     df = pd.read_csv(sys.argv[index])
@@ -32,19 +32,6 @@ def read_input(index):
     if len(df) == 0:
         raise Exception('Empty dataset')
     return df
-
-# %%
-################################
-# Reading weights list
-################################
-def read_weights(index):
-    if len(sys.argv) < (index+1):
-        raise Exception('No weights list found')
-
-    weights_list = sys.argv[index]
-    if len(weights_list) == 0:
-        raise Exception('Empty weights list')
-    return weights_list
 
 # %%
 ################################
@@ -118,8 +105,7 @@ def rebuildModel(list):
 data_train, label_train = reshapeData(1)
 print(len(data_train))
 print(len(label_train))
-# list = [0] * 4010
-list = read_weights(2)
+list = [0] * 4010
 model = rebuildModel(list)
 model = trainModel(model, data_train, label_train)
 
