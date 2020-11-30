@@ -104,7 +104,9 @@ where
         if model_values.count() == 0 {
             let version: u32 = 0;
             let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(version));
-            latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize]);
+            let start_score = 0.0;
+            let min_score = 0.0;
+            latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize], start_score, min_score);
             println!("Initial Model: {:?}", latest_model);
             self.public.models.put(&version_hash, latest_model);
             self.public.latest_version_addr.set(version_hash);
@@ -118,9 +120,11 @@ where
             (&latest_model).version + 1,
             (&latest_model).size,
             (&latest_model).weights.clone(),
+            latest_model.score,
+            latest_model.min_score,
         );
 
-        /// Aggregating all pending transactions
+        // Aggregating all pending transactions
         for pending_transaction in self.pending_transactions.iter(){
             let trainer_addr = pending_transaction.0;
             let updates = SchemaUtils::byte_slice_to_float_vec(&pending_transaction.1);

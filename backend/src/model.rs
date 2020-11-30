@@ -28,11 +28,15 @@ impl Model {
         version: u32,
         size: u32,
         weights: Vec<f32>,
+        score: f32,
+        min_score: f32,
     ) -> Self {
         Self {
             version,
             size,
             weights,
+            score,
+            min_score,
         }
     }
 
