@@ -27,8 +27,8 @@ def read_input(index):
     if len(sys.argv) < 2:
         raise Exception('No dataset path found')
 
-    df = pd.read_csv(sys.argv[index])
-    # df = pd.read_csv("resized_test.csv")
+    # df = pd.read_csv(sys.argv[index])
+    df = pd.read_csv("resized_test.csv")
     if len(df) == 0:
         raise Exception('Empty dataset')
     return df
@@ -106,7 +106,7 @@ def rebuildModel(list):
 ################################
 def validate(list):
   data_test, label_test = reshapeData(1)
-  # list = [0.5] * 4010
+  list = [0.5] * 4010
   model = rebuildModel(list)
   result = evaluateModel(model, data_test, label_test)
   print(result)

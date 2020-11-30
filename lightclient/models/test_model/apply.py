@@ -10,38 +10,42 @@ import tensorflow as tf
 ################################
 # Formatted print back to node
 ################################
-def send_to_node(update_vector):
-    if len(update_vector) == 0:
-        print("VECTOR[]ENDVECTOR")
-    else:
-        print("VECTOR[", end='')
-        for i in range(len(update_vector) - 1):
-            print(update_vector[i], end=',')
-        print(update_vector[-1], end='')
-        print("]ENDVECTOR")
+def send_to_node(acc):
+  print("ACCURACY{", acc, "}ENDACCURACY")
+  
 # %%
 ################################
 # Reading dataframe
 ################################
 def read_input(index):
-    if len(sys.argv) < 2:
+    if len(sys.argv) < (index+1):
         raise Exception('No dataset path found')
 
-    # df = pd.read_csv(sys.argv[index])
-    df = pd.read_csv("resized_train.csv")
+    df = pd.read_csv(sys.argv[index])
     if len(df) == 0:
         raise Exception('Empty dataset')
     return df
+# %%
+################################
+# Reading weights list
+################################
+def read_weights(index):
+    if len(sys.argv) < (index+1):
+        raise Exception('No weights list found')
 
+    weights_list = sys.argv[index]
+    if len(weights_list) == 0:
+        raise Exception('Empty weights list')
+    return weights_list
+    
 # %%
 ################################
 # Reshaping input
 ################################
 def reshapeData(index):
   df = read_input(index)
-  df = df.head(int(len(df) * 0.9))
+  df = df.tail(int(len(df) * 0.1))
   print(len(df))
-  df = df.sample(int(0.5*len(df)))
   label = df.iloc[:, 0]
   label = label.to_numpy()
   df = df.drop(df.columns[0], axis = 1)
@@ -68,20 +72,6 @@ def createModel():
                 metrics=['accuracy'])
   return model
 
-# %%
-def trainModel(model, data_train, label_train):
-  model.fit(data_train, label_train, epochs=10, verbose=0)
-  return model
-
-# %%
-def flattenWeights(model):
-  arr = np.array(model.get_weights())
-  for i in range (0, len(arr)):
-          arr[i] = arr[i].flatten()
-
-  arr = np.concatenate(arr)
-  list = arr.tolist()
-  return list
 
 # %%
 def rebuildModel(list):
@@ -100,22 +90,18 @@ def rebuildModel(list):
         new_model.layers[i].set_weights(weights)
   return new_model
 # %%
+def apply(df, label, model):
+  results = model.evaluate(df, label, verbose=0)
+  return results[1]
 
-################################
-# 1) Training
-################################
-data_train, label_train = reshapeData(1)
-print(len(data_train))
-print(len(label_train))
-list = [0] * 4010
-model = rebuildModel(list)
-model = trainModel(model, data_train, label_train)
 
-################################
-# 2) Flattening
-################################
-list = flattenWeights(model)
-send_to_node(list)
-# import validate
-# validate.validate(list)
 # %%
+data_pred, label_pred = reshapeData(1)
+list_string = read_weights(2)
+list = list_string.split(",")
+list = [float(i) for i in list] 
+# list = [0] * 4010
+model = rebuildModel(list)
+acc = apply(data_pred, label_pred, model)
+send_to_node(acc)
+
