@@ -1,8 +1,5 @@
 
 #In[1]
-################################
-# Imports
-################################
 import sys
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -24,66 +21,113 @@ def send_to_node(update_vector):
         print("]ENDVECTOR")
 # %%
 ################################
-# Reading input
+# Reading dataframe
 ################################
-if len(sys.argv) < 2:
-    raise Exception('No dataset path found')
+def read_input(index):
+    if len(sys.argv) < (index+1):
+        raise Exception('No dataset path found')
 
-data_train = pd.read_csv(sys.argv[1])
-if len(data_train) == 0:
-    raise Exception('Empty dataset')
-
-#In[2]
-################################
-# Reshaoe data
-################################
-label_train = data_train.iloc[:, 0]
-label_train = label_train.to_numpy()
-data_train = data_train.drop(data_train.columns[0], axis = 1)
-data_train = data_train.values.reshape(data_train.shape[0], 20, 20)
-# Reshaping the array to 4-dims so that it can work with the Keras API
-data_train = data_train.reshape(data_train.shape[0], 20, 20, 1)
-input_shape = (20, 20, 1)
-# Making sure that the values are float so that we can get decimal points after division
-data_train = data_train.astype('float32')
-# Normalizing the RGB codes by dividing it to the max RGB value.
-data_train /= 255
-
-#In[5]
-################################
-# Create model and loss function
-################################
-model = tf.keras.models.Sequential([
-  tf.keras.layers.Flatten(input_shape=(20, 20)),
-  # tf.keras.layers.Dense(10, activation='relu'),
-  # tf.keras.layers.Dropout(0.2),
-  tf.keras.layers.Dense(10)
-])
-
-predictions = model(data_train[:1]).numpy()
-tf.nn.softmax(predictions).numpy()
-
-loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-
-model.compile(optimizer='adam',
-              loss=loss_fn,
-              metrics=['accuracy'])
-# %%
-################################
-# Train model
-################################
-model.fit(data_train, label_train, epochs=20, verbose = 0)
+    df = pd.read_csv(sys.argv[index])
+    # df = pd.read_csv("resized_train.csv")
+    if len(df) == 0:
+        raise Exception('Empty dataset')
+    return df
 
 # %%
 ################################
-# Extract and flatten model weights
+# Reading weights list
 ################################
-arr = np.array(model.get_weights())
+def read_weights(index):
+    if len(sys.argv) < (index+1):
+        raise Exception('No weights list found')
 
-for i in range (0, len(arr)):
-        arr[i] = arr[i].flatten()
+    weights_list = sys.argv[index]
+    if len(weights_list) == 0:
+        raise Exception('Empty weights list')
+    return weights_list
 
-arr = np.concatenate(arr)
-list = arr.tolist()
+# %%
+################################
+# Reshaping input
+################################
+def reshapeData(index):
+  df = read_input(index)
+  df = df.sample(int(0.5*len(data_train)))
+  label = df.iloc[:, 0]
+  label = label.to_numpy()
+  df = df.drop(df.columns[0], axis = 1)
+  df = df.values.reshape(df.shape[0], 20, 20)
+
+  df = df.reshape(df.shape[0], 20, 20, 1)
+  # Making sure that the values are float so that we can get decimal points after division
+  df = df.astype('float32')
+  # Normalizing the RGB codes by dividing it to the max RGB value.
+  df /= 255
+  return df, label
+
+# %%
+def createModel():
+  model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(input_shape=(20, 20)),
+    # tf.keras.layers.Dense(10, activation='relu'),
+    # tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(10)
+  ])
+  loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+  model.compile(optimizer='adam',
+                loss=loss_fn,
+                metrics=['accuracy'])
+  return model
+
+# %%
+def trainModel(model, data_train, label_train):
+  model.fit(data_train, label_train, epochs=10, verbose=0)
+  return model
+
+# %%
+def flattenWeights(model):
+  arr = np.array(model.get_weights())
+  for i in range (0, len(arr)):
+          arr[i] = arr[i].flatten()
+
+  arr = np.concatenate(arr)
+  list = arr.tolist()
+  return list
+
+# %%
+def rebuildModel(list):
+  new_model = createModel()
+  start = 0
+  for i in range (0, len(new_model.layers)):
+      bound = np.array(new_model.layers[i].get_weights()).size
+      weights = []
+      for j in range (0, bound):
+        size = (new_model.layers[i].get_weights()[j]).size
+        arr = np.array(list[start:start+size])
+        arr = arr.reshape(new_model.layers[i].get_weights()[j].shape)
+        weights.append(arr)
+        start += size
+      if (bound > 0):
+        new_model.layers[i].set_weights(weights)
+  return new_model
+# %%
+
+################################
+# 1) Training
+################################
+data_train, label_train = reshapeData(1)
+print(len(data_train))
+print(len(label_train))
+# list = [0] * 4010
+list = read_weights(2)
+model = rebuildModel(list)
+model = trainModel(model, data_train, label_train)
+
+################################
+# 2) Flattening
+################################
+list = flattenWeights(model)
 send_to_node(list)
+# import validate
+# validate.validate(list)
 # %%
