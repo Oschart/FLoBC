@@ -16,6 +16,10 @@ pub struct Model {
     pub size: u32,
     /// Model weights
     pub weights: Vec<f32>,
+    /// Model test accuracy
+    pub score: f32,
+    /// Minimum target score (used to validate updates)
+    pub min_score: f32,
 }
 
 impl Model {
