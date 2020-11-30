@@ -6,7 +6,7 @@ import fetchLatestModel from './utils/fetchLatestModel';
 
 const INTERVAL_DURATION = 5000
 
-function trainNewModel(modelWeights=1){
+function trainNewModel(modelWeights){
     const explorerPath = 'http://127.0.0.1:9000/api/explorer/v1/transactions'
 
     require("regenerator-runtime/runtime");
@@ -19,7 +19,7 @@ function trainNewModel(modelWeights=1){
 
     let dataset_directory = fetchDatasetDirectory();
 
-    fetchPythonWeights(dataset_directory, (model_weights) => {
+    fetchPythonWeights(dataset_directory, modelWeights, (model_weights) => {
         const ShareUpdates = new exonum.Transaction({
         schema: proto.TxShareUpdates,
         serviceId: SERVICE_ID,
@@ -49,7 +49,7 @@ setInterval(() => {
     .then(newModel => {
         if(newModel !== -1){
             console.log("New model fetched")
-            //trainNewModel(newModel)
+            trainNewModel(newModel)
         }
         else console.log("No New model to fetch, will retry in a bit")
     })
