@@ -9,3 +9,5 @@ target/
 Cargo.lock
 lightclient/node_modules
 lightclient/dist
+backend/.vscode/.ropeproject/objectdb
+backend/.vscode/.ropeproject/config.py
