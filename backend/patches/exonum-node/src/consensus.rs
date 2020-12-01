@@ -833,6 +833,8 @@ impl NodeHandler {
                 .arg(self.validation_path.clone())
                 .arg(hex::encode(&msg.payload().arguments).clone())
                 .current_dir("../tx_validator/dist").output().expect("failed to execute process");
+            println!("HELLLOOOOOOOOO {:?}", output);
+            println!("OSCARRRRRRRRRR {:?}", String::from_utf8_lossy(&output.stdout));
             if String::from_utf8_lossy(&output.stdout) != "VALID\n"{
                 // Invalid / useless Update
                 self.state.invalid_txs_mut().insert(msg.object_hash());

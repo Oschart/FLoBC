@@ -16,7 +16,6 @@ function run_python(validation_path, gradients, min_score){
             scriptPath: '../src/',
             args: ["../../" + validation_path, gradients, min_score]
         };
-
         PythonShell.run('validation_wrapper.py', options, function (err, results) {
             if (err) throw err;
             // results is an array consisting of messages collected during execution
