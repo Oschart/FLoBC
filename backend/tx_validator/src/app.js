@@ -3,7 +3,8 @@ import * as proto from './proto'
 import validate_vector from './validate_vector'
 
 let transaction = proto.TxShareUpdates.decode(exonum.hexadecimalToUint8Array(process.argv[3]));
-validate_vector(transaction.gradients.join("|"), process.argv[2], (valid) => {
+let min_score = transaction.min_score;
+validate_vector(transaction.gradients.join("|"), process.argv[2], min_score, (valid) => {
   if (valid){
     console.log("VALID");
   }
