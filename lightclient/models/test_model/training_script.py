@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import tensorflow as tf
+import json
 
 # %%
 ################################
@@ -52,7 +53,8 @@ def read_weights(index):
 ################################
 def reshapeData(index):
   df = read_input(index)
-  df = df.sample(int(0.5*len(data_train)))
+  df = df.head(int(len(df) * 0.9))
+  df = df.sample(int(0.5*len(df)))
   label = df.iloc[:, 0]
   label = label.to_numpy()
   df = df.drop(df.columns[0], axis = 1)
@@ -116,16 +118,16 @@ def rebuildModel(list):
 # 1) Training
 ################################
 data_train, label_train = reshapeData(1)
-print(len(data_train))
-print(len(label_train))
-# list = [0] * 4010
-list = read_weights(2)
+list = [0] * 4010
+list_string = read_weights(2)
+list = list_string.split(",")
+list = [float(i) for i in list] 
 model = rebuildModel(list)
 model = trainModel(model, data_train, label_train)
 
-################################
-# 2) Flattening
-################################
+# ################################
+# # 2) Flattening
+# ################################
 list = flattenWeights(model)
 send_to_node(list)
 # import validate
