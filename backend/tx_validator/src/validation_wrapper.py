@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import pandas as pd 
 
-MODELS_DIR = './models/'
+MODELS_DIR = '../src/models/'
 
 # Hardcoded
 model_id = 'mnist'

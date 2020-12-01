@@ -83,7 +83,7 @@ def createModel():
 
 # %%
 def trainModel(model, data_train, label_train):
-  model.fit(data_train, label_train, epochs=10, verbose=0)
+  model.fit(data_train, label_train, epochs=1, verbose=0)
   return model
 
 # %%
