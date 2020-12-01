@@ -60,7 +60,7 @@ def reshapeData(index):
   df = df.drop(df.columns[0], axis = 1)
   df = df.values.reshape(df.shape[0], 20, 20)
 
-  df = df.reshape(df.shape[0], 20, 20, 1)
+  #df = df.reshape(df.shape[0], 20, 20, 1)
   # Making sure that the values are float so that we can get decimal points after division
   df = df.astype('float32')
   # Normalizing the RGB codes by dividing it to the max RGB value.
@@ -118,7 +118,6 @@ def rebuildModel(list):
 # 1) Training
 ################################
 data_train, label_train = reshapeData(1)
-list = [0] * 4010
 list_string = read_weights(2)
 list = list_string.split(",")
 list = [float(i) for i in list] 
