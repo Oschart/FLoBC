@@ -13,7 +13,8 @@ data_dir = MODELS_DIR + model_id + '/data.csv'
 import importlib
 model_mod = importlib.import_module('models.%s.validate'%model_id)
 
-def parse_gradients(gradients):
+def parse_gradients(gradients_path):
+    gradients = open(gradients_path, "r").readline()
     split = gradients.split("|")
     split = [float(element) for element in split]
     return np.array(split)
