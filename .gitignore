@@ -12,3 +12,4 @@ lightclient/dist
 backend/.vscode/.ropeproject/objectdb
 backend/.vscode/.ropeproject/config.py
 lightclient/ModelMetadata
+lightclient/keys.json
