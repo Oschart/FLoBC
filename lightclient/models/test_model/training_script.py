@@ -118,7 +118,6 @@ def rebuildModel(list):
 # 1) Training
 ################################
 data_train, label_train = reshapeData(1)
-list = [0] * 4010
 list_string = read_weights(2)
 list = list_string.split(",")
 list = [float(i) for i in list] 
