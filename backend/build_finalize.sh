@@ -2,17 +2,20 @@ start_peer_port=7091
 start_public_port=9000
 
 build=0
-while getopts "n:cb" arg; do
+build_js=0
+while getopts "n:cbj" arg; do
     case $arg in
     n) node_count=$(($OPTARG)) ;;
     c) rm -r example ;;
     b) build=1 ;;
+    j) build_js=1 ;;
     esac
 done
 
 echo "node count = $node_count"
 
 echo "build = $build"
+echo "build_js = $build_js"
 
 if [ "$build" -eq "1" ]; then
     cargo install --path .
@@ -22,6 +25,15 @@ if [ "$build" -eq "1" ]; then
     fi
 fi
 
+if [ "$build_js" -eq "1" ]; then
+    cd tx_validator
+    npm install && babel src -d dist
+    ret=$?
+    cd ..
+    if [ "$ret" != "0" ]; then
+        exit 1
+    fi
+fi
 
 if [ -d ./example ]; then
     echo "example dir exists"
