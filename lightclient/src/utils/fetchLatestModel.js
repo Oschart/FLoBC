@@ -52,7 +52,7 @@ function writeToMetadataFile(index){
 function getLatestModelIndex(){
     return new Promise((resolve, reject) => {
         HTTPGet(GET_LATEST_MODEL_INDEX_URL)
-        .then(res => resolve(res))
+        .then(res => resolve(parseInt(res)))
         .catch(err => reject(err))
     })
 }
@@ -61,7 +61,7 @@ function getModelByIndex(index){
     let option = '?version=' + index;
     return new Promise((resolve, reject) => {
         HTTPGet(GET_MODEL_BY_INDEX_URL, option)
-        .then(res => resolve(res))
+        .then(res => resolve(JSON.parse(res).weights))
         .catch(err => reject(err))
     })
 }
@@ -70,7 +70,6 @@ export default function fetchLatestModel(){
     return new Promise((resolve, reject) => {
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
-            latestIndex = parseInt(latestIndex)
             readMetadataFile() 
             .then(fileContent => {
                 if(latestIndex > fileContent){          //if there is a new model (relative to the latest model this LC trained on )
@@ -84,8 +83,7 @@ export default function fetchLatestModel(){
                     }
                     else{
                         getModelByIndex(latestIndex)    //fetch latest model weights
-                        .then(res => {
-                            let latestModelWeights = JSON.parse(res).weights
+                        .then(latestModelWeights => {
                             writeToMetadataFile(latestIndex)    //update metadata file
                             .then(() => {
                                 resolve(latestModelWeights)
