@@ -44,7 +44,7 @@ function trainNewModel(modelWeights){
         const serialized = transaction.serialize()
         console.log(serialized)
 
-        exonum.send(explorerPath, serialized)
+        exonum.send(explorerPath, serialized, 10, 3000)
         .then((obj) => console.log(obj))
         .catch((obj) => console.log(obj))
     });
