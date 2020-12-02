@@ -3,7 +3,7 @@ import * as proto from './proto'
 import fetchPythonWeights from './utils/fetchPythonWeights';
 import fetchDatasetDirectory from './utils/fetchDatasetDirectory';
 import fetchClientKeys from './utils/fetchClientKeys';
-import fetchLatestModel from './utils/fetchLatestModel';
+import { fetchLatestModelTrainer } from './utils/fetchLatestModel';
 
 const INTERVAL_DURATION = 5000
 
@@ -51,7 +51,7 @@ function trainNewModel(modelWeights){
 }
 
 setInterval(() => {
-    fetchLatestModel()
+    fetchLatestModelTrainer()
     .then(newModel => {
         if(newModel !== -1){
             console.log("New model fetched")

@@ -66,7 +66,7 @@ function getModelByIndex(index){
     })
 }
 
-export default function fetchLatestModel(){
+export function fetchLatestModelTrainer(){
     return new Promise((resolve, reject) => {
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
@@ -95,6 +95,26 @@ export default function fetchLatestModel(){
                 }
                 else resolve(-1); //the LC doesn't need to train (already trained this model)
             })
+        })
+        .catch(err => reject(err))
+    })
+}
+
+export function fetchLatestModelValidator(){
+    return new Promise((resolve, reject) => {
+        getLatestModelIndex()   //retrieve the index of the latest model from the BC
+        .then(latestIndex => {
+            if([0, -1].includes(latestIndex)){  //new model 
+                let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
+                resolve(zerosArr);
+            }
+            else{
+                getModelByIndex(latestIndex)    //fetch latest model weights
+                .then(latestModelWeights => {
+                    resolve(latestModelWeights)
+                })
+                .catch(err => reject(err))
+            }
         })
         .catch(err => reject(err))
     })
