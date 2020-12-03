@@ -66,6 +66,15 @@ function getModelByIndex(index){
     })
 }
 
+function getMinScoreByIndex(index){
+    let option = '?version=' + index;
+    return new Promise((resolve, reject) => {
+        HTTPGet(GET_MODEL_BY_INDEX_URL, option)
+        .then(res => resolve(JSON.parse(res).min_score))
+        .catch(err => reject(err))
+    })
+}
+
 export function fetchLatestModelTrainer(){
     return new Promise((resolve, reject) => {
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
@@ -112,6 +121,26 @@ export function fetchLatestModelValidator(){
                 getModelByIndex(latestIndex)    //fetch latest model weights
                 .then(latestModelWeights => {
                     resolve(latestModelWeights)
+                })
+                .catch(err => reject(err))
+            }
+        })
+        .catch(err => reject(err))
+    })
+}
+
+export function fetchMinScore(){
+    return new Promise((resolve, reject) => {
+        getLatestModelIndex()   //retrieve the index of the latest model from the BC
+        .then(latestIndex => {
+            if([0, -1].includes(latestIndex)){  //new model 
+                let min_score = 0;
+                resolve(min_score);
+            }
+            else{
+                getMinScoreByIndex(latestIndex)    //fetch latest model weights
+                .then(latestMinScore => {
+                    resolve(latestMinScore)
                 })
                 .catch(err => reject(err))
             }
