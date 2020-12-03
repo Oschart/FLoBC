@@ -4,6 +4,9 @@ export default function validate_vector(base_model, gradients, validation_path, 
         let verdict = parsePythonVerdict(res.toString());
         onSuccess(verdict === 'valid');
     })
+    .catch((err) => {
+        console.error(err)
+    })
 }
 
 function run_python(validation_path, base_model, gradients, min_score){

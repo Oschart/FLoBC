@@ -42,7 +42,8 @@ def read_weights(index):
     if len(sys.argv) < (index+1):
         raise Exception('No weights list found')
 
-    weights_list = sys.argv[index]
+    weights_list_path = sys.argv[index]
+    weights_list = open(weights_list_path, "r").readline().split("|")
     if len(weights_list) == 0:
         raise Exception('Empty weights list')
     return weights_list
@@ -118,8 +119,8 @@ def rebuildModel(list):
 # 1) Training
 ################################
 data_train, label_train = reshapeData(1)
-list_string = read_weights(2)
-list = list_string.split(",")
+list = read_weights(2)
+# list = list_string.split(",")
 list = [float(i) for i in list] 
 model = rebuildModel(list)
 model = trainModel(model, data_train, label_train)
