@@ -28,10 +28,11 @@ def send_score(score):
 
 
 #data_validation = pd.read_csv(data_dir)
-gradients = parse_gradients(sys.argv[2])
-min_score = float(sys.argv[3])
-
-score = model_mod.compute_validation_score(gradients, data_dir)
+base_model = parse_gradients(sys.argv[2])
+gradients = parse_gradients(sys.argv[3])
+min_score = float(sys.argv[4])
+evaluate_model = (base_model + gradients) / 2
+score = model_mod.compute_validation_score(evaluate_model, data_dir)
 
 is_valid = score >= min_score
 
