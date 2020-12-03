@@ -13,3 +13,6 @@ backend/.vscode/.ropeproject/objectdb
 backend/.vscode/.ropeproject/config.py
 lightclient/ModelMetadata
 lightclient/keys.json
+lightclient/models/test_model/data.csv
+backend/tx_validator/src/models/mnist/data.csv
+__pycache__/
