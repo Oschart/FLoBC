@@ -24,8 +24,11 @@ use exonum::{
 use exonum_derive::{FromAccess, RequireArtifact};
 
 // modified
-use crate::{model::Model, INIT_WEIGHT, LAMBDA, MODEL_SIZE, MAJORITY_RATIO};
+use crate::{model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_SCORE_DECAY, MODEL_SIZE};
 #[path = "model.rs"]
+use itertools::Itertools;
+use std::fs;
+use std::process::Command;
 
 const DEBUG: bool = true;
 
@@ -77,13 +80,14 @@ where
         // Insert new score only if trainer wasn't registered
         if self.trainers_scores.contains(trainer_addr) == false {
             // Modify existing scores
-            let mut existing_addrs: Vec<Address> = Vec::new(); 
-            for existing_addr in self.trainers_scores.keys(){
+            let mut existing_addrs: Vec<Address> = Vec::new();
+            for existing_addr in self.trainers_scores.keys() {
                 existing_addrs.push(existing_addr);
             }
             self.trainers_scores.clear();
-            for existing_addr in existing_addrs{
-                self.trainers_scores.put(&existing_addr, starter_score.to_string());
+            for existing_addr in existing_addrs {
+                self.trainers_scores
+                    .put(&existing_addr, starter_score.to_string());
             }
             // Adding new score
             self.trainers_scores
@@ -106,26 +110,35 @@ where
             let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(version));
             let start_score = 0.0;
             let min_score = 0.0;
-            latest_model = Model::new(version, MODEL_SIZE, vec![INIT_WEIGHT; MODEL_SIZE as usize], start_score, min_score);
-            println!("Initial Model: {:?}", latest_model);
+            latest_model = Model::new(
+                version,
+                MODEL_SIZE,
+                vec![INIT_WEIGHT; MODEL_SIZE as usize],
+                start_score,
+                min_score,
+            );
+            if DEBUG {
+                println!("Initial Model: {:?}", latest_model);
+            }
             self.public.models.put(&version_hash, latest_model);
             self.public.latest_version_addr.set(version_hash);
         }
 
         let version_hash = self.public.latest_version_addr.get().unwrap();
         latest_model = self.public.models.get(&version_hash).unwrap();
-        println!("Latest Model: {:?}", (&latest_model));
-
+        if DEBUG || true {
+            println!("Latest Model: {:?}", (&latest_model));
+        };
         let mut new_model: Model = Model::new(
             (&latest_model).version + 1,
             (&latest_model).size,
             (&latest_model).weights.clone(),
-            latest_model.score,
-            latest_model.min_score,
+            (&latest_model).score,     // Placeholder
+            (&latest_model).min_score, // Placeholder
         );
 
         // Aggregating all pending transactions
-        for pending_transaction in self.pending_transactions.iter(){
+        for pending_transaction in self.pending_transactions.iter() {
             let trainer_addr = pending_transaction.0;
             let updates = SchemaUtils::byte_slice_to_float_vec(&pending_transaction.1);
             let trainer_score = self.trainers_scores.get(&trainer_addr).unwrap();
@@ -133,7 +146,10 @@ where
             new_model.aggregate(&updates, tw_f32);
         }
         self.pending_transactions.clear();
-    
+
+        let new_model_score = SchemaUtils::evaluate_model(&(&new_model).weights);
+        new_model.score = new_model_score;
+        new_model.min_score = new_model_score * MAX_SCORE_DECAY;
         let new_version = new_model.version;
         let new_version_hash = Address::from_key(SchemaUtils::pubkey_from_version(new_version));
         println!("Created New Model: {:?}", new_model);
@@ -141,24 +157,27 @@ where
         self.public.latest_version_addr.set(new_version_hash);
     }
 
-    pub fn check_pending(&mut self, trainer_addr: &Address, updates: &Vec<f32>) -> bool{
+    pub fn check_pending(&mut self, trainer_addr: &Address, updates: &Vec<f32>) -> bool {
         if self.pending_transactions.contains(trainer_addr) {
             return false;
-        }
-        else {
-            self.pending_transactions.put(&trainer_addr, 
-                SchemaUtils::float_vec_to_byte_slice(&updates));
-            
+        } else {
+            self.pending_transactions.put(
+                &trainer_addr,
+                SchemaUtils::float_vec_to_byte_slice(&updates),
+            );
             // Check ratio of contributors
-            let mut ratio = 0.0; 
-            for contributor_addr in self.pending_transactions.keys(){
-                ratio += self.trainers_scores.get(&contributor_addr).unwrap()
-                    .parse::<f32>().unwrap();
+            let mut ratio = 0.0;
+            for contributor_addr in self.pending_transactions.keys() {
+                ratio += self
+                    .trainers_scores
+                    .get(&contributor_addr)
+                    .unwrap()
+                    .parse::<f32>()
+                    .unwrap();
             }
             if ratio >= MAJORITY_RATIO {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -180,16 +199,45 @@ impl SchemaUtils {
 
         return PublicKey::new(byte_array);
     }
-
+    /// float_vec_to_byte_slice
     pub fn float_vec_to_byte_slice<'a>(floats: &Vec<f32>) -> Vec<u8> {
         unsafe {
-            std::slice::from_raw_parts(floats.as_ptr() as *const _, (MODEL_SIZE * 4) as usize).to_vec()
+            std::slice::from_raw_parts(floats.as_ptr() as *const _, (MODEL_SIZE * 4) as usize)
+                .to_vec()
         }
     }
-    
+    /// byte_slice_to_float_vec
     pub fn byte_slice_to_float_vec<'a>(bytes: &Vec<u8>) -> Vec<f32> {
         unsafe {
             std::slice::from_raw_parts(bytes.as_ptr() as *const f32, MODEL_SIZE as usize).to_vec()
         }
+    }
+
+    /// Computes model score
+    pub fn evaluate_model(model_weights: &Vec<f32>) -> f32 {
+        let ids: Vec<f32> = model_weights.clone();
+        let weights_str = ids.iter().join("|");
+
+        fs::write("../tx_validator/dist/temp_cache.txt", weights_str)
+            .expect("Unable to write file");
+
+        let output = Command::new("python")
+            .arg("evaluation_wrapper.py")
+            .current_dir("../tx_validator/src")
+            .output()
+            .expect("failed to execute process");
+        println!("OUTPUT => {:?}", output);
+        let output_str: String = String::from_utf8_lossy(&output.stdout).to_string();
+
+        let start_bytes = output_str.find("RETURN").unwrap_or(0) + "RETURN".len(); 
+                                                             
+        let end_bytes = output_str.find("ENDRETURN").unwrap_or(output_str.len()); 
+
+        let score_str: String = output_str[start_bytes..end_bytes].to_string(); 
+
+        println!("Score string before pop {:?}", score_str);
+        println!("Score string after pop {:?}", score_str);
+        let score = score_str.parse::<f32>().unwrap();
+        return score;
     }
 }
