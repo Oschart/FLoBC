@@ -4,6 +4,7 @@ import fetchPythonWeights from './utils/fetchPythonWeights';
 import fetchDatasetDirectory from './utils/fetchDatasetDirectory';
 import fetchClientKeys from './utils/fetchClientKeys';
 import { fetchLatestModelTrainer } from './utils/fetchLatestModel';
+import store_encoded_vector, { clear_encoded_vector } from './utils/store_encoded_vector'
 
 const INTERVAL_DURATION = 5000
 
@@ -28,6 +29,8 @@ function trainNewModel(modelWeights){
     let dataset_directory = fetchDatasetDirectory();
     
     fetchPythonWeights(dataset_directory, modelWeights, (model_weights) => {
+        clear_encoded_vector();
+
         const ShareUpdates = new exonum.Transaction({
         schema: proto.TxShareUpdates,
         serviceId: SERVICE_ID,
@@ -55,7 +58,9 @@ setInterval(() => {
     .then(newModel => {
         if(newModel !== -1){
             console.log("New model fetched")
-            trainNewModel(newModel)
+            store_encoded_vector(newModel).then((newModel_path) => {
+                trainNewModel(newModel_path)
+            });
         }
         else console.log("No New model to fetch, will retry in a bit")
     })
