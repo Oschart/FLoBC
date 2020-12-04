@@ -52,7 +52,7 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         
         // Checking if a majority has been achieved
         let ready = schema.check_pending(&from, &arg.gradients);        
-        if (ready){
+        if ready {
             //Updating the most recent model using schema
             schema.update_weights();
         }

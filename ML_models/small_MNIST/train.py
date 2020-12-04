@@ -27,8 +27,8 @@ def read_input(index):
     if len(sys.argv) < 2:
         raise Exception('No dataset path found')
 
-    df = pd.read_csv(sys.argv[index])
-    # df = pd.read_csv("resized_train.csv")
+    # df = pd.read_csv(sys.argv[index])
+    df = pd.read_csv("resized_train.csv")
     if len(df) == 0:
         raise Exception('Empty dataset')
     return df
@@ -39,7 +39,9 @@ def read_input(index):
 ################################
 def reshapeData(index):
   df = read_input(index)
-  df = df.sample(int(0.5*len(data_train)))
+  df = df.head(int(len(df) * 0.9))
+  print(len(df))
+  df = df.sample(int(0.5*len(df)))
   label = df.iloc[:, 0]
   label = label.to_numpy()
   df = df.drop(df.columns[0], axis = 1)

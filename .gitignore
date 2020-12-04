@@ -2,8 +2,20 @@
 
 backend/target/
 backend/example/
+backend/tx_validator/node_modules/
+backend/tx_validator/dist
 target/
 
 Cargo.lock
 lightclient/node_modules
 lightclient/dist
+
+lightclient/ModelMetadata
+lightclient/keys.json
+lightclient/models/test_model/data.csv
+backend/tx_validator/src/models/mnist/data.csv
+__pycache__/
+.vscode/
+
+lightclient2/
+lightclient3/

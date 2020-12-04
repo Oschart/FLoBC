@@ -9,7 +9,8 @@ message Model {
   uint32 version = 1;
   uint32 size = 2;
   repeated float weights = 3[packed=true];
-
+  float score = 4;
+  float min_score = 5;
 }
 
 

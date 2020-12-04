@@ -26,7 +26,7 @@ use exonum::{
 };
 use log::{error, info, trace, warn};
 
-use std::{collections::HashSet, convert::TryFrom, fmt};
+use std::{collections::HashSet, convert::TryFrom, fmt, process::Command};
 
 use crate::{
     events::InternalRequest,
@@ -86,6 +86,8 @@ pub(crate) enum HandleTxError {
     AlreadyProcessed,
     /// Transaction is invalid according to `Blockchain::check_tx`.
     Invalid(ExecutionError),
+    /// Transaction is invalid according to ML checks.
+    InvalidML,
 }
 
 impl fmt::Display for HandleTxError {
@@ -93,6 +95,7 @@ impl fmt::Display for HandleTxError {
         match self {
             Self::AlreadyProcessed => formatter.write_str("Transaction is already processed"),
             Self::Invalid(e) => write!(formatter, "Transaction failed preliminary checks: {}", e),
+            Self::InvalidML => formatter.write_str("Transaction failed ML validation"),
         }
     }
 }
@@ -812,7 +815,7 @@ impl NodeHandler {
         }
 
         let outcome;
-        if let Err(e) = Blockchain::check_tx(&snapshot, &msg) {
+        if let Err(e) = Blockchain::check_tx(&snapshot, &msg){
             // Store transaction as invalid to know it if it'll be included into a proposal.
             // Please note that it **must** happen before calling `check_incomplete_proposes`,
             // since the latter uses `invalid_txs` to recalculate the validity of proposals.
@@ -825,17 +828,30 @@ impl NodeHandler {
             // Thus, we don't stop the execution here.
             outcome = Err(HandleTxError::Invalid(e));
         } else {
-            // Transaction is OK, store it to the cache or persistent pool.
-            if self.state.persist_txs_immediately() {
-                let fork = self.blockchain.fork();
-                Schema::new(&fork).add_transaction_into_pool(msg);
-                self.blockchain
-                    .merge(fork.into_patch())
-                    .expect("Cannot add transaction to persistent pool");
+            // Updates Validation
+            let output = Command::new("node").arg("app.js")
+                .arg(self.validation_path.clone())
+                .arg(hex::encode(&msg.payload().arguments).clone())
+                .current_dir("../tx_validator/dist").output().expect("failed to execute process");
+            println!("HELLLOOOOOOOOO {:?}", output);
+            println!("OSCARRRRRRRRRR {:?}", String::from_utf8_lossy(&output.stdout));
+            if String::from_utf8_lossy(&output.stdout) != "VALID\n"{
+                // Invalid / useless Update
+                self.state.invalid_txs_mut().insert(msg.object_hash());
+                outcome = Err(HandleTxError::InvalidML);            
             } else {
-                self.state.tx_cache_mut().insert(hash, msg);
+                // Transaction is OK, store it to the cache or persistent pool.
+                if self.state.persist_txs_immediately() {
+                    let fork = self.blockchain.fork();
+                    Schema::new(&fork).add_transaction_into_pool(msg);
+                    self.blockchain
+                        .merge(fork.into_patch())
+                        .expect("Cannot add transaction to persistent pool");
+                } else {
+                    self.state.tx_cache_mut().insert(hash, msg);
+                }
+                outcome = Ok(());
             }
-            outcome = Ok(());
         }
 
         if self.state.is_leader() && self.state.round() != Round::zero() {
