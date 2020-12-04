@@ -853,12 +853,12 @@ impl NodeHandler {
             
             if verdict != "VALID"{
                 // Invalid / useless Update
-                print!("{}\n", verdict.red());
+                print!("{}\n", verdict.red().bold());
                 self.state.invalid_txs_mut().insert(msg.object_hash());
                 outcome = Err(HandleTxError::InvalidML);            
             } else {
                 // Transaction is OK, store it to the cache or persistent pool.
-                print!("{}\n", verdict.green());
+                print!("{}\n", verdict.green().bold());
                 if self.state.persist_txs_immediately() {
                     let fork = self.blockchain.fork();
                     Schema::new(&fork).add_transaction_into_pool(msg);

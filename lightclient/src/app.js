@@ -8,6 +8,8 @@ import store_encoded_vector, { clear_encoded_vector } from './utils/store_encode
 
 const INTERVAL_DURATION = 5000
 
+const MODEL_LENGTH = 4010
+
 let TRAINER_KEY
 
 fetchClientKeys()
@@ -38,7 +40,7 @@ function trainNewModel(modelWeights){
         clear_encoded_vector();
         // Generating random uniformly distributed vector with values 9000 - 11000
         const shareUpdatesPayload = {
-            gradients: Array.from({length: modelWeights.length}, () => 5000 + Math.floor(Math.random() * 10000)),
+            gradients: Array.from({length: MODEL_LENGTH}, () => 5000 + Math.floor(Math.random() * 10000)),
             seed: exonum.randomUint64(),
         }
     
