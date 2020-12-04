@@ -165,16 +165,11 @@ where
                 &trainer_addr,
                 SchemaUtils::float_vec_to_byte_slice(&updates),
             );
-            // Check ratio of contributors
-            let mut ratio = 0.0;
-            for contributor_addr in self.pending_transactions.keys() {
-                ratio += self
-                    .trainers_scores
-                    .get(&contributor_addr)
-                    .unwrap()
-                    .parse::<f32>()
-                    .unwrap();
-            }
+
+            // Calculating contributers ratio
+            let num_of_trainers = (self.trainers_scores.values().count()) as f32;
+            let num_of_contributers = (self.pending_transactions.values().count()) as f32;
+            let ratio = num_of_contributers / num_of_trainers; 
             if ratio >= MAJORITY_RATIO {
                 return true;
             } else {
