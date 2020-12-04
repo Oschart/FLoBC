@@ -116,7 +116,7 @@ where
             let version: u32 = 0;
             let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(version));
             let start_score = 0.0;
-            let min_score = 0.0;
+            let min_score = 0.5;
             latest_model = Model::new(
                 version,
                 MODEL_SIZE,

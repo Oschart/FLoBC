@@ -1,14 +1,13 @@
 const fs = require('fs');
-const FILENAME = 'encoded_vector';
 
-export default function store_encoded_vector(gradients){
+export default function store_encoded_vector(gradients, filename){
     return new Promise(function(resolve){
         let encoded = gradients.join("|"); 
-        fs.writeFileSync(FILENAME, encoded);
-        resolve(FILENAME);
+        fs.writeFileSync(filename, encoded);
+        resolve(filename);
     });
 }
 
-export function clear_encoded_vector(){
-    fs.unlink(FILENAME, ()=>{});
+export function clear_encoded_vector(filename){
+    fs.unlink(filename, ()=>{});
 }

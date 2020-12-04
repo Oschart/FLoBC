@@ -134,7 +134,7 @@ export function fetchMinScore(){
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
             if([0, -1].includes(latestIndex)){  //new model 
-                let min_score = 0;
+                let min_score = 0.5;
                 resolve(min_score);
             }
             else{

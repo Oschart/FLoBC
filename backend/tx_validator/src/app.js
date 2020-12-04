@@ -27,10 +27,11 @@ fetchLatestModelValidator()
   fetchMinScore()
   .then((min_score) => {
     let transaction = proto.TxShareUpdates.decode(exonum.hexadecimalToUint8Array(process.argv[3]));
-    store_encoded_vector(transaction.gradients).then((encoded_vector_path) => {
-      store_encoded_vector(base_model).then((encoded_basemodel_path) => {
+    store_encoded_vector(transaction.gradients, "gradients").then((encoded_vector_path) => {
+      store_encoded_vector(base_model, "basemodel").then((encoded_basemodel_path) => {
         validate_vector(encoded_basemodel_path, encoded_vector_path, process.argv[2], min_score, (valid) => {
-          clear_encoded_vector();
+          clear_encoded_vector("gradients");
+          clear_encoded_vector("basemodel");
           
           if (valid){
             console.log("VALID");
