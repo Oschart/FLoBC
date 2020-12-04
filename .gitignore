@@ -16,3 +16,6 @@ lightclient/models/test_model/data.csv
 backend/tx_validator/src/models/mnist/data.csv
 __pycache__/
 .vscode/
+
+lightclient2/
+lightclient3/

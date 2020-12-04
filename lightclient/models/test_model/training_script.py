@@ -11,14 +11,14 @@ import json
 ################################
 # Formatted print back to node
 ################################
-def send_to_node(update_vector):
+def send_to_node(initial_model, update_vector):
     if len(update_vector) == 0:
         print("VECTOR[]ENDVECTOR")
     else:
         print("VECTOR[", end='')
         for i in range(len(update_vector) - 1):
-            print(update_vector[i], end=',')
-        print(update_vector[-1], end='')
+            print(update_vector[i] - initial_model[i], end=',')
+        print(update_vector[-1] - initial_model[-1], end='')
         print("]ENDVECTOR")
 # %%
 ################################
@@ -128,8 +128,8 @@ model = trainModel(model, data_train, label_train)
 # ################################
 # # 2) Flattening
 # ################################
-list = flattenWeights(model)
-send_to_node(list)
+new_list = flattenWeights(model)
+send_to_node(list, new_list)
 # import validate
 # validate.validate(list)
 # %%
