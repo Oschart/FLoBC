@@ -41,6 +41,10 @@ use crate::{
     NodeHandler,
 };
 
+const DEBUG: bool = false;
+
+use colored::*;
+
 /// Shortcut to get verified messages from bytes.
 fn into_verified<T: TryFrom<SignedMessage>>(raw: &[Vec<u8>]) -> anyhow::Result<Vec<Verified<T>>> {
     let mut items = Vec::with_capacity(raw.len());
@@ -829,18 +833,32 @@ impl NodeHandler {
             outcome = Err(HandleTxError::Invalid(e));
         } else {
             // Updates Validation
+            println!("{}", "---------------------------------------");
+            println!("{}, {}", "Model update received".yellow(), "validating...".italic());
             let output = Command::new("node").arg("app.js")
                 .arg(self.validation_path.clone())
                 .arg(hex::encode(&msg.payload().arguments).clone())
                 .current_dir("../tx_validator/dist").output().expect("failed to execute process");
-            println!("HELLLOOOOOOOOO {:?}", output);
-            println!("OSCARRRRRRRRRR {:?}", String::from_utf8_lossy(&output.stdout));
-            if String::from_utf8_lossy(&output.stdout) != "VALID\n"{
+            
+                if DEBUG {
+                    println!("Output {:?}", output);
+                    
+                }
+            
+            let mut verdict: String = String::from_utf8_lossy(&output.stdout).to_string();
+            verdict.pop();  // pop EOL char
+
+
+            print!("{}: ", "Validation verdict".white().bold().underline());
+            
+            if verdict != "VALID"{
                 // Invalid / useless Update
+                print!("{}\n", verdict.red());
                 self.state.invalid_txs_mut().insert(msg.object_hash());
                 outcome = Err(HandleTxError::InvalidML);            
             } else {
                 // Transaction is OK, store it to the cache or persistent pool.
+                print!("{}\n", verdict.green());
                 if self.state.persist_txs_immediately() {
                     let fork = self.blockchain.fork();
                     Schema::new(&fork).add_transaction_into_pool(msg);
@@ -852,6 +870,8 @@ impl NodeHandler {
                 }
                 outcome = Ok(());
             }
+
+            println!("{}", "---------------------------------------");
         }
 
         if self.state.is_leader() && self.state.round() != Round::zero() {

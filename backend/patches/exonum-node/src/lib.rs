@@ -1277,7 +1277,7 @@ impl Node {
     pub async fn run(self) -> anyhow::Result<()> {
         trace!("Running node.");
 
-        println!("Node launched with valiadtion dataset path of {}", self.validation_path);
+        //println!("Node launched with valiadtion dataset path of {}", self.validation_path);
         // Runs NodeHandler.
         let handshake_params = HandshakeParams::new(
             &self.state().keys().consensus,

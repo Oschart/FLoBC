@@ -30,10 +30,11 @@ use itertools::Itertools;
 use std::fs;
 use std::process::Command;
 
+use colored::*;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 
-const DEBUG: bool = true;
+const DEBUG: bool = false;
 
 /// Database schema for the cryptocurrency.
 ///
@@ -76,7 +77,10 @@ where
 {
     // Register a trainer's identity
     pub fn register_trainer(&mut self, trainer_addr: &Address) {
-        println!("Registering {:?}...", trainer_addr);
+        if DEBUG {
+            println!("Registering {:?}...", trainer_addr);
+        }
+
         let num_of_trainers = (self.trainers_scores.values().count() + 1) as f64;
         //let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
         let starter_score: f64 = 1.0 / (num_of_trainers);
@@ -155,7 +159,12 @@ where
         new_model.min_score = new_model_score * MAX_SCORE_DECAY;
         let new_version = new_model.version;
         let new_version_hash = Address::from_key(SchemaUtils::pubkey_from_version(new_version));
-        println!("Created New Model: {:?}", new_model);
+
+        if DEBUG {
+            println!("Created New Model: {:?}", new_model);
+        }
+
+        SchemaUtils::print_model_meta(&new_model);
         self.public.models.put(&new_version_hash, new_model);
         self.public.latest_version_addr.set(new_version_hash);
     }
@@ -172,7 +181,7 @@ where
             // Calculating contributers ratio
             let num_of_trainers = (self.trainers_scores.values().count()) as f32;
             let num_of_contributers = (self.pending_transactions.values().count()) as f32;
-            let ratio = num_of_contributers / num_of_trainers; 
+            let ratio = num_of_contributers / num_of_trainers;
             if ratio >= MAJORITY_RATIO {
                 return true;
             } else {
@@ -252,9 +261,23 @@ impl SchemaUtils {
 
         let score_str: String = output_str[start_bytes..end_bytes].to_string();
 
-        println!("Score string before pop {:?}", score_str);
-        println!("Score string after pop {:?}", score_str);
         let score = score_str.parse::<f32>().unwrap();
         return score;
+    }
+
+    /// Formats and prints model metadata
+    pub fn print_model_meta(model: &Model) {
+        let version = format!("{}", model.version);
+        let accr = format!("{}", model.score*100.0);
+        println!("{}", "---------------------------------------");
+        println!(
+            "{}: {}= {} \t {}= {}%",
+            "New Model Created:".cyan().bold(),
+            "version".white().bold(),
+            version.magenta().bold(),
+            "accuracy".white().bold(),
+            accr.green()
+        );
+        println!("{}", "---------------------------------------");
     }
 }

@@ -105,6 +105,9 @@ features = ["blocking", "dns", "io-util", "macros", "rt-threaded", "signal", "tc
 [dependencies.hex]
 version = "0.4.2"
 
+[dependencies.colored]
+version = "2.0.0"
+
 [dependencies.tokio-util]
 version = "0.3.0"
 features = ["codec"]
