@@ -1,7 +1,7 @@
 import * as exonum from 'exonum-client'
 import * as proto from './proto'
 import fetchPythonWeights from './utils/fetchPythonWeights';
-import fetchDatasetDirectory from './utils/fetchDatasetDirectory';
+import fetchDatasetDirectory, { fetchImposterState } from './utils/fetchDatasetDirectory';
 import fetchClientKeys from './utils/fetchClientKeys';
 import { fetchLatestModelTrainer } from './utils/fetchLatestModel';
 import store_encoded_vector, { clear_encoded_vector } from './utils/store_encoded_vector'
@@ -26,23 +26,22 @@ function trainNewModel(modelWeights){
     // Numeric ID of the `TxShareUpdates` transaction within the service
     const SHAREUPDATES_ID = 0
 
-    let dataset_directory = fetchDatasetDirectory();
-    
-    fetchPythonWeights(dataset_directory, modelWeights, (model_weights) => {
-        clear_encoded_vector();
-
-        const ShareUpdates = new exonum.Transaction({
+    const ShareUpdates = new exonum.Transaction({
         schema: proto.TxShareUpdates,
         serviceId: SERVICE_ID,
         methodId: SHAREUPDATES_ID,
-        })
+    })
 
-
+    let dataset_directory = fetchDatasetDirectory();
+    let is_imposter = fetchImposterState();
+    if (is_imposter){
+        clear_encoded_vector();
+        // Generating random uniformly distributed vector with values 9000 - 11000
         const shareUpdatesPayload = {
-        gradients: model_weights,
-        seed: exonum.randomUint64(),
+            gradients: Array.from({length: modelWeights.length}, () => 5000 + Math.floor(Math.random() * 10000)),
+            seed: exonum.randomUint64(),
         }
-
+    
         const transaction = ShareUpdates.create(shareUpdatesPayload, TRAINER_KEY)
         const serialized = transaction.serialize()
         console.log(serialized)
@@ -50,7 +49,25 @@ function trainNewModel(modelWeights){
         exonum.send(explorerPath, serialized, 10, 5000)
         .then((obj) => console.log(obj))
         .catch((obj) => console.log(obj))
-    });
+
+    } else {
+        fetchPythonWeights(dataset_directory, modelWeights, (model_weights) => {
+            clear_encoded_vector();   
+    
+            const shareUpdatesPayload = {
+            gradients: model_weights,
+            seed: exonum.randomUint64(),
+            }
+    
+            const transaction = ShareUpdates.create(shareUpdatesPayload, TRAINER_KEY)
+            const serialized = transaction.serialize()
+            console.log(serialized)
+    
+            exonum.send(explorerPath, serialized, 10, 5000)
+            .then((obj) => console.log(obj))
+            .catch((obj) => console.log(obj))
+        });
+    }
 }
 
 setInterval(() => {
