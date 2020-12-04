@@ -30,6 +30,9 @@ use itertools::Itertools;
 use std::fs;
 use std::process::Command;
 
+use rand::distributions::Alphanumeric;
+use rand::Rng;
+
 const DEBUG: bool = true;
 
 /// Database schema for the cryptocurrency.
@@ -126,7 +129,7 @@ where
 
         let version_hash = self.public.latest_version_addr.get().unwrap();
         latest_model = self.public.models.get(&version_hash).unwrap();
-        if DEBUG || true {
+        if DEBUG {
             println!("Latest Model: {:?}", (&latest_model));
         };
         let mut new_model: Model = Model::new(
@@ -213,22 +216,41 @@ impl SchemaUtils {
         let ids: Vec<f32> = model_weights.clone();
         let weights_str = ids.iter().join("|");
 
-        fs::write("../tx_validator/dist/temp_cache.txt", weights_str)
-            .expect("Unable to write file");
+        let tempfile_name: String = rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(10)
+            .collect::<String>();
+
+        let tempfile_name: String = format!("{}.txt", tempfile_name);
+
+        let tempfile_path: String = format!("../tx_validator/dist/{}", tempfile_name);
+
+        {
+            fs::write(&tempfile_path, weights_str).expect("Unable to write file");
+        }
 
         let output = Command::new("python")
             .arg("evaluation_wrapper.py")
+            .arg(tempfile_name)
             .current_dir("../tx_validator/src")
             .output()
             .expect("failed to execute process");
-        println!("OUTPUT => {:?}", output);
+
+        {
+            fs::remove_file(&tempfile_path).expect("Unable to delete file");
+        }
+
+        if DEBUG {
+            println!("OUTPUT => {:?}", output);
+        }
+
         let output_str: String = String::from_utf8_lossy(&output.stdout).to_string();
 
-        let start_bytes = output_str.find("RETURN").unwrap_or(0) + "RETURN".len(); 
-                                                             
-        let end_bytes = output_str.find("ENDRETURN").unwrap_or(output_str.len()); 
+        let start_bytes = output_str.find("RETURN").unwrap_or(0) + "RETURN".len();
 
-        let score_str: String = output_str[start_bytes..end_bytes].to_string(); 
+        let end_bytes = output_str.find("ENDRETURN").unwrap_or(output_str.len());
+
+        let score_str: String = output_str[start_bytes..end_bytes].to_string();
 
         println!("Score string before pop {:?}", score_str);
         println!("Score string after pop {:?}", score_str);

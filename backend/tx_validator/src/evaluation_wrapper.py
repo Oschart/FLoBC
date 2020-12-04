@@ -1,6 +1,7 @@
+import importlib
 import sys
 import numpy as np
-import pandas as pd 
+import pandas as pd
 
 MODELS_DIR = '../src/models/'
 
@@ -10,8 +11,8 @@ model_id = 'mnist'
 data_dir = MODELS_DIR + model_id + '/data.csv'
 
 
-import importlib
-model_mod = importlib.import_module('models.%s.validate'%model_id)
+model_mod = importlib.import_module('models.%s.validate' % model_id)
+
 
 def parse_vector(model_weights):
     split = model_weights.split("|")
@@ -21,11 +22,12 @@ def parse_vector(model_weights):
 
 def send_score(score):
     print("RETURN" + score + "ENDRETURN")
-    #print(score)
+    # print(score)
 
 
+tempfile_name = sys.argv[1]
 # data_validation = pd.read_csv(data_dir)
-with open('../dist/temp_cache.txt', 'r') as file:
+with open('../dist/%s' % tempfile_name, 'r') as file:
     base_model_str = file.read().replace('\n', '')
 
 base_model = parse_vector(base_model_str)
