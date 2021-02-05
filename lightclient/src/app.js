@@ -10,6 +10,8 @@ const INTERVAL_DURATION = 5000
 
 const MODEL_LENGTH = 4010
 
+let can_train = true
+
 let TRAINER_KEY
 
 fetchClientKeys()
@@ -68,6 +70,7 @@ function trainNewModel(modelWeights){
             exonum.send(explorerPath, serialized, 10, 5000)
             .then((obj) => console.log(obj))
             .catch((obj) => console.log(obj))
+            .finally(() => { can_train = true; })
         });
     }
 }
@@ -76,10 +79,15 @@ setInterval(() => {
     fetchLatestModelTrainer()
     .then(newModel => {
         if(newModel !== -1){
-            console.log("New model fetched")
-            store_encoded_vector(newModel).then((newModel_path) => {
-                trainNewModel(newModel_path)
-            });
+            setTimeout(() => {
+                console.log("New model fetched")
+                if (can_train){
+                    can_train = false;
+                    store_encoded_vector(newModel).then((newModel_path) => {
+                        trainNewModel(newModel_path)
+                    });
+                }
+            }, INTERVAL_DURATION)
         }
         else console.log("No New model to fetch, will retry in a bit")
     })
