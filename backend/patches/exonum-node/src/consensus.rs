@@ -851,12 +851,7 @@ impl NodeHandler {
 
             print!("{}: ", "Validation verdict".white().bold().underline());
             
-            if verdict != "VALID"{
-                // Invalid / useless Update
-                print!("{}\n", verdict.red().bold());
-                self.state.invalid_txs_mut().insert(msg.object_hash());
-                outcome = Err(HandleTxError::InvalidML);            
-            } else {
+            if verdict == "VALID" {
                 // Transaction is OK, store it to the cache or persistent pool.
                 print!("{}\n", verdict.green().bold());
                 if self.state.persist_txs_immediately() {
@@ -869,7 +864,12 @@ impl NodeHandler {
                     self.state.tx_cache_mut().insert(hash, msg);
                 }
                 outcome = Ok(());
-            }
+            } else {
+                // Invalid / useless Update
+                print!("{}\n", verdict.red().bold());
+                self.state.invalid_txs_mut().insert(msg.object_hash());
+                outcome = Err(HandleTxError::InvalidML);            
+            } 
 
             println!("{}", "---------------------------------------");
         }
