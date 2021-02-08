@@ -30,6 +30,7 @@ itertools = "0.9.0"
 colored = "2.0.0"
 
 [patch.crates-io]
+exonum = { path = "./patches/exonum" }
 exonum-node = { path = "./patches/exonum-node" }
 exonum-api = { path = "./patches/exonum-api"}
 exonum-cli = { path = "./patches/exonum-cli"}
