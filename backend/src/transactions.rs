@@ -13,7 +13,7 @@ use crate::{proto, schema::SchemaImpl, MachineLearningService};
 #[derive(Clone, Debug, ProtobufConvert, BinaryValue, ObjectHash)]
 #[protobuf_convert(source = "proto::TxShareUpdates", serde_pb_convert)]
 pub struct ShareUpdates {
-
+    /// gradients to update the model with
     pub gradients: Vec<f32>,
     /// Auxiliary number to guarantee [non-idempotence][idempotence] of transactions.
     ///
