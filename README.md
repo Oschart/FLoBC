@@ -2,6 +2,10 @@
 Fully Decentralized Multi-Agent Machine Learning System
 
 ## To Run the Tool
+### To install babel (needed to build node.js validator)
+``` shell
+$ npm install -g babel-cli
+```
 ### To build the rust code and/or the validating node
 ``` shell
 $ cd backend
