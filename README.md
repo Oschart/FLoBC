@@ -22,7 +22,7 @@ $ cd ..
 ``` shell
 $ cd lighclient
 $ npm install
-$ npm start -- <path to data.csv> 0
+$ npm start -- path/to/data.csv 0
 $ cd ..
 ```
-For the npm start command, use 0 as impostor status if honest, 1 if impostor. 
+For the npm start command, use 0 as the impostor status if honest, 1 if impostor. 
