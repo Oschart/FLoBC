@@ -21,7 +21,7 @@ $ cd ..
 ### To run the validating node
 ``` shell
 $ cd backend
-$ sh run_node -i <node number> --validation_path ./dummy/path/
+$ sh run_node <node number> ./dummy/path/
 $ cd ..
 ````
 ### To build the lightclient 
