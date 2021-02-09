@@ -12,14 +12,14 @@ import json
 # Formatted print back to node
 ################################
 def send_to_node(initial_model, update_vector):
-    if len(update_vector) == 0:
-        print("VECTOR[]ENDVECTOR")
-    else:
-        print("VECTOR[", end='')
-        for i in range(len(update_vector) - 1):
-            print(update_vector[i] - initial_model[i], end=',')
-        print(update_vector[-1] - initial_model[-1], end='')
-        print("]ENDVECTOR")
+  if len(update_vector) == 0:
+      print("VECTOR[]ENDVECTOR")
+  else:
+      print("VECTOR[", end='',flush=True)
+      for i in range(len(update_vector) - 1):
+          print(update_vector[i] - initial_model[i], end=',')
+      print(update_vector[-1] - initial_model[-1], end='',flush=True)
+      print("]ENDVECTOR")
 # %%
 ################################
 # Reading dataframe
