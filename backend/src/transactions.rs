@@ -1,4 +1,3 @@
-
 use exonum::{
     crypto::Hash,
     runtime::{CallerAddress as Address, CommonError, ExecutionContext, ExecutionError},
@@ -8,6 +7,10 @@ use exonum_proto::ProtobufConvert;
 
 use crate::{proto, schema::SchemaImpl, MachineLearningService};
 
+use exonum_node::VALIDATOR_ID;
+use std::fs;
+
+use std::{path, sync::atomic::Ordering};
 
 /// Transfer `amount` of the currency from one wallet to another.
 #[derive(Clone, Debug, ProtobufConvert, BinaryValue, ObjectHash)]
@@ -20,7 +23,6 @@ pub struct ShareUpdates {
     /// [idempotence]: https://en.wikipedia.org/wiki/Idempotence
     pub seed: u64,
 }
-
 
 /// Error codes emitted by model transactions during execution.
 #[derive(Debug, ExecutionFail)]
@@ -38,7 +40,6 @@ pub trait MachineLearningInterface<Ctx> {
     /// Proposes a model update
     #[interface_method(id = 0)]
     fn shareUpdates(&self, ctx: Ctx, arg: ShareUpdates) -> Self::Output;
-
 }
 
 impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
@@ -49,15 +50,28 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         let mut schema = SchemaImpl::new(context.service_data());
 
         schema.register_trainer(&from);
-        
+
         // Checking if a majority has been achieved
-        let ready = schema.check_pending(&from, &arg.gradients);        
+        let ready = schema.check_pending(&from, &arg.gradients);
         if ready {
+            // Update trainer scores
+            schema.update_scores();
             //Updating the most recent model using schema
             schema.update_weights();
+            // Remove the scores file when you're done
+            clear_scores_file();
         }
         Ok(())
     }
+}
+
+fn clear_scores_file() {
+    let val_id: u16;
+    unsafe {
+        val_id = VALIDATOR_ID.load(Ordering::SeqCst);
+    }
+    let score_filename: String = format!("v{}_scores.txt", val_id);
+    fs::remove_file(&score_filename).expect("Unable to delete scores file");
 }
 
 fn extract_info(context: &ExecutionContext<'_>) -> Result<(Address, Hash), ExecutionError> {

@@ -22,17 +22,23 @@ use exonum::{
     runtime::CallerAddress as Address,
 };
 use exonum_derive::{FromAccess, RequireArtifact};
+use hex::FromHex;
 
 // modified
 use crate::{model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_SCORE_DECAY, MODEL_SIZE};
 #[path = "model.rs"]
 use itertools::Itertools;
-use std::fs;
+use std::{convert::{TryFrom, TryInto}, fs};
+use std::fs::File;
+use std::io::{self, prelude::*, BufReader};
 use std::process::Command;
 
 use colored::*;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
+
+use exonum_node::VALIDATOR_ID;
+use std::sync::atomic::{Ordering};
 
 const DEBUG: bool = false;
 
@@ -189,6 +195,47 @@ where
             }
         }
     }
+
+    pub fn update_scores(&mut self) -> Option<i32> {
+        // Get latest model
+        let version_hash = self.public.latest_version_addr.get()?;
+        let latest_model = self.public.models.get(&version_hash).unwrap();
+        let latest_model_score: f32 = latest_model.score;
+
+        let val_id: u16;
+        unsafe {
+            val_id = VALIDATOR_ID.load(Ordering::SeqCst);
+        }
+        let score_filename: String = format!("v{}_scores.txt", val_id);
+        let file = File::open(&score_filename).unwrap();
+        let reader = BufReader::new(file);
+        for line in reader.lines() {
+            let uline: String = line.unwrap();
+            let delim_pos = uline.find(':').unwrap();
+
+            let trainer_addr_str: String = uline.chars().take(delim_pos).collect();
+            let pub_key = PublicKey::from_hex(trainer_addr_str).unwrap();
+
+            let trainer_addr: Address = Address::from_key(pub_key);
+
+            let val_score: String = uline.chars().skip(delim_pos + 1).collect();
+            let val_score: f32 = val_score.parse::<f32>().unwrap();
+
+            let delta: f32 = val_score - latest_model_score;
+
+            let curr_score = self.trainers_scores.get(&trainer_addr).unwrap();
+            let curr_score = curr_score.parse::<f32>().unwrap();
+
+            let new_trainer_score = curr_score + delta;
+
+            // Update trainer score
+            self.trainers_scores.put(&trainer_addr, new_trainer_score.to_string());
+
+            println!("Trainer <{:?}>, prev_score={}, val_score={}, new_score={}, delta={}", trainer_addr, curr_score, val_score, new_trainer_score, delta);
+        }
+        
+        return Some(0);
+    }
 }
 
 /// Schema Helpers
@@ -265,10 +312,12 @@ impl SchemaUtils {
         return score;
     }
 
+    
+
     /// Formats and prints model metadata
     pub fn print_model_meta(model: &Model) {
         let version = format!("{}", model.version);
-        let accr = format!("{}", model.score*100.0);
+        let accr = format!("{}", model.score * 100.0);
         println!("{}", "---------------------------------------");
         println!(
             "{}: {}= {} \t {}= {}%",
