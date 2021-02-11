@@ -24,7 +24,7 @@ def send_valid(is_valid):
     print("VERDICT" + verdict + "ENDVERDICT")
 
 def send_score(score):
-    print("RETURN" + score + "ENDRETURN")
+    print("SCORE" + str(score) + "ENDSCORE")
 
 
 #data_validation = pd.read_csv(data_dir)
@@ -37,6 +37,7 @@ score = model_mod.compute_validation_score(evaluate_model, data_dir)
 is_valid = score >= min_score
 
 send_valid(is_valid)
+send_score(score)
 
 '''
 

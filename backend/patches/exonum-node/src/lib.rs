@@ -123,6 +123,11 @@ mod sandbox;
 mod schema;
 mod state;
 
+use std::sync::atomic::{AtomicU16};
+
+/// Validator ID
+pub static mut VALIDATOR_ID: AtomicU16 = AtomicU16::new(0);
+
 // Logically private types re-exported for benchmarks.
 #[doc(hidden)]
 pub mod _bench_types {
@@ -562,6 +567,11 @@ impl NodeHandler {
         );
 
         let validator_id = state.validator_id();
+        // TODO: handle unsafe auditor type
+        unsafe {
+            VALIDATOR_ID = AtomicU16::new(u16::from(validator_id.unwrap()));
+        }
+
         let node_role = NodeRole::new(validator_id);
         let is_enabled = api_state.is_enabled();
         api_state.set_node_role(node_role);
@@ -1276,7 +1286,7 @@ impl Node {
     /// depending on the provided `NodeConfig`.
     pub async fn run(self) -> anyhow::Result<()> {
         trace!("Running node.");
-
+        
         //println!("Node launched with valiadtion dataset path of {}", self.validation_path);
         // Runs NodeHandler.
         let handshake_params = HandshakeParams::new(

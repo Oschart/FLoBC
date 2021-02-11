@@ -25,21 +25,22 @@ pub use crate::{schema::Schema, transactions::MachineLearningInterface};
 
 pub mod api;
 //pub mod migrations;
+pub mod model;
 pub mod proto;
 pub mod schema;
 pub mod transactions;
-pub mod model;
 
 use exonum::runtime::{ExecutionContext, ExecutionError, InstanceId};
 use exonum_derive::{ServiceDispatcher, ServiceFactory};
 use exonum_rust_runtime::{api::ServiceApiBuilder, DefaultInstance, Service};
 
 use crate::{api::PublicApi as MLApi, schema::SchemaImpl};
+use backtrace::Backtrace;
 
 /// Initial weights of the model.
-pub const INIT_WEIGHT : f32 = 0.0;
+pub const INIT_WEIGHT: f32 = 0.0;
 /// Model size
-pub const MODEL_SIZE : u32 = 4010;
+pub const MODEL_SIZE: u32 = 4010;
 /// Regularization factor
 pub const LAMBDA: f64 = 4.0;
 /// Minimum ratio of a majority of clients
@@ -59,6 +60,9 @@ impl Service for MachineLearningService {
         context: ExecutionContext<'_>,
         _params: Vec<u8>,
     ) -> Result<(), ExecutionError> {
+        /*let bt = Backtrace::new();
+        println!("{:?}", bt);*/
+
         // Initialize indexes. Not doing this may lead to errors in HTTP API, since it relies on
         // `wallets` indexes being initialized for returning corresponding proofs.
         SchemaImpl::new(context.service_data());
