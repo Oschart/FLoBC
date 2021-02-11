@@ -15,6 +15,7 @@ exonum-rust-runtime = "1.0.0-rc.1"
 exonum-merkledb = "1.0.0-rc.1"
 futures = "0.3"
 exonum-cli = "1.0.0"
+exonum-node = "1.0.0"
 rand = "0.7.2"
 lazy_static = "1.4.0"
 
@@ -28,6 +29,7 @@ serde_json = "1.0"
 itertools = "0.9.0"
 
 colored = "2.0.0"
+backtrace = "0.3.56"
 
 [patch.crates-io]
 exonum = { path = "./patches/exonum" }
@@ -40,11 +42,15 @@ version = "0.2.22"
 features = ["blocking", "dns", "io-util", "macros", "rt-threaded", "tcp", "time"]
 
 
+[dependencies.hex]
+version = "0.4.2"
+
 [build-dependencies]
 exonum-build = "1.0.0-rc.1"
 
 # Dependencies required for the example.
 [dev-dependencies]
+exonum-node = "1.0.0-rc.1"
 exonum-cli = "1.0.0-rc.1"
 exonum-testkit = "1.0.0-rc.1"
 exonum-explorer-service = "1.0.0-rc.1"
