@@ -6,48 +6,7 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 import json
-
-# %%
-################################
-# Formatted print back to node
-################################
-def send_to_node(initial_model, update_vector):
-  if len(update_vector) == 0:
-      print("VECTOR[]ENDVECTOR")
-  else:
-      print("VECTOR[", end='',flush=True)
-      for i in range(len(update_vector) - 1):
-          print(update_vector[i] - initial_model[i], end=',')
-      print(update_vector[-1] - initial_model[-1], end='',flush=True)
-      print("]ENDVECTOR")
-# %%
-################################
-# Reading dataframe
-################################
-def read_input(index):
-    if len(sys.argv) < (index+1):
-        raise Exception('No dataset path found')
-
-    df = pd.read_csv(sys.argv[index])
-    # df = pd.read_csv("resized_train.csv")
-    if len(df) == 0:
-        raise Exception('Empty dataset')
-    return df
-
-# %%
-################################
-# Reading weights list
-################################
-def read_weights(index):
-    if len(sys.argv) < (index+1):
-        raise Exception('No weights list found')
-
-    weights_list_path = sys.argv[index]
-    weights_list = open(weights_list_path, "r").readline().split("|")
-    if len(weights_list) == 0:
-        raise Exception('Empty weights list')
-    return weights_list
-
+from utils import send_to_node, read_input, read_weights, flattenWeights, trainModel
 # %%
 ################################
 # Reshaping input
@@ -82,20 +41,6 @@ def createModel():
                 metrics=['accuracy'])
   return model
 
-# %%
-def trainModel(model, data_train, label_train):
-  model.fit(data_train, label_train, epochs=1, verbose=0)
-  return model
-
-# %%
-def flattenWeights(model):
-  arr = np.array(model.get_weights())
-  for i in range (0, len(arr)):
-          arr[i] = arr[i].flatten()
-
-  arr = np.concatenate(arr)
-  list = arr.tolist()
-  return list
 
 # %%
 def rebuildModel(list):
