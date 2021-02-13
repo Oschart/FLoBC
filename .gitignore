@@ -19,3 +19,5 @@ __pycache__/
 
 lightclient2/
 lightclient3/
+
+**/*.csv
