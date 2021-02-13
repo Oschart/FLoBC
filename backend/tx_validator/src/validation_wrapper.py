@@ -26,9 +26,7 @@ def send_valid(is_valid):
 def send_score(score):
     print("RETURN" + score + "ENDRETURN")
 
-
 #data_validation = pd.read_csv(data_dir)
-print(sys.argv[4])
 gradients = parse_gradients(sys.argv[4])
 newModel_flag = sys.argv[2]
 if newModel_flag:

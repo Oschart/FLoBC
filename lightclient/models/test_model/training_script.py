@@ -44,7 +44,6 @@ def createModel():
 # 1) Training
 # ###############################
 newModel_flag = readNewModel_flag(1)
-# newModel_flag = True
 data_train, label_train = reshapeData(2)
 if (not newModel_flag):
     list = read_weights(3)
@@ -56,9 +55,6 @@ model = trainModel(model, data_train, label_train)
 # # 2) Flattening
 # ################################
 new_list = flattenWeights(model)
-# model = createModel()
-# model, new_list = rebuildModel(model, new_list, False)
-# model = trainModel(model, data_train, label_train)
 send_to_node(list, new_list)
 
 # import validate
