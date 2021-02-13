@@ -34,7 +34,7 @@ def reshapeData(index):
     label = df.iloc[:, 0]
     label = label.to_numpy()
     df = df.drop(df.columns[0], axis = 1)
-    df = df.values.reshape(df.shape[0], 28, 28, 1)
+    df = df.values.reshape(df.shape[0], 20, 20, 1)
 
     # df = df.reshape(df.shape[0], 20, 20, 1)
     # Making sure that the values are float so that we can get decimal points after division
@@ -45,17 +45,17 @@ def reshapeData(index):
 
 # %%
 def createModel():
-    # Creating a Sequential Model and adding the layers
-    model = Sequential()
-    input_shape = (28, 28, 1)
-    model.add(Conv2D(28, kernel_size=(3,3), input_shape=input_shape))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Flatten()) # Flattening the 2D arrays for fully connected layers
-    model.add(Dense(16, activation=tf.nn.relu))
-    model.add(Dropout(0.2))
-    model.add(Dense(10,activation=tf.nn.softmax))
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-    return model
+  model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(input_shape=(20, 20)),
+    # tf.keras.layers.Dense(10, activation='relu'),
+    # tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(10)
+  ])
+  loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+  model.compile(optimizer='adam',
+                loss=loss_fn,
+                metrics=['accuracy'])
+  return model
 
 # %%
 def evaluateModel(model, data_test, label_test):
@@ -63,10 +63,6 @@ def evaluateModel(model, data_test, label_test):
   # Return accuracy
   return results[1]
 
-  if(results[1] > 0.7):
-    return True
-  else:
-    return False
 
 # %%
 def rebuildModel(flat_model):

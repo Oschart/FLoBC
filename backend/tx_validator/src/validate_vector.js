@@ -1,8 +1,8 @@
 export default function validate_vector(newModel_flag, base_model, gradients, validation_path, min_score, onSuccess){
     run_python(newModel_flag, validation_path, base_model, gradients, min_score)
     .then((res) => {
-        let verdict = parsePythonVerdict(res.toString());
-        onSuccess(verdict === 'valid');
+        let results = parsePythonVerdict(res.toString());
+        onSuccess(results);
     })
     .catch((err) => {
         console.error(err)
@@ -30,7 +30,11 @@ function run_python(newModel_flag, validation_path, base_model, gradients, min_s
 
 function parsePythonVerdict(pythonOutput){
     let trimmed = pythonOutput.trim().replace(/(\r\n|\n|\r)/gm, "");
-    let st = trimmed.search("VERDICT");
-    let end = trimmed.search("ENDVERDICT");
-    return trimmed.substring(st + 7, end);
+    let st1 = trimmed.search("VERDICT");
+    let end1 = trimmed.search("ENDVERDICT");
+    let st2 = trimmed.search("SCORE");
+    let end2 = trimmed.search("ENDSCORE");
+    let verdict = trimmed.substring(st1 + "VERDICT".length, end1);
+    let score = trimmed.substring(st2 + "SCORE".length, end2);
+    return [verdict, score]
 }

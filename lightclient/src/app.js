@@ -8,7 +8,7 @@ import store_encoded_vector, { clear_encoded_vector } from './utils/store_encode
 
 const INTERVAL_DURATION = 5000
 
-const MODEL_LENGTH = 76178
+const MODEL_LENGTH = 4010
 
 let can_train = true
 

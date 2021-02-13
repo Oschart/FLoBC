@@ -44,6 +44,12 @@ use crate::{
 const DEBUG: bool = true;
 
 use colored::*;
+use std::fs::OpenOptions;
+use std::io::prelude::*;
+use crate::VALIDATOR_ID;
+use std::sync::atomic::{Ordering};
+
+
 
 /// Shortcut to get verified messages from bytes.
 fn into_verified<T: TryFrom<SignedMessage>>(raw: &[Vec<u8>]) -> anyhow::Result<Vec<Verified<T>>> {
@@ -797,6 +803,33 @@ impl NodeHandler {
         }
     }
 
+
+    /// Record latest trainer update score
+    pub(crate) fn write_score_record(&mut self, trainer_key: PublicKey, score: &String) {
+        let val_id: u16;
+        unsafe {
+            val_id = VALIDATOR_ID.load(Ordering::SeqCst);
+        }
+        let score_filename: String = format!("v{}_scores.txt", val_id);
+        let mut file = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .create(true)
+            .open(score_filename)
+            .unwrap();
+
+        let mut score_record: String = trainer_key.to_hex().clone();
+        score_record.push_str(":");
+        score_record.push_str(score);
+
+        if let Err(e) = writeln!(file, "{}", score_record) {
+            eprintln!("Couldn't write to file: {}", e);
+        }
+
+        //let id: InstanceQuery = InstanceQuery::from("ml_service");
+        //self.blockchain.dispatcher.get_service(id).set_scores_filename(score_filename);
+    }
+
     /// Checks if the transaction is new and adds it to the pool. This may trigger an expedited
     /// `Propose` timeout on this node if transaction count in the pool goes over the threshold.
     ///
@@ -819,7 +852,7 @@ impl NodeHandler {
         }
 
         let outcome;
-        if let Err(e) = Blockchain::check_tx(&snapshot, &msg){
+        if let Err(e) = Blockchain::check_tx(&snapshot, &msg) {
             // Store transaction as invalid to know it if it'll be included into a proposal.
             // Please note that it **must** happen before calling `check_incomplete_proposes`,
             // since the latter uses `invalid_txs` to recalculate the validity of proposals.
@@ -834,29 +867,33 @@ impl NodeHandler {
         } else {
             // Updates Validation
             println!("{}", "---------------------------------------");
-            println!("{}, {}", "Model update received".yellow(), "validating...".italic());
-            let output = Command::new("node").arg("app.js")
+            println!(
+                "{}, {}",
+                "Model update received".yellow(),
+                "validating...".italic()
+            );
+            let output = Command::new("node")
+                .arg("app.js")
                 .arg(self.validation_path.clone())
                 .arg(hex::encode(&msg.payload().arguments).clone())
-                .current_dir("../tx_validator/dist").output().expect("failed to execute process");
-            
-                if DEBUG {
-                    println!("Output {:?}", output);
-                    
-                }
-            
-            let mut verdict: String = String::from_utf8_lossy(&output.stdout).to_string();
-            verdict.pop();  // pop EOL char
+                .current_dir("../tx_validator/dist")
+                .output()
+                .expect("failed to execute process");
 
+            if DEBUG {
+                println!("Output {:?}", output);
+            }
+            let mut results: String = String::from_utf8_lossy(&output.stdout).to_string();
+            results.pop(); // pop EOL char
+            let delim_pos = results.find(':').unwrap();
+            let verdict: String = results.chars().take(delim_pos).collect();
+            let score: String = results.chars().skip(delim_pos + 1).collect();
+
+            // Record the score
+            self.write_score_record(msg.author(), &score);
 
             print!("{}: ", "Validation verdict".white().bold().underline());
-            
-            if verdict != "VALID"{
-                // Invalid / useless Update
-                print!("{}\n", verdict.red().bold());
-                self.state.invalid_txs_mut().insert(msg.object_hash());
-                outcome = Err(HandleTxError::InvalidML);            
-            } else {
+            if verdict == "VALID" {
                 // Transaction is OK, store it to the cache or persistent pool.
                 print!("{}\n", verdict.green().bold());
                 if self.state.persist_txs_immediately() {
@@ -869,6 +906,11 @@ impl NodeHandler {
                     self.state.tx_cache_mut().insert(hash, msg);
                 }
                 outcome = Ok(());
+            } else {
+                // Invalid / useless Update
+                print!("{}\n", verdict.red().bold());
+                self.state.invalid_txs_mut().insert(msg.object_hash());
+                outcome = Err(HandleTxError::InvalidML);
             }
 
             println!("{}", "---------------------------------------");

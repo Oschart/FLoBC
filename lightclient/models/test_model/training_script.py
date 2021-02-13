@@ -7,15 +7,26 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 from utils import send_to_node, read_input, read_weights, flattenWeights, trainModel, rebuildModel, readNewModel_flag
 
+import warnings
+import logging
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"      # To disable using GPU
+tf.get_logger().setLevel('ERROR')
+warnings.filterwarnings('ignore')
+
+INPUT_SHAPE = (20, 20, 1)
+
 # %%
+
+
 def reshapeData(index):
     df = read_input(index)
     df = df.head(int(len(df) * 0.9))
     df = df.sample(int(0.7*len(df)))
     label = df.iloc[:, 0]
     label = label.to_numpy()
-    df = df.drop(df.columns[0], axis = 1)
-    df = df.values.reshape(df.shape[0], 28, 28, 1)
+    df = df.drop(df.columns[0], axis=1)
+    df = df.values.reshape(df.shape[0], *INPUT_SHAPE)
 
     # df = df.reshape(df.shape[0], 20, 20, 1)
     # Making sure that the values are float so that we can get decimal points after division
@@ -25,19 +36,23 @@ def reshapeData(index):
     return df, label
 
 # %%
+
+
 def createModel():
     # Creating a Sequential Model and adding the layers
-    model = Sequential()
-    input_shape = (28, 28, 1)
-    model.add(Conv2D(28, kernel_size=(3,3), input_shape=input_shape))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Flatten()) # Flattening the 2D arrays for fully connected layers
-    # model.add(Dense(128, activation=tf.nn.relu))
-    model.add(Dense(16, activation=tf.nn.relu))
-    model.add(Dropout(0.2))
-    model.add(Dense(10,activation=tf.nn.softmax))
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    input_shape = INPUT_SHAPE
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(input_shape=INPUT_SHAPE),
+        # tf.keras.layers.Dense(10, activation='relu'),
+        # tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(10)
+    ])
+    loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    model.compile(optimizer='adam',
+                  loss=loss_fn,
+                  metrics=['accuracy'])
     return model
+
 
 # %%
 # ###############################
@@ -50,7 +65,6 @@ if (not newModel_flag):
 model = createModel()
 model, list = rebuildModel(model, list, newModel_flag)
 model = trainModel(model, data_train, label_train)
-
 # ################################
 # # 2) Flattening
 # ################################
