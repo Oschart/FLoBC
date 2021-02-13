@@ -1,5 +1,7 @@
 # FDMMLS
 Fully Decentralized Multi-Agent Machine Learning System
+## To Download MNIST data
+https://www.kaggle.com/oddrationale/mnist-in-csv
 
 ## To Run the Tool
 - N.B. Place training data in ./lightclient/models/test_model/
