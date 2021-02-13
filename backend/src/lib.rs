@@ -39,7 +39,7 @@ use crate::{api::PublicApi as MLApi, schema::SchemaImpl};
 /// Initial weights of the model.
 pub const INIT_WEIGHT : f32 = 0.0;
 /// Model size
-pub const MODEL_SIZE : u32 = 4010;
+pub const MODEL_SIZE : u32 = 76178;
 /// Regularization factor
 pub const LAMBDA: f64 = 4.0;
 /// Minimum ratio of a majority of clients

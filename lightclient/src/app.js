@@ -8,7 +8,7 @@ import store_encoded_vector, { clear_encoded_vector } from './utils/store_encode
 
 const INTERVAL_DURATION = 5000
 
-const MODEL_LENGTH = 4010
+const MODEL_LENGTH = 76178
 
 let can_train = true
 
@@ -19,7 +19,7 @@ fetchClientKeys()
   TRAINER_KEY = client_keys
 });
 
-function trainNewModel(modelWeights){
+function trainNewModel(newModel_flag, modelWeights){
     const explorerPath = 'http://127.0.0.1:9000/api/explorer/v1/transactions'
 
     require("regenerator-runtime/runtime");
@@ -55,7 +55,7 @@ function trainNewModel(modelWeights){
         .catch((obj) => console.log(obj))
 
     } else {
-        fetchPythonWeights(dataset_directory, modelWeights, (model_weights) => {
+        fetchPythonWeights(newModel_flag, dataset_directory, modelWeights, (model_weights) => {
             clear_encoded_vector();   
     
             const shareUpdatesPayload = {
@@ -78,13 +78,17 @@ function trainNewModel(modelWeights){
 setInterval(() => {
     fetchLatestModelTrainer()
     .then(newModel => {
-        if(newModel !== -1){
+        if (newModel == 0){
+            console.log("First model version");
+            trainNewModel(true, "");
+        }
+        else if(newModel !== -1){
             setTimeout(() => {
                 console.log("New model fetched")
                 if (can_train){
                     can_train = false;
                     store_encoded_vector(newModel).then((newModel_path) => {
-                        trainNewModel(newModel_path)
+                        trainNewModel(false, newModel_path)
                     });
                 }
             }, INTERVAL_DURATION)
