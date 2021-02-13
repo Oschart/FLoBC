@@ -10,19 +10,6 @@ from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2
 
 # %%
 ################################
-# Formatted print back to node
-################################
-def send_to_node(update_vector):
-    if len(update_vector) == 0:
-        print("VECTOR[]ENDVECTOR")
-    else:
-        print("VECTOR[", end='')
-        for i in range(len(update_vector) - 1):
-            print(update_vector[i], end=',')
-        print(update_vector[-1], end='')
-        print("]ENDVECTOR")
-# %%
-################################
 # Reading dataframe
 ################################
 def read_input(data_dir):
@@ -80,16 +67,6 @@ def evaluateModel(model, data_test, label_test):
     return True
   else:
     return False
-
-# %%
-def flattenWeights(model):
-  arr = np.array(model.get_weights())
-  for i in range (0, len(arr)):
-          arr[i] = arr[i].flatten()
-
-  arr = np.concatenate(arr)
-  flat_model = arr.tolist()
-  return flat_model
 
 # %%
 def rebuildModel(flat_model):

@@ -114,8 +114,9 @@ export function fetchLatestModelValidator(){
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
             if([0, -1].includes(latestIndex)){  //new model 
-                let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
-                resolve(zerosArr);
+                // let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
+                // resolve(zerosArr);
+                resolve(0);
             }
             else{
                 getModelByIndex(latestIndex)    //fetch latest model weights

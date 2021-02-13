@@ -28,9 +28,15 @@ def send_score(score):
 
 
 #data_validation = pd.read_csv(data_dir)
-base_model = parse_gradients(sys.argv[2])
-gradients = parse_gradients(sys.argv[3])
-min_score = float(sys.argv[4])
+print(sys.argv[4])
+gradients = parse_gradients(sys.argv[4])
+newModel_flag = sys.argv[2]
+if newModel_flag:
+    np.random.seed(0)
+    base_model = np.random.uniform(low = -0.09, high = 0.09, size = len(gradients)).tolist()
+else: 
+    base_model = parse_gradients(sys.argv[3])
+min_score = float(sys.argv[5])
 evaluate_model = base_model + gradients
 score = model_mod.compute_validation_score(evaluate_model, data_dir)
 

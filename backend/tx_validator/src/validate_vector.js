@@ -1,5 +1,5 @@
-export default function validate_vector(base_model, gradients, validation_path, min_score, onSuccess){
-    run_python(validation_path, base_model, gradients, min_score)
+export default function validate_vector(newModel_flag, base_model, gradients, validation_path, min_score, onSuccess){
+    run_python(newModel_flag, validation_path, base_model, gradients, min_score)
     .then((res) => {
         let verdict = parsePythonVerdict(res.toString());
         onSuccess(verdict === 'valid');
@@ -9,7 +9,7 @@ export default function validate_vector(base_model, gradients, validation_path, 
     })
 }
 
-function run_python(validation_path, base_model, gradients, min_score){
+function run_python(newModel_flag, validation_path, base_model, gradients, min_score){
     let runPy = new Promise(function(success, nosuccess) {
 
         const { PythonShell } = require('python-shell');
@@ -17,7 +17,7 @@ function run_python(validation_path, base_model, gradients, min_score){
         const options = {
             mode: 'text',
             scriptPath: '../src/',
-            args: ["../../" + validation_path, base_model, gradients, min_score]
+            args: [newModel_flag, "../../" + validation_path, base_model, gradients, min_score]
         };
         PythonShell.run('validation_wrapper.py', options, function (err, results) {
             if (err) throw err;
