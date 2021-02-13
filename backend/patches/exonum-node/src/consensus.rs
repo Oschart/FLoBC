@@ -41,7 +41,7 @@ use crate::{
     NodeHandler,
 };
 
-const DEBUG: bool = false;
+const DEBUG: bool = true;
 
 use colored::*;
 use std::fs::OpenOptions;

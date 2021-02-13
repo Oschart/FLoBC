@@ -5,20 +5,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 
-# %%
-################################
-# Formatted print back to node
-################################
-def send_to_node(update_vector):
-    if len(update_vector) == 0:
-        print("VECTOR[]ENDVECTOR")
-    else:
-        print("VECTOR[", end='')
-        for i in range(len(update_vector) - 1):
-            print(update_vector[i], end=',')
-        print(update_vector[-1], end='')
-        print("]ENDVECTOR")
 # %%
 ################################
 # Reading dataframe
@@ -37,19 +26,22 @@ def read_input(data_dir):
 ################################
 # Reshaping input
 ################################
-def reshapeData(data_dir):
-  df = read_input(data_dir)
-  label = df.iloc[:, 0]
-  label = label.to_numpy()
-  df = df.drop(df.columns[0], axis = 1)
-  df = df.values.reshape(df.shape[0], 20, 20)
+# %%
+def reshapeData(index):
+    df = read_input(index)
+    df = df.head(int(len(df) * 0.9))
+    df = df.sample(int(0.5*len(df)))
+    label = df.iloc[:, 0]
+    label = label.to_numpy()
+    df = df.drop(df.columns[0], axis = 1)
+    df = df.values.reshape(df.shape[0], 20, 20, 1)
 
-  #df = df.reshape(df.shape[0], 20, 20, 1)
-  # Making sure that the values are float so that we can get decimal points after division
-  df = df.astype('float32')
-  # Normalizing the RGB codes by dividing it to the max RGB value.
-  df /= 255
-  return df, label
+    # df = df.reshape(df.shape[0], 20, 20, 1)
+    # Making sure that the values are float so that we can get decimal points after division
+    df = df.astype('float32')
+    # Normalizing the RGB codes by dividing it to the max RGB value.
+    df /= 255
+    return df, label
 
 # %%
 def createModel():
@@ -71,20 +63,6 @@ def evaluateModel(model, data_test, label_test):
   # Return accuracy
   return results[1]
 
-  if(results[1] > 0.7):
-    return True
-  else:
-    return False
-
-# %%
-def flattenWeights(model):
-  arr = np.array(model.get_weights())
-  for i in range (0, len(arr)):
-          arr[i] = arr[i].flatten()
-
-  arr = np.concatenate(arr)
-  flat_model = arr.tolist()
-  return flat_model
 
 # %%
 def rebuildModel(flat_model):
