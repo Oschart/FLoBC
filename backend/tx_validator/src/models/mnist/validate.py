@@ -30,7 +30,7 @@ def read_input(data_dir):
 def reshapeData(index):
     df = read_input(index)
     df = df.head(int(len(df) * 0.9))
-    df = df.sample(int(0.5*len(df)))
+    df = df.sample(int(0.5*len(df)), random_state=0)
     label = df.iloc[:, 0]
     label = label.to_numpy()
     df = df.drop(df.columns[0], axis = 1)
