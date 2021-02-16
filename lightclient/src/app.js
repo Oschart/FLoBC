@@ -5,6 +5,7 @@ import fetchDatasetDirectory, { fetchImposterState } from './utils/fetchDatasetD
 import fetchClientKeys from './utils/fetchClientKeys';
 import { fetchLatestModelTrainer } from './utils/fetchLatestModel';
 import store_encoded_vector, { clear_encoded_vector } from './utils/store_encoded_vector'
+import generateNormalNoise from './utils/generateNormalNoise';
 
 const INTERVAL_DURATION = 5000
 
@@ -37,15 +38,37 @@ function trainNewModel(newModel_flag, modelWeights){
     })
 
     let dataset_directory = fetchDatasetDirectory();
-    let is_imposter = fetchImposterState();
-    if (is_imposter){
-        clear_encoded_vector();
-        // Generating random uniformly distributed vector with values 9000 - 11000
-        const shareUpdatesPayload = {
-            gradients: Array.from({length: MODEL_LENGTH}, () => 5000 + Math.floor(Math.random() * 10000)),
-            seed: exonum.randomUint64(),
-        }
+    let noise_scale = fetchImposterState();
+    // if (is_imposter){
+    //     clear_encoded_vector();
+    //     // Generating random uniformly distributed vector with values 9000 - 11000
+    //     const shareUpdatesPayload = {
+    //         gradients: Array.from({length: MODEL_LENGTH}, () => 5000 + Math.floor(Math.random() * 10000)),
+    //         seed: exonum.randomUint64(),
+    //     }
     
+    //     const transaction = ShareUpdates.create(shareUpdatesPayload, TRAINER_KEY)
+    //     const serialized = transaction.serialize()
+    //     console.log(serialized)
+
+    //     exonum.send(explorerPath, serialized, 10, 5000)
+    //     .then((obj) => console.log(obj))
+    //     .catch((obj) => console.log(obj))
+
+    // } else {
+    fetchPythonWeights(newModel_flag, dataset_directory, modelWeights, (model_weights) => {
+        clear_encoded_vector();
+        
+        if (noise_scale){
+            let noise = generateNormalNoise(MODEL_LENGTH, noise_scale);
+            for (let i = 0 ; i < MODEL_LENGTH ; i++) model_weights[i] += noise[i];
+        }
+        
+        const shareUpdatesPayload = {
+        gradients: model_weights,
+        seed: exonum.randomUint64(),
+        }
+
         const transaction = ShareUpdates.create(shareUpdatesPayload, TRAINER_KEY)
         const serialized = transaction.serialize()
         console.log(serialized)
@@ -53,26 +76,9 @@ function trainNewModel(newModel_flag, modelWeights){
         exonum.send(explorerPath, serialized, 10, 5000)
         .then((obj) => console.log(obj))
         .catch((obj) => console.log(obj))
-
-    } else {
-        fetchPythonWeights(newModel_flag, dataset_directory, modelWeights, (model_weights) => {
-            clear_encoded_vector();   
-    
-            const shareUpdatesPayload = {
-            gradients: model_weights,
-            seed: exonum.randomUint64(),
-            }
-    
-            const transaction = ShareUpdates.create(shareUpdatesPayload, TRAINER_KEY)
-            const serialized = transaction.serialize()
-            console.log(serialized)
-    
-            exonum.send(explorerPath, serialized, 10, 5000)
-            .then((obj) => console.log(obj))
-            .catch((obj) => console.log(obj))
-            .finally(() => { can_train = true; })
-        });
-    }
+        .finally(() => { can_train = true; })
+    });
+    // }
 }
 
 setInterval(() => {
