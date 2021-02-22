@@ -143,16 +143,15 @@ impl PublicApi {
         let mut res : String = "{".to_string(); 
         let mut flag = 0; 
         for v in scores.iter() {
-            println!("{:?}", v.0);
             if (flag > 0){
                 res.push_str(",");
             }
             flag = 1;
-            res.push_str("\"");
+            res.push_str(r#"""#);
             res.push_str(&v.0.object_hash().to_hex());
-            res.push_str("\":\"");
+            res.push_str(r##"":""##);
             res.push_str(&v.1);
-            res.push_str("\"");
+            res.push_str(r#"""#);
         }
         res.push_str("}");
         Ok(res)
