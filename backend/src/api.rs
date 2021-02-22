@@ -20,7 +20,7 @@ use exonum::{
     messages::{AnyTx, Verified},
     runtime::CallerAddress as Address,
 };
-use exonum_merkledb::{proof_map::Raw, ListProof, MapProof};
+use exonum_merkledb::{proof_map::Raw, ListProof, MapProof, ObjectHash};
 use exonum_rust_runtime::api::{self, ServiceApiBuilder, ServiceApiState};
 
 use crate::{schema::{SchemaImpl, SchemaUtils}, model::Model};
@@ -133,6 +133,31 @@ impl PublicApi {
         let latest = versionsNum - 1;
         Ok(latest)
     }
+
+    pub async fn get_trainers_scores(
+        state: ServiceApiState,
+        query: (),
+    ) -> api::Result<String>{
+        let model_schema = SchemaImpl::new(state.service_data());
+        let scores = model_schema.trainers_scores; //unwrap?
+        let mut res : String = "{".to_string(); 
+        let mut flag = 0; 
+        for v in scores.iter() {
+            println!("{:?}", v.0);
+            if (flag > 0){
+                res.push_str(",");
+            }
+            flag = 1;
+            res.push_str("\"");
+            res.push_str(&v.0.object_hash().to_hex());
+            res.push_str("\":\"");
+            res.push_str(&v.1);
+            res.push_str("\"");
+        }
+        res.push_str("}");
+        Ok(res)
+        
+    }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
@@ -140,6 +165,7 @@ impl PublicApi {
             .public_scope()
             .endpoint("v1/models/info", Self::model_info)
             .endpoint("v1/models/getmodel", Self::get_model)
+            .endpoint("v1/models/trainersscores", Self::get_trainers_scores)
             .endpoint("v1/models/latestmodel", Self::latest_model);
     }
 }
