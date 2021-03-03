@@ -1,15 +1,23 @@
-command_start=$1
 i=$1
+path=$2
 echo $i
 
-cd /Users/habibabassem/Desktop/Spring\ 2021/Thesis\ II/FDMMLS/
+# cd /Users/habibabassem/Desktop/Spring\ 2021/Thesis\ II/FDMMLS/
 
-if [ $i != 0 ]
-then
-    cp -R -v ./lightclient ./lightclient$i
-    cd ./lightclient$i
+if [[ $path != "./" ]]
+then 
+    mkdir $path/
+    cp -R -v ./lightclient $path/lightclient$i
+    cd $path/lightclient$i
 else 
-    cd ./lightclient
-fi 
+    cd lightclient
+fi
+# if [ $i != 0 ]
+# then
+#     cp -R -v ./lightclient $path/lightclient$i
+#     cd $path/lightclient$i
+# else 
+#     cd ./lightclient
+# fi 
 rm ModelMetadata
 npm start -- ./models/test_model/data.csv 0
