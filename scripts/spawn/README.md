@@ -10,3 +10,5 @@ sh spawn.sh -n <number of validators> -t <number of trainers> -p <path of output
 - -n: for number of validators
 - -t: for number of trainers
 - -p: path for the directory that will include the light client folders
+
+#### You don't need to specify -p if you'll use the lightclient directory and the backend directory in the root
