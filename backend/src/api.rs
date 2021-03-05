@@ -133,6 +133,20 @@ impl PublicApi {
         let latest = versionsNum - 1;
         Ok(latest)
     }
+
+    pub async fn get_model_accuracy(
+        state: ServiceApiState,
+        query: ModelQuery,
+    ) -> api::Result<f32>{
+        println!("{}", "In new API");
+        let model_schema = SchemaImpl::new(state.service_data());
+        let versionHash = Address::from_key(SchemaUtils::pubkey_from_version(query.version));
+        let model = model_schema.public.models.get(&versionHash).unwrap();
+        println!("{}", model.score);
+        let res = Some(model.score);
+        res.ok_or_else(|| api::Error::not_found().title("No model with that version"))
+        
+    }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
@@ -140,6 +154,7 @@ impl PublicApi {
             .public_scope()
             .endpoint("v1/models/info", Self::model_info)
             .endpoint("v1/models/getmodel", Self::get_model)
-            .endpoint("v1/models/latestmodel", Self::latest_model);
+            .endpoint("v1/models/latestmodel", Self::latest_model)
+            .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy);
     }
 }
