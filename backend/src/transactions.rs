@@ -8,6 +8,7 @@ use exonum_proto::ProtobufConvert;
 use crate::{proto, schema::SchemaImpl, MachineLearningService};
 
 use exonum_node::VALIDATOR_ID;
+use exonum_node::SYNC_POLICY;
 use std::fs;
 
 use std::{path, sync::atomic::Ordering};
@@ -80,6 +81,11 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
 
     fn syncBarrier(&self, context: ExecutionContext<'_>, arg: SyncBarrier) -> Self::Output {
         println!("Sync Barrier signal received!");
+        unsafe {
+            let sp: u16;
+            sp = SYNC_POLICY.load(Ordering::SeqCst);
+            println!("Sync policy is {}", sp);
+        }
         Ok(())
     }
 }

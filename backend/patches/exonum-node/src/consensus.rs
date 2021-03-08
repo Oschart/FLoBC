@@ -888,7 +888,7 @@ impl NodeHandler {
             );
             let output = Command::new("node")
                 .arg("app.js")
-                .arg(self.validation_path.clone())
+                .arg(self.sync_policy.clone())
                 .arg(hex::encode(&msg.payload().arguments).clone())
                 .current_dir("../tx_validator/dist")
                 .output()
