@@ -7,10 +7,14 @@ use exonum_proto::ProtobufConvert;
 
 use crate::{proto, schema::SchemaImpl, MachineLearningService};
 
-use exonum_node::VALIDATOR_ID;
+/// Synchronization policy:
+/// 0 -> BSP
+/// 1 -> SSP
 use exonum_node::SYNC_POLICY;
+use exonum_node::VALIDATOR_ID;
 use std::fs;
 
+use crate::get_static;
 use std::{path, sync::atomic::Ordering};
 
 /// Transfer `amount` of the currency from one wallet to another.
@@ -50,17 +54,17 @@ pub trait MachineLearningInterface<Ctx> {
 
     /// Proposes a model update
     #[interface_method(id = 0)]
-    fn shareUpdates(&self, ctx: Ctx, arg: ShareUpdates) -> Self::Output;
+    fn share_updates(&self, ctx: Ctx, arg: ShareUpdates) -> Self::Output;
 
     /// Signal a sync barrier
     #[interface_method(id = 1)]
-    fn syncBarrier(&self, ctx: Ctx, arg: SyncBarrier) -> Self::Output;
+    fn sync_barrier(&self, ctx: Ctx, arg: SyncBarrier) -> Self::Output;
 }
 
 impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
     type Output = Result<(), ExecutionError>;
 
-    fn shareUpdates(&self, context: ExecutionContext<'_>, arg: ShareUpdates) -> Self::Output {
+    fn share_updates(&self, context: ExecutionContext<'_>, arg: ShareUpdates) -> Self::Output {
         let (from, tx_hash) = extract_info(&context)?;
         let mut schema = SchemaImpl::new(context.service_data());
 
@@ -79,13 +83,14 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         Ok(())
     }
 
-    fn syncBarrier(&self, context: ExecutionContext<'_>, arg: SyncBarrier) -> Self::Output {
-        println!("Sync Barrier signal received!");
-        unsafe {
-            let sp: u16;
-            sp = SYNC_POLICY.load(Ordering::SeqCst);
-            println!("Sync policy is {}", sp);
+    fn sync_barrier(&self, context: ExecutionContext<'_>, arg: SyncBarrier) -> Self::Output {
+        let sp: u16 = get_static!(SYNC_POLICY);
+        println!("Sync Barrier signal received! Policy = {}", sp);
+        if sp == 0 { // BSP
+
+        } else {
         }
+
         Ok(())
     }
 }

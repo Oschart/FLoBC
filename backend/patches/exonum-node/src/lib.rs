@@ -127,6 +127,9 @@ use std::sync::atomic::{AtomicU16,};
 
 /// Validator ID
 pub static mut VALIDATOR_ID: AtomicU16 = AtomicU16::new(0);
+/// Synchronization policy:
+/// 0 -> BSP
+/// 1 -> SSP
 pub static mut SYNC_POLICY: AtomicU16 = AtomicU16::new(0);
 
 // Logically private types re-exported for benchmarks.

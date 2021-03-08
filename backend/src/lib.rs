@@ -29,6 +29,7 @@ pub mod model;
 pub mod proto;
 pub mod schema;
 pub mod transactions;
+pub mod macros;
 
 use exonum::runtime::{ExecutionContext, ExecutionError, InstanceId};
 use exonum_derive::{ServiceDispatcher, ServiceFactory};
