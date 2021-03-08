@@ -24,6 +24,16 @@ pub struct ShareUpdates {
     pub seed: u64,
 }
 
+/// Signal a synchronization barrier
+#[derive(Clone, Debug, ProtobufConvert, BinaryValue, ObjectHash)]
+#[protobuf_convert(source = "proto::TxSyncBarrier", serde_pb_convert)]
+pub struct SyncBarrier {
+    /// Auxiliary number to guarantee [non-idempotence][idempotence] of transactions.
+    ///
+    /// [idempotence]: https://en.wikipedia.org/wiki/Idempotence
+    pub seed: u64,
+}
+
 /// Error codes emitted by model transactions during execution.
 #[derive(Debug, ExecutionFail)]
 pub enum Error {
@@ -40,6 +50,10 @@ pub trait MachineLearningInterface<Ctx> {
     /// Proposes a model update
     #[interface_method(id = 0)]
     fn shareUpdates(&self, ctx: Ctx, arg: ShareUpdates) -> Self::Output;
+
+    /// Signal a sync barrier
+    #[interface_method(id = 1)]
+    fn syncBarrier(&self, ctx: Ctx, arg: SyncBarrier) -> Self::Output;
 }
 
 impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
@@ -61,6 +75,11 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
             // Remove the scores file when you're done
             clear_scores_file();
         }
+        Ok(())
+    }
+
+    fn syncBarrier(&self, context: ExecutionContext<'_>, arg: SyncBarrier) -> Self::Output {
+        println!("Sync Barrier signal received!");
         Ok(())
     }
 }

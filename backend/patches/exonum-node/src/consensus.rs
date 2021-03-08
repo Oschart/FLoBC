@@ -864,6 +864,20 @@ impl NodeHandler {
             // we will be able to panic.
             // Thus, we don't stop the execution here.
             outcome = Err(HandleTxError::Invalid(e));
+
+        } else if msg.payload().call_info.method_id == 1 {
+            // Sync barrier transaction
+            if self.state.persist_txs_immediately() {
+                let fork = self.blockchain.fork();
+                Schema::new(&fork).add_transaction_into_pool(msg);
+                self.blockchain
+                    .merge(fork.into_patch())
+                    .expect("Cannot add transaction to persistent pool");
+            } else {
+                self.state.tx_cache_mut().insert(hash, msg);
+            }
+            outcome = Ok(());
+
         } else {
             // Updates Validation
             println!("{}", "---------------------------------------");
