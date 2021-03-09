@@ -1,14 +1,16 @@
 import * as exonum from 'exonum-client'
 import * as proto from './proto'
+import { get_slack_ratio } from './utils'
+
 require("regenerator-runtime/runtime");
 
 // default period is one minute
-const DEFAULT_PERIOD = 60; 
+const DEFAULT_PERIOD = 60;
 
 //Iteration period in seconds
-let base_period; 
-if (process.argv.length < 3){
-  base_period = DEFAULT_PERIOD; 
+let base_period;
+if (process.argv.length < 3) {
+  base_period = DEFAULT_PERIOD;
 }
 else {
   base_period = parseInt(process.argv[2]);
@@ -30,44 +32,32 @@ const SyncBarrier = new exonum.Transaction({
 
 function sleep(time) { return new Promise(res => setTimeout(res, time * 1000)); }
 
-let current_period; 
-async function main(){
+let current_period;
+async function main() {
 
   await sleep(base_period);
-  while (true){
+  while (true) {
     const syncBarrierPayload = {
       seed: exonum.randomUint64(),
     }
-  
+
     const transaction = SyncBarrier.create(syncBarrierPayload, exonum.keyPair());
     const serialized = transaction.serialize();
     console.log(serialized)
-    
-    let res = await exonum.send(explorerPath, serialized, 10, 5000); 
+
+    let res = await exonum.send(explorerPath, serialized, 10, 5000);
     console.log(res);
 
-    let extension_ratio = await get_ratio(); 
-    if (extension_ratio > 0.0){
+    let extension_ratio = await get_slack_ratio().catch((err) => console.log(err));
+
+    console.log(`extension_ratio = ${extension_ratio}`);
+    if (extension_ratio > 0.0) {
       current_period = Math.round(base_period * extension_ratio);
     } else {
       current_period = base_period;
     }
-    await sleep(current_period); 
+    await sleep(current_period);
   }
 }
 
-main(); 
-
-// Stub for wire API returning the remaining participation
-async function get_ratio(){
-  let ans; 
-  let random = Math.floor(Math.random() * 2)
-  if (random){
-    ans = Math.random(); 
-  }
-  else {
-    ans = 0;
-  }
-  console.log("get ratio returned ", ans);
-  return ans;
-}
+main();
