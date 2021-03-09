@@ -28,17 +28,21 @@ use hex::FromHex;
 use crate::{model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_SCORE_DECAY, MODEL_SIZE};
 #[path = "model.rs"]
 use itertools::Itertools;
-use std::{convert::{TryFrom, TryInto}, fs};
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
 use std::process::Command;
+use std::{
+    convert::{TryFrom, TryInto},
+    fs,
+};
 
 use colored::*;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 
+use crate::get_static;
 use exonum_node::VALIDATOR_ID;
-use std::sync::atomic::{Ordering};
+use std::sync::atomic::Ordering;
 
 const DEBUG: bool = false;
 
@@ -57,6 +61,11 @@ pub(crate) struct SchemaImpl<T: Access> {
     pub trainers_scores: MapIndex<T::Base, Address, String>,
     /// Pending transactions of the current round
     pub pending_transactions: MapIndex<T::Base, Address, Vec<u8>>,
+    /// Deadline extension status (SSP)
+    /// 0 -> Original deadline
+    /// 1 -> Active extension
+    /// 2 -> Extension expired
+    pub deadline_status: Entry<T::Base, u8>,
 }
 
 /// Public part of the cryptocurrency schema.
@@ -114,8 +123,36 @@ where
         }
     }
 
+    pub fn initiate_release(&mut self) {
+        if self.pending_transactions_exist() {
+            // Update trainer scores
+            self.update_scores();
+            // Updating the most recent model using schema
+            self.update_model();
+            // Remove the scores file when you're done
+            SchemaUtils::clear_scores_file();
+        }
+    }
+
+    pub fn pending_transactions_exist(&mut self) -> bool {
+        self.pending_transactions.values().count() > 0
+    }
+
+    pub fn get_deadline_status(&mut self) -> u8 {
+        self.deadline_status.get().unwrap_or(0)
+    }
+
+    pub fn set_deadline_status(&mut self, status: u8) {
+        self.deadline_status.set(status);
+    }
+
     // modified
-    pub fn update_weights(&mut self) {
+    pub fn update_model(&mut self) {
+        // If there are no pending transactions, no new model should be created
+        if self.pending_transactions.values().count() == 0 {
+            return;
+        }
+
         let mut latest_model: Model;
         let model_values = self.public.models.values();
         if model_values.count() == 0 {
@@ -175,6 +212,22 @@ where
         self.public.latest_version_addr.set(new_version_hash);
     }
 
+    pub fn cache_update(&mut self, trainer_addr: &Address, updates: &Vec<f32>) {
+        // NOTE: Overwrite latest model update
+        self.pending_transactions.put(
+            &trainer_addr,
+            SchemaUtils::float_vec_to_byte_slice(&updates),
+        );
+    }
+
+    pub fn get_slack_ratio(&mut self) -> f32 {
+        // Calculating contributers ratio
+        let num_of_trainers = (self.trainers_scores.values().count()) as f32;
+        let num_of_contributers = (self.pending_transactions.values().count()) as f32;
+        let slack_ratio = (num_of_trainers - num_of_contributers) / num_of_trainers;
+        return slack_ratio;
+    }
+
     pub fn check_pending(&mut self, trainer_addr: &Address, updates: &Vec<f32>) -> bool {
         if self.pending_transactions.contains(trainer_addr) {
             return false;
@@ -202,10 +255,7 @@ where
         let latest_model = self.public.models.get(&version_hash).unwrap();
         let latest_model_score: f32 = latest_model.score;
 
-        let val_id: u16;
-        unsafe {
-            val_id = VALIDATOR_ID.load(Ordering::SeqCst);
-        }
+        let val_id: u16 = get_static!(VALIDATOR_ID);
         let score_filename: String = format!("v{}_scores.txt", val_id);
         let file = File::open(&score_filename).unwrap();
         let reader = BufReader::new(file);
@@ -229,11 +279,15 @@ where
             let new_trainer_score = curr_score + delta;
 
             // Update trainer score
-            self.trainers_scores.put(&trainer_addr, new_trainer_score.to_string());
+            self.trainers_scores
+                .put(&trainer_addr, new_trainer_score.to_string());
 
-            println!("Trainer <{:?}>, prev_score={}, val_score={}, new_score={}, delta={}", trainer_addr, curr_score, val_score, new_trainer_score, delta);
+            println!(
+                "Trainer <{:?}>, prev_score={}, val_score={}, new_score={}, delta={}",
+                trainer_addr, curr_score, val_score, new_trainer_score, delta
+            );
         }
-        
+
         return Some(0);
     }
 }
@@ -312,8 +366,6 @@ impl SchemaUtils {
         return score;
     }
 
-    
-
     /// Formats and prints model metadata
     pub fn print_model_meta(model: &Model) {
         let version = format!("{}", model.version);
@@ -328,5 +380,11 @@ impl SchemaUtils {
             accr.green()
         );
         println!("{}", "---------------------------------------");
+    }
+
+    fn clear_scores_file() {
+        let val_id: u16 = get_static!(VALIDATOR_ID);
+        let score_filename: String = format!("v{}_scores.txt", val_id);
+        fs::remove_file(&score_filename).expect("Unable to delete scores file");
     }
 }

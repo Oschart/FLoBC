@@ -70,39 +70,46 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
 
         schema.register_trainer(&from);
 
-        // Checking if a majority has been achieved
-        let ready = schema.check_pending(&from, &arg.gradients);
-        if ready {
-            // Update trainer scores
-            schema.update_scores();
-            //Updating the most recent model using schema
-            schema.update_weights();
-            // Remove the scores file when you're done
-            clear_scores_file();
-        }
+        schema.cache_update(&from, &arg.gradients);
         Ok(())
     }
 
     fn sync_barrier(&self, context: ExecutionContext<'_>, arg: SyncBarrier) -> Self::Output {
         let sp: u16 = get_static!(SYNC_POLICY);
         println!("Sync Barrier signal received! Policy = {}", sp);
-        if sp == 0 { // BSP
+        let mut schema = SchemaImpl::new(context.service_data());
 
+        if sp == 0 {
+            // BSP
+            // STRICT DEADLINE //
+            schema.initiate_release();
         } else {
+            // SSP
+            // RELAXED DEADLINE //
+            let slack_ratio = schema.get_slack_ratio();
+            let deadline_status = schema.get_deadline_status();
+            match deadline_status {
+                0 => {
+                    if slack_ratio > 0.0 {
+                        schema.set_deadline_status(1);
+                    }
+                },
+                1 => {
+                    schema.initiate_release();
+                    schema.set_deadline_status(0);
+                },
+                _ => {
+                    println!("Invalid deadline status!");
+                    schema.set_deadline_status(0);
+                },
+            }
         }
 
         Ok(())
     }
 }
 
-fn clear_scores_file() {
-    let val_id: u16;
-    unsafe {
-        val_id = VALIDATOR_ID.load(Ordering::SeqCst);
-    }
-    let score_filename: String = format!("v{}_scores.txt", val_id);
-    fs::remove_file(&score_filename).expect("Unable to delete scores file");
-}
+
 
 fn extract_info(context: &ExecutionContext<'_>) -> Result<(Address, Hash), ExecutionError> {
     let tx_hash = context
