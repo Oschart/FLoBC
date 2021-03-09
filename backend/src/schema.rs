@@ -83,6 +83,14 @@ impl<T: Access> SchemaImpl<T> {
     pub fn new(access: T) -> Self {
         Self::from_root(access).unwrap()
     }
+
+    pub fn _get_slack_ratio_(&self) -> f32 {
+        // Calculating contributers ratio
+        let num_of_trainers = (self.trainers_scores.values().count()) as f32;
+        let num_of_contributers = (self.pending_transactions.values().count()) as f32;
+        let slack_ratio = (num_of_trainers - num_of_contributers) / num_of_trainers;
+        return slack_ratio;
+    }
 }
 
 impl<T> SchemaImpl<T>
