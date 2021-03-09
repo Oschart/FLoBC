@@ -16,6 +16,8 @@
     "babel-preset-latest": "^6.24.1"
   },
   "dependencies": {
-    "exonum-client": "^0.18.3"
+    "core-js": "^3.9.1",
+    "exonum-client": "^0.18.3",
+    "regenerator-runtime": "^0.13.7"
   }
 }
