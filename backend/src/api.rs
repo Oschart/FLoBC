@@ -135,6 +135,20 @@ impl PublicApi {
         Ok(latest)
     }
 
+    /// Model accuracy getter
+    pub async fn get_model_accuracy(
+        state: ServiceApiState,
+        query: ModelQuery,
+    ) -> api::Result<f32>{
+        println!("{}", "In new API");
+        let model_schema = SchemaImpl::new(state.service_data());
+        let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(query.version));
+        let model = model_schema.public.models.get(&version_hash).unwrap();
+        println!("{}", model.score);
+        let res = Some(model.score);
+        res.ok_or_else(|| api::Error::not_found().title("No model with that version"))
+    }
+
     /// Returns the slack ratio to syncer
     pub async fn get_slack_ratio(
         state: ServiceApiState,
@@ -152,6 +166,7 @@ impl PublicApi {
             .endpoint("v1/models/info", Self::model_info)
             .endpoint("v1/models/getmodel", Self::get_model)
             .endpoint("v1/models/latestmodel", Self::latest_model)
+            .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy)
             .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio);
     }
 }
