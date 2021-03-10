@@ -111,6 +111,7 @@ impl PublicApi {
         })
     }
 
+    /// Model getter
     pub async fn get_model(
         state: ServiceApiState,
         query: ModelQuery,
@@ -123,29 +124,39 @@ impl PublicApi {
         
     }
 
-    //returns -1 in case of the absence of models
+    /// returns -1 in case of the absence of models
     pub async fn latest_model(
         state: ServiceApiState,
         query: (),
     ) -> api::Result<i32>{
         let model_schema = SchemaImpl::new(state.service_data());
-        let versionsNum = model_schema.public.models.keys().count() as i32;
-        let latest = versionsNum - 1;
+        let versions_num = model_schema.public.models.keys().count() as i32;
+        let latest = versions_num - 1;
         Ok(latest)
     }
 
+    /// Model accuracy getter
     pub async fn get_model_accuracy(
         state: ServiceApiState,
         query: ModelQuery,
     ) -> api::Result<f32>{
         println!("{}", "In new API");
         let model_schema = SchemaImpl::new(state.service_data());
-        let versionHash = Address::from_key(SchemaUtils::pubkey_from_version(query.version));
-        let model = model_schema.public.models.get(&versionHash).unwrap();
+        let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(query.version));
+        let model = model_schema.public.models.get(&version_hash).unwrap();
         println!("{}", model.score);
         let res = Some(model.score);
         res.ok_or_else(|| api::Error::not_found().title("No model with that version"))
-        
+    }
+
+    /// Returns the slack ratio to syncer
+    pub async fn get_slack_ratio(
+        state: ServiceApiState,
+        query: (),
+    ) -> api::Result<f32>{
+        let schema = SchemaImpl::new(state.service_data());
+        let slack_ratio = schema._get_slack_ratio_();
+        Ok(slack_ratio)
     }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
@@ -155,6 +166,7 @@ impl PublicApi {
             .endpoint("v1/models/info", Self::model_info)
             .endpoint("v1/models/getmodel", Self::get_model)
             .endpoint("v1/models/latestmodel", Self::latest_model)
-            .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy);
+            .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy)
+            .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio);
     }
 }
