@@ -10,4 +10,4 @@ then
     cp -R -v ./backend/example $path/backend/example
 fi 
 cd $path/backend
-$command_start "./run_node.sh" $i ./
+$command_start "./run_node.sh" $i "BSP"
