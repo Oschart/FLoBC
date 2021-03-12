@@ -3,7 +3,8 @@ cd ./backend/
 command_start="sh "
 command="./build_finalize.sh "
 path="./"
-while getopts "n:t:p:w:q:cbjl" arg; do
+endV = -1
+while getopts "n:t:p:w:q:e:cbjl" arg; do
     case $arg in
     n) 
         node_count=$(($OPTARG)) 
@@ -36,6 +37,11 @@ while getopts "n:t:p:w:q:cbjl" arg; do
         start_peer_port="$OPTARG" 
         command+="-q $start_peer_port "
         ;;
+    e)
+        endV=$(($OPTARG)) 
+        command+="-e "
+        command+="$endV "
+        ;;
     esac
 done
 printf "%0.s*" {1..70} 
@@ -54,7 +60,7 @@ do
     source ./scripts/utils/newTab.sh
     openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path"
     # newtab $command_start"./scripts/spawn/validator_run.sh" $command_start $i $path
-    sleep 120
+    #sleep 5
 done
 printf "%0.s*" {1..70} 
 printf "\n"
@@ -70,3 +76,8 @@ do
     openTab $command_start "$command_start ./scripts/spawn/trainer_run.sh $i $path"
     # newtab $command_start"./scripts/spawn/trainer_run.sh" $i $path
 done
+
+if (( endV > -1 ))
+then
+    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endV"
+fi
