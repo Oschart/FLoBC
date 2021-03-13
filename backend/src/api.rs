@@ -135,6 +135,16 @@ impl PublicApi {
         Ok(latest)
     }
 
+    /// returns 0.5 in case of the absence of models
+    pub async fn get_model_min_score(
+        state: ServiceApiState,
+        query: (),
+    ) -> api::Result<f32>{
+        let model_schema = SchemaImpl::new(state.service_data());
+        let min_score = model_schema.model_min_score.get().unwrap_or("0.5".to_string()).parse::<f32>().unwrap();
+        Ok(min_score)
+    }
+
     /// Model accuracy getter
     pub async fn get_model_accuracy(
         state: ServiceApiState,
@@ -143,9 +153,9 @@ impl PublicApi {
         println!("{}", "In new API");
         let model_schema = SchemaImpl::new(state.service_data());
         let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(query.version));
-        let model = model_schema.public.models.get(&version_hash).unwrap();
-        println!("{}", model.score);
-        let res = Some(model.score);
+        let model_score = model_schema.model_scores.get(&version_hash).unwrap();
+        println!("{}", model_score);
+        let res = Some(model_score.parse::<f32>().unwrap());
         res.ok_or_else(|| api::Error::not_found().title("No model with that version"))
     }
 
@@ -166,6 +176,7 @@ impl PublicApi {
             .endpoint("v1/models/info", Self::model_info)
             .endpoint("v1/models/getmodel", Self::get_model)
             .endpoint("v1/models/latestmodel", Self::latest_model)
+            .endpoint("v1/models/getmodelminscore", Self::get_model_min_score)
             .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy)
             .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio);
     }

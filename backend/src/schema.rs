@@ -66,6 +66,10 @@ pub(crate) struct SchemaImpl<T: Access> {
     /// 1 -> Active extension
     /// 2 -> Extension expired
     pub deadline_status: Entry<T::Base, u8>,
+    // Models scores for all versions
+    pub model_scores: MapIndex<T::Base, Address, String>, 
+    // Current minimum score
+    pub model_min_score: Entry<T::Base, String>,
 }
 
 /// Public part of the cryptocurrency schema.
@@ -172,8 +176,6 @@ where
                 version,
                 MODEL_SIZE,
                 vec![INIT_WEIGHT; MODEL_SIZE as usize],
-                start_score,
-                min_score,
             );
             if DEBUG {
                 println!("Initial Model: {:?}", latest_model);
@@ -191,8 +193,6 @@ where
             (&latest_model).version + 1,
             (&latest_model).size,
             (&latest_model).weights.clone(),
-            (&latest_model).score,     // Placeholder
-            (&latest_model).min_score, // Placeholder
         );
 
         // Aggregating all pending transactions
@@ -205,17 +205,18 @@ where
         }
         self.pending_transactions.clear();
 
-        let new_model_score = SchemaUtils::evaluate_model(&(&new_model).weights);
-        new_model.score = new_model_score;
-        new_model.min_score = new_model_score * MAX_SCORE_DECAY;
         let new_version = new_model.version;
         let new_version_hash = Address::from_key(SchemaUtils::pubkey_from_version(new_version));
+
+        let new_model_score = SchemaUtils::evaluate_model(&(&new_model).weights);
+        self.model_scores.put(&new_version_hash, new_model_score.to_string());
+        self.model_min_score.set((new_model_score * MAX_SCORE_DECAY).to_string());
 
         if DEBUG {
             println!("Created New Model: {:?}", new_model);
         }
 
-        SchemaUtils::print_model_meta(&new_model);
+        SchemaUtils::print_model_meta(&new_model, new_model_score);
         self.public.models.put(&new_version_hash, new_model);
         self.public.latest_version_addr.set(new_version_hash);
     }
@@ -260,8 +261,7 @@ where
     pub fn update_scores(&mut self) -> Option<i32> {
         // Get latest model
         let version_hash = self.public.latest_version_addr.get()?;
-        let latest_model = self.public.models.get(&version_hash).unwrap();
-        let latest_model_score: f32 = latest_model.score;
+        let latest_model_score: f32 = self.model_scores.get(&version_hash).unwrap().parse::<f32>().unwrap();
 
         let val_id: u16 = get_static!(VALIDATOR_ID);
         let score_filename: String = format!("v{}_scores.txt", val_id);
@@ -375,9 +375,9 @@ impl SchemaUtils {
     }
 
     /// Formats and prints model metadata
-    pub fn print_model_meta(model: &Model) {
+    pub fn print_model_meta(model: &Model, new_score: f32) {
         let version = format!("{}", model.version);
-        let accr = format!("{}", model.score * 100.0);
+        let accr = format!("{}", new_score * 100.0);
         println!("{}", "---------------------------------------");
         println!(
             "{}: {}= {} \t {}= {}%",

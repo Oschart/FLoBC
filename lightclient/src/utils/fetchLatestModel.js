@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const GET_LATEST_MODEL_INDEX_URL = "http://127.0.0.1:9000/api/services/ml_service/v1/models/latestmodel"
 const GET_MODEL_BY_INDEX_URL = "http://127.0.0.1:9000/api/services/ml_service/v1/models/getmodel"
+const GET_MODEL_MIN_SCORE_URL = "http://127.0.0.1:9000/api/services/ml_service/v1/models/getmodelminscore"
 const METADATA_FILE_NAME = 'ModelMetadata';
 const WEIGHTS_LENGTH = 4010;
 
@@ -66,11 +67,10 @@ function getModelByIndex(index){
     })
 }
 
-function getMinScoreByIndex(index){
-    let option = '?version=' + index;
+function getMinScore(){
     return new Promise((resolve, reject) => {
-        HTTPGet(GET_MODEL_BY_INDEX_URL, option)
-        .then(res => resolve(JSON.parse(res).min_score))
+        HTTPGet(GET_MODEL_MIN_SCORE_URL)
+        .then(res => resolve(parseFloat(res)))
         .catch(err => reject(err))
     })
 }
@@ -139,7 +139,7 @@ export function fetchMinScore(){
                 resolve(min_score);
             }
             else{
-                getMinScoreByIndex(latestIndex)    //fetch latest model weights
+                getMinScore()    //fetch latest model weights
                 .then(latestMinScore => {
                     resolve(latestMinScore)
                 })
