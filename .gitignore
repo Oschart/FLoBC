@@ -4,6 +4,8 @@ backend/target/
 backend/example/
 backend/tx_validator/node_modules/
 backend/tx_validator/dist
+backend/syncBarrier/node_modules/
+backend/syncBarrier/dist
 target/
 
 Cargo.lock
