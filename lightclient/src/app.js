@@ -1,7 +1,7 @@
 import * as exonum from 'exonum-client'
 import * as proto from './proto'
 import fetchPythonWeights from './utils/fetchPythonWeights';
-import fetchDatasetDirectory, { fetchImposterState } from './utils/fetchDatasetDirectory';
+import fetchDatasetDirectory, { fetchImposterState, fetchPortNumber } from './utils/fetchDatasetDirectory';
 import fetchClientKeys from './utils/fetchClientKeys';
 import { fetchLatestModelTrainer } from './utils/fetchLatestModel';
 import store_encoded_vector, { clear_encoded_vector } from './utils/store_encoded_vector'
@@ -9,6 +9,9 @@ import store_encoded_vector, { clear_encoded_vector } from './utils/store_encode
 const INTERVAL_DURATION = 5000
 
 const MODEL_LENGTH = 4010
+
+const BASE_URL = "http://127.0.0.1";
+const TRANSACTIONS_SERVICE = "/api/explorer/v1/transactions";
 
 let can_train = true
 
@@ -20,8 +23,6 @@ fetchClientKeys()
 });
 
 function trainNewModel(newModel_flag, modelWeights){
-    const explorerPath = 'http://127.0.0.1:9000/api/explorer/v1/transactions'
-
     require("regenerator-runtime/runtime");
 
     // Numeric identifier of the machinelearning service
@@ -35,6 +36,9 @@ function trainNewModel(newModel_flag, modelWeights){
         serviceId: SERVICE_ID,
         methodId: SHAREUPDATES_ID,
     })
+
+    let port_number = fetchPortNumber();
+    let explorerPath = BASE_URL + ":" + port_number + TRANSACTIONS_SERVICE;
 
     let dataset_directory = fetchDatasetDirectory();
     let is_imposter = fetchImposterState();
