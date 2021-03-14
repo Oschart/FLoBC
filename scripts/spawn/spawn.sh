@@ -54,7 +54,7 @@ do
     source ./scripts/utils/newTab.sh
     openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path"
     # newtab $command_start"./scripts/spawn/validator_run.sh" $command_start $i $path
-    sleep 120
+    sleep 30
 done
 printf "%0.s*" {1..70} 
 printf "\n"
@@ -70,3 +70,5 @@ do
     openTab $command_start "$command_start ./scripts/spawn/trainer_run.sh $i $path"
     # newtab $command_start"./scripts/spawn/trainer_run.sh" $i $path
 done
+sleep 10
+openTab $command_start "$command_start ./scripts/track_plot/track.sh 2 \"$path\""

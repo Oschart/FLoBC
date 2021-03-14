@@ -3,6 +3,7 @@ trainers_max=2
 validators_max=1
 command="./scripts/spawn/spawn.sh "
 while getopts "n:t:cbjl" arg; do
+# while getopts "cbjl" arg; do
     case $arg in
     n) 
         validators_max=$(($OPTARG)) 
