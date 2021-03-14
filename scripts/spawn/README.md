@@ -1,5 +1,5 @@
 ## To run:
-
+- Run those scripts from the root FDMMLS directory
 sh spawn.sh -n <number of validators> -t <number of trainers> -p <path of output lightclients directory> -c -j -b -l
 
 ## Arguments:

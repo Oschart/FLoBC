@@ -1,6 +1,6 @@
 targetV=$(($1))
 path=$2
-$path=$path+"log.csv"
+path=$path+"log.csv"
 currentV=-1
 
 while [ $currentV -lt $targetV ]
