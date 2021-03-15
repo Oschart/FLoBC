@@ -15,6 +15,7 @@ use exonum_node::VALIDATOR_ID;
 use std::fs;
 
 use crate::get_static;
+use crate::MAJORITY_RATIO;
 use std::{path, sync::atomic::Ordering};
 
 /// Transfer `amount` of the currency from one wallet to another.
@@ -69,8 +70,18 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         let mut schema = SchemaImpl::new(context.service_data());
 
         schema.register_trainer(&from);
-
         schema.cache_update(&from, &arg.gradients);
+
+
+        let sp: u16 = get_static!(SYNC_POLICY);
+        if sp == 2 {
+            // BAP
+            let work_ratio = 1.0 - schema.get_slack_ratio();
+            if work_ratio >= MAJORITY_RATIO {
+                schema.initiate_release();
+            } 
+        }
+
         Ok(())
     }
 
@@ -83,7 +94,7 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
             // BSP
             // STRICT DEADLINE //
             schema.initiate_release();
-        } else {
+        } else if sp == 1 {
             // SSP
             // RELAXED DEADLINE //
             let slack_ratio = schema.get_slack_ratio();
@@ -93,23 +104,43 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
                     if slack_ratio > 0.0 {
                         schema.set_deadline_status(1);
                     }
-                },
+                }
                 1 => {
                     schema.initiate_release();
                     schema.set_deadline_status(0);
-                },
+                }
                 _ => {
                     println!("Invalid deadline status!");
                     schema.set_deadline_status(0);
-                },
+                }
+            }
+        } else {
+            // BAP: In case a syncer is used
+            // KEEP EXTENDING UNTIL MAJORITY IS ACHIEVED //
+            let work_ratio = 1.0 - schema.get_slack_ratio();
+            let deadline_status = schema.get_deadline_status();
+            match deadline_status {
+                0 => {
+                    if work_ratio >= MAJORITY_RATIO {
+                        schema.initiate_release();
+                    }
+                }
+                1 => {
+                    if work_ratio >= MAJORITY_RATIO {
+                        schema.initiate_release();
+                        schema.set_deadline_status(0);
+                    }
+                }
+                _ => {
+                    println!("Invalid deadline status!");
+                    schema.set_deadline_status(0);
+                }
             }
         }
 
         Ok(())
     }
 }
-
-
 
 fn extract_info(context: &ExecutionContext<'_>) -> Result<(Address, Hash), ExecutionError> {
     let tx_hash = context
