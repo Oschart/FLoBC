@@ -574,7 +574,12 @@ impl NodeHandler {
         // TODO: handle unsafe auditor type
         unsafe {
             VALIDATOR_ID = AtomicU16::new(u16::from(validator_id.unwrap()));
-            let sp: u16 = if sync_policy == "BSP" {0} else {1};
+            let sp: u16 = match sync_policy.as_str() {
+                "BSP" => 0,
+                "SSP" => 1,
+                "BAP" => 2,
+                _ => 0
+            };
             SYNC_POLICY = AtomicU16::new(sp);
         }
 
