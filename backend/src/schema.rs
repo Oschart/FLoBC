@@ -284,7 +284,7 @@ where
             let curr_score = self.trainers_scores.get(&trainer_addr).unwrap();
             let curr_score = curr_score.parse::<f32>().unwrap();
 
-            let new_trainer_score = curr_score + delta;
+            let new_trainer_score = f32::max(curr_score + delta, 0.0);
 
             // Update trainer score
             self.trainers_scores
@@ -298,6 +298,7 @@ where
 
         return Some(0);
     }
+    
 }
 
 /// Schema Helpers
