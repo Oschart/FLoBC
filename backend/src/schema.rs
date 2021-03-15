@@ -295,10 +295,34 @@ where
                 trainer_addr, curr_score, val_score, new_trainer_score, delta
             );
         }
+        self.normalize_scores();
 
         return Some(0);
     }
-    
+
+    pub fn normalize_scores(&mut self) {
+        let mut sum: f32 = 0.0;
+        for score_str in self.trainers_scores.values() {
+            sum += score_str.parse::<f32>().unwrap();
+        }
+        let mut tr_addrs = Vec::new();
+        let mut norm_scores = Vec::new();
+        for it in &mut self.trainers_scores.iter() {
+            let (trainer_addr, score_str) = it;
+            let norm_score = score_str.parse::<f32>().unwrap() / sum;
+            tr_addrs.push(trainer_addr);
+            norm_scores.push(norm_score);
+            
+            println!(
+                "Trainer <{:?}>, normalized_score={}",
+                trainer_addr, norm_score
+            );
+        }
+        for i in 0..tr_addrs.len() {
+            self.trainers_scores
+            .put(&tr_addrs[i], norm_scores[i].to_string());
+        }
+    }
 }
 
 /// Schema Helpers
