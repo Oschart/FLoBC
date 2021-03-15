@@ -70,8 +70,18 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
         let mut schema = SchemaImpl::new(context.service_data());
 
         schema.register_trainer(&from);
-
         schema.cache_update(&from, &arg.gradients);
+
+
+        let sp: u16 = get_static!(SYNC_POLICY);
+        if sp == 2 {
+            // BAP
+            let work_ratio = 1.0 - schema.get_slack_ratio();
+            if work_ratio >= MAJORITY_RATIO {
+                schema.initiate_release();
+            } 
+        }
+
         Ok(())
     }
 
@@ -105,7 +115,7 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
                 }
             }
         } else {
-            // BAP
+            // BAP: In case a syncer is used
             // KEEP EXTENDING UNTIL MAJORITY IS ACHIEVED //
             let work_ratio = 1.0 - schema.get_slack_ratio();
             let deadline_status = schema.get_deadline_status();
