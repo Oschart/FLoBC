@@ -32,6 +32,13 @@ pub struct ModelQuery {
     pub version: u32,
 }
 
+/// Describes the query parameters for the `get_model` endpoint.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct TrainerQuery {
+    /// Public key of the queried model.
+    pub trainer_addr: Address,
+}
+
 /// Proof of existence for specific model.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ModelProof {
@@ -158,6 +165,17 @@ impl PublicApi {
         let slack_ratio = schema._get_slack_ratio_();
         Ok(slack_ratio)
     }
+
+    /// Returns the remaini
+    pub async fn get_retrain_quota(
+        state: ServiceApiState,
+        query: TrainerQuery,
+    ) -> api::Result<u8>{
+        let schema = SchemaImpl::new(state.service_data());
+        let tr_addr = query.trainer_addr;
+        let retrain_quota = schema._get_retrain_quota_(&tr_addr);
+        Ok(retrain_quota)
+    }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
@@ -167,6 +185,7 @@ impl PublicApi {
             .endpoint("v1/models/getmodel", Self::get_model)
             .endpoint("v1/models/latestmodel", Self::latest_model)
             .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy)
-            .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio);
+            .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio)
+            .endpoint("v1/trainer/retrain_quota", Self::get_retrain_quota);
     }
 }
