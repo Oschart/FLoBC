@@ -3,10 +3,8 @@ cd ./backend/
 command_start="sh "
 command="./build_finalize.sh "
 path="./"
-endS=0
+endS = 0
 willTerminate=0
-start_public_port=9000
-start_peer_port=7091
 while getopts "n:t:p:w:q:e:cbjlr" arg; do
     case $arg in
     n) 
@@ -65,8 +63,9 @@ for ((i=0;i<node_count;i++));
 do
     echo "Staring validator #$i"
     source ./scripts/utils/newTab.sh
-    openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path $node_count"
-    sleep 10
+    openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path"
+    # newtab $command_start"./scripts/spawn/validator_run.sh" $command_start $i $pat
+    #sleep 5
 
 done
 printf "%0.s*" {1..70} 
@@ -77,34 +76,13 @@ rm ModelMetadata
 rm encoded_vector
 npm install
 cd ..
-###############################
-## Copying lightclient folder
-###############################
 for ((i=0;i<trainers;i++))
 do
     source ./scripts/utils/newTab.sh
-    $command_start ./scripts/spawn/trainer_run.sh $i $path $command_start
+    openTab $command_start "$command_start ./scripts/spawn/trainer_run.sh $i $path"
+    # newtab $command_start"./scripts/spawn/trainer_run.sh" $i $path
 done
 
-###############################
-## Running light client
-###############################
-for ((i=0;i<trainers;i++))
-do
-    source ./scripts/utils/newTab.sh
-    if [[ $i != 0 ]]
-    then
-        lightclient="lightclient$i"
-    else 
-        lightclient="lightclient"
-    fi
-    start_public_port=$(($((start_public_port))+$(($((i))%$((node_count))))))
-    echo $start_public_port
-    openTab $command_start "npm start --prefix $lightclient -- $start_public_port models/test_model/data.csv 0"
-    sleep 10
-done
-
-sleep 10
 if [ $endS -ne 0 ]
 then
     currentT=0
@@ -113,7 +91,13 @@ then
         currentT=-1
     else
         tmp=$(tty)
-        currentT=${tmp##*/}
+        if [[ "$str" == *"pts"* ]] 
+        then
+            currentT=${tmp##*/}
+        else
+            tmp=${str:L-3}
+            currentT=$((tmp+0))
+        fi
     fi
     openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT"
 fi
