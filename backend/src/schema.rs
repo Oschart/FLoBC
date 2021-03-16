@@ -42,6 +42,7 @@ use rand::Rng;
 
 use crate::get_static;
 use exonum_node::VALIDATOR_ID;
+use exonum_node::SCORING_FLAG;
 use std::sync::atomic::Ordering;
 
 const DEBUG: bool = false;
@@ -133,8 +134,13 @@ where
 
     pub fn initiate_release(&mut self) {
         if self.pending_transactions_exist() {
+            
             // Update trainer scores
-            self.update_scores();
+            let scoring_flag: u16 = get_static!(SCORING_FLAG);
+            if scoring_flag == 1 {
+                self.update_scores();
+            }
+            
             // Updating the most recent model using schema
             self.update_model();
             // Remove the scores file when you're done
