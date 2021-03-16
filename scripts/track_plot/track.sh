@@ -26,6 +26,10 @@ endT=${tmp##*/}
 
 while [ $startT -le $endT ]
 do
-    pkill -9 -t pts/$startT
-    startT=$((startT+1))
+    if [ $i -ne $spawner ]
+    then
+        echo "will kill $i"
+        pkill -9 -t pts/$i
+    fi
+    i=$((i+1))
 done
