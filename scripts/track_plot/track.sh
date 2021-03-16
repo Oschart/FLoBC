@@ -19,3 +19,13 @@ do
     currentV=$((currentV+1))
 done
 
+startT=$(($2))
+startT=$((startT+1))
+tmp=$(tty)
+endT=${tmp##*/}
+
+while [ $startT -le $endT ]
+do
+    pkill -9 -t pts/$startT
+    startT=$((startT+1))
+done
