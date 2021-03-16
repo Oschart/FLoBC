@@ -113,6 +113,13 @@ then
         currentT=-1
     else
         tmp=$(tty)
+        if [[ "$str" == *"pts"* ]] 
+        then
+            currentT=${tmp##*/}
+        else
+            tmp=${str:L-3}
+            currentT=$((tmp+0))
+        fi
         currentT=${tmp##*/}
     fi
     openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT"
