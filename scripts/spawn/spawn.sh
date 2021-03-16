@@ -62,10 +62,12 @@ do
     # newtab $command_start"./scripts/spawn/validator_run.sh" $command_start $i $path
     #sleep 5
 done
+cd ./backend/syncBarrier
+openTab $command_start "npm start"
 printf "%0.s*" {1..70} 
 printf "\n"
 
-cd ./lightclient
+cd ../../lightclient
 rm ModelMetadata
 rm encoded_vector
 npm install
@@ -79,5 +81,7 @@ done
 
 if (( endV > -1 ))
 then
-    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endV"
+    tmp=$(tty)
+    currentT=${tmp##*/}
+    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endV $currentT"
 fi
