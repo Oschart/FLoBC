@@ -59,8 +59,9 @@ do
     echo "Staring validator #$i"
     source ./scripts/utils/newTab.sh
     openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path"
-    # newtab $command_start"./scripts/spawn/validator_run.sh" $command_start $i $path
+    # newtab $command_start"./scripts/spawn/validator_run.sh" $command_start $i $pat
     #sleep 5
+
 done
 cd ./backend/syncBarrier
 openTab $command_start "npm start"
@@ -83,5 +84,6 @@ if [ $endS -ne 0 ]
 then
     tmp=$(tty)
     currentT=${tmp##*/}
-    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT"
+    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT $path"
 fi
+

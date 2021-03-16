@@ -1,5 +1,8 @@
 targetS=$(($1))
 targetV=0
+path=$3
+path=$path+"log.csv"
+
 currentV=-1
 
 if ((targetS > 0))
@@ -30,7 +33,7 @@ while [ $currentV -le $targetV ]
 do
     
     currentA=$(curl -s http://127.0.0.1:9000/api/services/ml_service/v1/models/getmodelaccuracy?version=$currentV)
-    echo "$currentV, $currentA" >> log.csv
+    echo "$currentV, $currentA" >> path
     currentV=$((currentV+1))
 done
 
