@@ -30,12 +30,18 @@ def send_score(score):
 gradients = parse_gradients(sys.argv[4])
 newModel_flag = sys.argv[2]
 if newModel_flag:
-    np.random.seed(0)
-    base_model = np.random.uniform(low = -0.09, high = 0.09, size = len(gradients)).tolist()
-else: 
+    evaluate_model = gradients
+else:
     base_model = parse_gradients(sys.argv[3])
+    evaluate_model = base_model + gradients
+
+# if newModel_flag:
+#     np.random.seed(0)
+#     base_model = np.random.uniform(low = -0.09, high = 0.09, size = len(gradients)).tolist()
+# else: 
+#     base_model = parse_gradients(sys.argv[3])
 min_score = float(sys.argv[5])
-evaluate_model = base_model + gradients
+# evaluate_model = base_model + gradients
 score = model_mod.compute_validation_score(evaluate_model, data_dir)
 
 is_valid = score >= min_score
