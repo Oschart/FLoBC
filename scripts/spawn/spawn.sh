@@ -3,7 +3,8 @@ cd ./backend/
 command_start="sh "
 command="./build_finalize.sh "
 path="./"
-while getopts "n:t:p:w:q:cbjl" arg; do
+endS = 0
+while getopts "n:t:p:w:q:e:cbjl" arg; do
     case $arg in
     n) 
         node_count=$(($OPTARG)) 
@@ -36,6 +37,11 @@ while getopts "n:t:p:w:q:cbjl" arg; do
         start_peer_port="$OPTARG" 
         command+="-q $start_peer_port "
         ;;
+    e)
+        endS=$(($OPTARG)) 
+        command+="-e "
+        command+="$endS "
+        ;;
     esac
 done
 printf "%0.s*" {1..70} 
@@ -53,13 +59,16 @@ do
     echo "Staring validator #$i"
     source ./scripts/utils/newTab.sh
     openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path"
-    # newtab $command_start"./scripts/spawn/validator_run.sh" $command_start $i $path
-    sleep 180
+    # newtab $command_start"./scripts/spawn/validator_run.sh" $command_start $i $pat
+    #sleep 5
+
 done
+cd ./backend/syncBarrier
+openTab $command_start "npm start"
 printf "%0.s*" {1..70} 
 printf "\n"
 
-cd ./lightclient
+cd ../../lightclient
 rm ModelMetadata
 rm encoded_vector
 npm install
@@ -70,5 +79,11 @@ do
     openTab $command_start "$command_start ./scripts/spawn/trainer_run.sh $i $path"
     # newtab $command_start"./scripts/spawn/trainer_run.sh" $i $path
 done
-sleep 120
-openTab $command_start "$command_start ./scripts/track_plot/track.sh 2 $path"
+
+if [ $endS -ne 0 ]
+then
+    tmp=$(tty)
+    currentT=${tmp##*/}
+    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT $path"
+fi
+

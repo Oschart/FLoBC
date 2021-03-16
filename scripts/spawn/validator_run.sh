@@ -18,3 +18,4 @@ fi
 
 cd $path/backend
 $command_start "./run_node.sh" $i "BSP"
+
