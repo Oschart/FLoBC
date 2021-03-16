@@ -20,4 +20,4 @@ fi
 #     cd ./lightclient
 # fi 
 rm ModelMetadata
-npm start -- ./models/test_model/data.csv 0
+npm start -- 9000 ./models/test_model/data.csv 0
