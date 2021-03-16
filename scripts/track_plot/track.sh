@@ -36,15 +36,18 @@ done
 
 
 spawner=$(($2))
-tmp=$(tty)
-endT=${tmp##*/}
-i=0
-while [ $i -le $endT ]
-do
-    if [ $i -ne $spawner ]
-    then
-        echo "will kill $i"
-        pkill -9 -t pts/$i
-    fi
-    i=$((i+1))
-done
+if [ $spawner -ne -1 ]
+then
+    tmp=$(tty)
+    endT=${tmp##*/}
+    i=0
+    while [ $i -le $endT ]
+    do
+        if [ $i -ne $spawner ]
+        then
+            echo "will kill $i"
+            pkill -9 -t pts/$i
+        fi
+        i=$((i+1))
+    done
+fi
