@@ -886,10 +886,15 @@ impl NodeHandler {
                 "Model update received".yellow(),
                 "validating...".italic()
             );
+            let val_id: u16;
+            unsafe {
+                val_id = VALIDATOR_ID.load(Ordering::SeqCst);
+            }
             let output = Command::new("node")
                 .arg("app.js")
                 .arg(self.sync_policy.clone())
                 .arg(hex::encode(&msg.payload().arguments).clone())
+                .arg(val_id.to_string())
                 .current_dir("../tx_validator/dist")
                 .output()
                 .expect("failed to execute process");

@@ -1,23 +1,27 @@
 i=$1
 path=$2
+command_start=$3
 echo $i
-
-# cd /Users/habibabassem/Desktop/Spring\ 2021/Thesis\ II/FDMMLS/
 
 if [[ $path != "./" ]]
 then 
     mkdir $path/
-    cp -R -v ./lightclient $path/lightclient$i
-    cd $path/lightclient$i
+    cd_path=$path/lightclient$i
 else 
-    cd lightclient
+    cd_path2="./lightclient"
 fi
-# if [ $i != 0 ]
-# then
-#     cp -R -v ./lightclient $path/lightclient$i
-#     cd $path/lightclient$i
-# else 
-#     cd ./lightclient
-# fi 
+
+if [[ $path != "./" ]]
+then 
+    cp -R -n -v ./lightclient $path/lightclient$i
+else if [[ $i != 0 ]]
+then 
+    cp -R -n -v ./lightclient $path/lightclient$i
+fi
+fi
+
+cd $cd_path
 rm ModelMetadata
-npm start -- 9000 ./models/test_model/data.csv 0
+# cur_path=$(pwd)
+# source "${cur_path%FDMMLS*}/FDMMLS/scripts/utils/newTab.sh"
+# openTab $command_start "npm start --prefix $path -- 9000 models/test_model/data.csv 0"
