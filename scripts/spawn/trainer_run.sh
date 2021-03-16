@@ -8,15 +8,15 @@ then
     mkdir $path/
     cd_path=$path/lightclient$i
 else 
-    cd_path2="./lightclient"
+    cd_path="./lightclient"
 fi
 
 if [[ $path != "./" ]]
 then 
-    cp -R -n -v ./lightclient $path/lightclient$i
+    cp -R -v ./lightclient $path/lightclient$i
 else if [[ $i != 0 ]]
 then 
-    cp -R -n -v ./lightclient $path/lightclient$i
+    cp -R -v ./lightclient $path/lightclient$i
 fi
 fi
 

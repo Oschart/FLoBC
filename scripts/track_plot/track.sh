@@ -44,8 +44,9 @@ then
     then
         endT=${tmp##*/}
     else
-        tmp=${str:L-3}
-        endT=$((tmp+0))
+        endT=${tmp##*/}
+        endT=${endT:(-3)}
+        endT=$((endT+0))
     fi
     i=0
     while [ $i -le $endT ]
