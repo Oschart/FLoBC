@@ -63,12 +63,10 @@ do
     #sleep 5
 
 done
-cd ./backend/syncBarrier
-openTab $command_start "npm start"
 printf "%0.s*" {1..70} 
 printf "\n"
 
-cd ../../lightclient
+cd ./lightclient
 rm ModelMetadata
 rm encoded_vector
 npm install
