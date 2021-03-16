@@ -27,11 +27,12 @@ fetchLatestModelValidator()
     fetchMinScore()
       .then((min_score) => {
         let transaction = proto.TxShareUpdates.decode(exonum.hexadecimalToUint8Array(process.argv[3]));
-        store_encoded_vector(transaction.gradients, "gradients").then((encoded_vector_path) => {
+        let val_id = process.argv[4];
+        store_encoded_vector(transaction.gradients, "gradients"+val_id).then((encoded_vector_path) => {
           if (base_model == 0) {
             validate_vector(true, "", encoded_vector_path, process.argv[2], min_score, (results) => {
-              clear_encoded_vector("gradients");
-              clear_encoded_vector("basemodel");
+              clear_encoded_vector("gradients"+val_id);
+              clear_encoded_vector("basemodel"+val_id);
 
               let verdict = results[0]
               let score = results[1]
@@ -40,10 +41,10 @@ fetchLatestModelValidator()
 
             });
           } else {
-            store_encoded_vector(base_model, "basemodel").then((encoded_basemodel_path) => {
+            store_encoded_vector(base_model, "basemodel"+val_id).then((encoded_basemodel_path) => {
               validate_vector(false, encoded_basemodel_path, encoded_vector_path, process.argv[2], min_score, (results) => {
-                clear_encoded_vector("gradients");
-                clear_encoded_vector("basemodel");
+                clear_encoded_vector("gradients"+val_id);
+                clear_encoded_vector("basemodel"+val_id);
 
                 let verdict = results[0]
                 let score = results[1]
