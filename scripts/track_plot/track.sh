@@ -1,16 +1,31 @@
-targetV=$(($1))
+targetS=$(($1))
+targetV=0
 currentV=-1
 
-while [ $currentV -lt $targetV ]
-do
-    echo "Curren version is $currentV, target is $targetV"
-    currentV=$(curl -s http://127.0.0.1:9000/api/services/ml_service/v1/models/latestmodel)
-    sleep 10
-done
+if ((targetS > 0))
+then
+    while [ $currentV -lt $targetS ]
+    do
+        echo "Curren version is $currentV, target is $targetS"
+        currentV=$(curl -s http://127.0.0.1:9000/api/services/ml_service/v1/models/latestmodel)
+        sleep 10
+    done
 
-echo "Version #$targetV reached. Plotting versions accuracy.."
+    echo "Version #$targetS reached. Plotting versions accuracy.."
+    targetV=$targetS
+    
+else
+    targetS=${targetS#-}
+    echo "Sleeping for $targetS minutes.."
+    targetS=$((targetS * 60))
+    sleep $targetS
+    targetV=$(curl -s http://127.0.0.1:9000/api/services/ml_service/v1/models/latestmodel)
+    echo "Dumping accuracy values till version #$targetV"
+fi
+
 currentV=0
-rm log.csv
+rm -f log.csv
+
 while [ $currentV -le $targetV ]
 do
     
@@ -19,12 +34,12 @@ do
     currentV=$((currentV+1))
 done
 
-startT=$(($2))
-startT=$((startT+1))
+
+spawner=$(($2))
 tmp=$(tty)
 endT=${tmp##*/}
-
-while [ $startT -le $endT ]
+i=0
+while [ $i -le $endT ]
 do
     if [ $i -ne $spawner ]
     then

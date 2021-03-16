@@ -3,7 +3,7 @@ cd ./backend/
 command_start="sh "
 command="./build_finalize.sh "
 path="./"
-endV = -1
+endS = 0
 while getopts "n:t:p:w:q:e:cbjl" arg; do
     case $arg in
     n) 
@@ -38,9 +38,9 @@ while getopts "n:t:p:w:q:e:cbjl" arg; do
         command+="-q $start_peer_port "
         ;;
     e)
-        endV=$(($OPTARG)) 
+        endS=$(($OPTARG)) 
         command+="-e "
-        command+="$endV "
+        command+="$endS "
         ;;
     esac
 done
@@ -79,9 +79,9 @@ do
     # newtab $command_start"./scripts/spawn/trainer_run.sh" $i $path
 done
 
-if (( endV > -1 ))
+if [ $endS -ne 0 ]
 then
     tmp=$(tty)
     currentT=${tmp##*/}
-    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endV $currentT"
+    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT"
 fi
