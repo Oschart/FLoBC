@@ -25,7 +25,9 @@ use exonum_derive::{FromAccess, RequireArtifact};
 use hex::FromHex;
 
 // modified
-use crate::{model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_SCORE_DECAY, MODEL_SIZE};
+use crate::{
+    model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_RETRAIN, MAX_SCORE_DECAY, MODEL_SIZE,
+};
 #[path = "model.rs"]
 use itertools::Itertools;
 use std::fs::File;
@@ -61,6 +63,8 @@ pub(crate) struct SchemaImpl<T: Access> {
     pub trainers_scores: MapIndex<T::Base, Address, String>,
     /// Pending transactions of the current round
     pub pending_transactions: MapIndex<T::Base, Address, Vec<u8>>,
+    /// Retrain rounds count for each trainer
+    pub rt_round_count: MapIndex<T::Base, Address, u8>,
     /// Deadline extension status (SSP)
     /// 0 -> Original deadline
     /// 1 -> Active extension
@@ -90,6 +94,11 @@ impl<T: Access> SchemaImpl<T> {
         let num_of_contributers = (self.pending_transactions.values().count()) as f32;
         let slack_ratio = (num_of_trainers - num_of_contributers) / num_of_trainers;
         return slack_ratio;
+    }
+
+    pub fn _get_retrain_quota_(&self, trainer_addr: &Address) -> u8 {
+        let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
+        return MAX_RETRAIN - rt_count;
     }
 }
 
@@ -220,12 +229,21 @@ where
         self.public.latest_version_addr.set(new_version_hash);
     }
 
+    pub fn allowed_to_retrain(&self, trainer_addr: &Address) -> bool {
+        let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
+        return rt_count < MAX_RETRAIN;
+    }
+
     pub fn cache_update(&mut self, trainer_addr: &Address, updates: &Vec<f32>) {
-        // NOTE: Overwrite latest model update
-        self.pending_transactions.put(
-            &trainer_addr,
-            SchemaUtils::float_vec_to_byte_slice(&updates),
-        );
+        if self.allowed_to_retrain(trainer_addr) {
+            // NOTE: Overwrite latest model update
+            self.pending_transactions.put(
+                &trainer_addr,
+                SchemaUtils::float_vec_to_byte_slice(&updates),
+            );
+            let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
+            self.rt_round_count.put(&trainer_addr, rt_count+1);
+        }
     }
 
     pub fn get_slack_ratio(&mut self) -> f32 {
@@ -312,7 +330,7 @@ where
             let norm_score = score_str.parse::<f32>().unwrap() / sum;
             tr_addrs.push(trainer_addr);
             norm_scores.push(norm_score);
-            
+
             println!(
                 "Trainer <{:?}>, normalized_score={}",
                 trainer_addr, norm_score
@@ -320,7 +338,7 @@ where
         }
         for i in 0..tr_addrs.len() {
             self.trainers_scores
-            .put(&tr_addrs[i], norm_scores[i].to_string());
+                .put(&tr_addrs[i], norm_scores[i].to_string());
         }
     }
 }
