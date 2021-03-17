@@ -40,11 +40,10 @@ if [ $spawner -ne -1 ]
 then
     tmp=$(tty)
     endT=0
-    if [[ "$str" == *"pts"* ]] 
+    if [[ "$tmp" == *"pts"* ]] 
     then
         endT=${tmp##*/}
     else
-        endT=${tmp##*/}
         endT=${endT:(-3)}
         endT=$((endT+0))
     fi
