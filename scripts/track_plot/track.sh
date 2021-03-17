@@ -39,7 +39,14 @@ spawner=$(($2))
 if [ $spawner -ne -1 ]
 then
     tmp=$(tty)
-    endT=${tmp##*/}
+    endT=0
+    if [[ "$tmp" == *"pts"* ]] 
+    then
+        endT=${tmp##*/}
+    else
+        endT=${endT:(-3)}
+        endT=$((endT+0))
+    fi
     i=0
     while [ $i -le $endT ]
     do

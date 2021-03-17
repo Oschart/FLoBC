@@ -100,6 +100,7 @@ do
     fi
     start_public_port=$(($((start_public_port))+$(($((i))%$((node_count))))))
     echo $start_public_port
+    rm $lightclient/ModelMetadata
     openTab $command_start "npm start --prefix $lightclient -- $start_public_port models/test_model/data.csv 0"
     sleep 10
 done
@@ -113,8 +114,27 @@ then
         currentT=-1
     else
         tmp=$(tty)
-        currentT=${tmp##*/}
+        if [[ "$tmp" == *"pts"* ]] 
+        then
+            currentT=${tmp##*/}
+        else
+            tmp=${str:L-3}
+            currentT=$((tmp+0))
+        fi
     fi
     openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT"
 fi
 
+# sleep 10
+# if [ $endS -ne 0 ]
+# then
+#     currentT=0
+#     if [ $willTerminate -ne 1 ]
+#     then
+#         currentT=-1
+#     else
+#         tmp=$(tty)
+#         currentT=${tmp##*/}
+#     fi
+#     openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT"
+# fi
