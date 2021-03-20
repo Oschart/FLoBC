@@ -1,5 +1,6 @@
 sleep 10
 path=$1
+period=$2
 cur_path=$(pwd)
 cd "${cur_path%FDMMLS*}/FDMMLS"
 if [[ $path != "./" ]]
@@ -9,4 +10,4 @@ fi
 source ./scripts/utils/newTab.sh
 cd $path/backend/syncBarrier
 npm install
-npm start -- 20
+npm start -- $period

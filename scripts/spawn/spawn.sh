@@ -7,7 +7,9 @@ endS=0
 willTerminate=0
 start_public_port=9000
 start_peer_port=7091
-while getopts "n:t:p:w:q:e:cbjlr" arg; do
+sync="BAP"
+duration=60
+while getopts "n:t:p:w:q:e:s:d:cbjlr" arg; do
     case $arg in
     n) 
         node_count=$(($OPTARG)) 
@@ -49,6 +51,10 @@ while getopts "n:t:p:w:q:e:cbjlr" arg; do
         command+="-r "
         willTerminate=1
         ;;
+    s)
+        sync="$OPTARG" ;;
+    d)
+        duration="$OPTARG" ;;
     esac
 done
 printf "%0.s*" {1..70} 
@@ -65,7 +71,7 @@ for ((i=0;i<node_count;i++));
 do
     echo "Staring validator #$i"
     source ./scripts/utils/newTab.sh
-    openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path $node_count"
+    openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path $node_count $sync $duration"
     sleep 10
 
 done
