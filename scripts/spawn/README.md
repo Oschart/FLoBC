@@ -1,7 +1,8 @@
 ## To run:
-- Run those scripts from the root FDMMLS directory
-sh spawn.sh -n <number of validators> -t <number of trainers> -p <path of output lightclients directory> -c -j -b -l -e <target version OR waiting period> -r
-
+- Run those scripts from the root FDMMLS directory <br>
+``` shell
+$ sh spawn.sh -n <number of validators> -t <number of trainers> -p <optional path of output lightclients directory> -c -j -b -l -e <target version OR waiting period> -r -s <sync scheme> -d <sync period>
+````
 ## Arguments:
 - -c: [OPTIONAL] to clean blockchain --> default does not clean
 - -j: [OPTIONAL] to rebuild backend javascript --> default: does not build
