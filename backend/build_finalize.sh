@@ -3,12 +3,14 @@ start_public_port=9000
 
 build=0
 build_js=0
-while getopts "n:cbj" arg; do
+while getopts "n:w:q:cbj" arg; do
     case $arg in
     n) node_count=$(($OPTARG)) ;;
     c) rm -r example ;;
     b) build=1 ;;
     j) build_js=1 ;;
+    w) start_public_port="$OPTARG" ;;
+    q) start_peer_port="$OPTARG" ;;
     esac
 done
 

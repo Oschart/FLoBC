@@ -123,10 +123,14 @@ mod sandbox;
 mod schema;
 mod state;
 
-use std::sync::atomic::{AtomicU16};
+use std::sync::atomic::{AtomicU16,};
 
 /// Validator ID
 pub static mut VALIDATOR_ID: AtomicU16 = AtomicU16::new(0);
+/// Synchronization policy:
+/// 0 -> BSP
+/// 1 -> SSP
+pub static mut SYNC_POLICY: AtomicU16 = AtomicU16::new(0);
 
 // Logically private types re-exported for benchmarks.
 #[doc(hidden)]
@@ -211,8 +215,8 @@ pub(crate) struct NodeHandler {
     allow_expedited_propose: bool,
     /// Block proposer.
     block_proposer: Box<dyn ProposeBlock>,
-    /// Path to validation script
-    validation_path: String,
+    /// Sync Policy
+    sync_policy: String,
 }
 
 /// HTTP API configuration options.
@@ -536,7 +540,7 @@ impl NodeHandler {
         api_state: SharedNodeState,
         config_manager: Option<Box<dyn ConfigManager>>,
         block_proposer: Box<dyn ProposeBlock>,
-        validation_path: String,
+        sync_policy: String,
     ) -> Self {
         let snapshot = blockchain.snapshot();
         let schema = Schema::new(&snapshot);
@@ -570,6 +574,13 @@ impl NodeHandler {
         // TODO: handle unsafe auditor type
         unsafe {
             VALIDATOR_ID = AtomicU16::new(u16::from(validator_id.unwrap()));
+            let sp: u16 = match sync_policy.as_str() {
+                "BSP" => 0,
+                "SSP" => 1,
+                "BAP" => 2,
+                _ => 0
+            };
+            SYNC_POLICY = AtomicU16::new(sp);
         }
 
         let node_role = NodeRole::new(validator_id);
@@ -589,7 +600,7 @@ impl NodeHandler {
             config_manager,
             allow_expedited_propose: true,
             block_proposer,
-            validation_path,
+            sync_policy,
         }
     }
 
@@ -993,7 +1004,7 @@ pub struct Node {
     api_manager_config: ApiManagerConfig,
     api_options: NodeApiConfig,
     network_config: NetworkConfiguration,
-    validation_path: String,
+    sync_policy: String,
     handler: NodeHandler,
     channel: NodeChannel,
     max_message_len: u32,
@@ -1052,7 +1063,7 @@ pub struct NodeBuilder {
     block_proposer: Box<dyn ProposeBlock>,
     plugins: Vec<Box<dyn NodePlugin>>,
     disable_signals: bool,
-    validation_path: String,
+    sync_policy: String,
 }
 
 impl fmt::Debug for NodeBuilder {
@@ -1072,7 +1083,7 @@ impl NodeBuilder {
         database: impl Into<Arc<dyn Database>>,
         node_config: NodeConfig,
         node_keys: Keys,
-        validation_path: String,
+        sync_policy: String,
     ) -> Self {
         node_config
             .validate()
@@ -1091,7 +1102,7 @@ impl NodeBuilder {
             plugins: vec![],
             block_proposer: Box::new(StandardProposer),
             disable_signals: false,
-            validation_path,
+            sync_policy,
         }
     }
 
@@ -1171,7 +1182,7 @@ impl NodeBuilder {
             self.config_manager,
             self.plugins,
             self.block_proposer,
-            self.validation_path,
+            self.sync_policy,
         );
         node.disable_signals = self.disable_signals;
         node
@@ -1188,7 +1199,7 @@ impl Node {
         config_manager: Option<Box<dyn ConfigManager>>,
         plugins: Vec<Box<dyn NodePlugin>>,
         block_proposer: Box<dyn ProposeBlock>,
-        validation_path: String,
+        sync_policy: String,
     ) -> Self {
         crypto::init();
 
@@ -1242,7 +1253,7 @@ impl Node {
             api_state,
             config_manager,
             block_proposer,
-            validation_path.clone(),
+            sync_policy.clone(),
         );
         handler.plugins = plugins;
 
@@ -1255,7 +1266,7 @@ impl Node {
             thread_pool_size: node_cfg.thread_pool_size,
             api_manager_config: api_runtime_config,
             disable_signals: false,
-            validation_path,
+            sync_policy,
         }
     }
 
@@ -1287,7 +1298,7 @@ impl Node {
     pub async fn run(self) -> anyhow::Result<()> {
         trace!("Running node.");
         
-        //println!("Node launched with valiadtion dataset path of {}", self.validation_path);
+        //println!("Node launched with valiadtion dataset path of {}", self.sync_policy);
         // Runs NodeHandler.
         let handshake_params = HandshakeParams::new(
             &self.state().keys().consensus,

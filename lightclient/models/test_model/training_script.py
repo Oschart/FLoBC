@@ -69,7 +69,7 @@ model = trainModel(model, data_train, label_train)
 # # 2) Flattening
 # ################################
 new_list = flattenWeights(model)
-send_to_node(list, new_list)
+send_to_node(newModel_flag, list, new_list)
 
 # import validate
 # validate.validate(list)

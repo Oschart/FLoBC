@@ -274,9 +274,9 @@ impl NodeBuilder {
 
             let node_config = run_config.node_config.into();
             let node_keys = run_config.node_keys;
-            let validation_path = run_config.validation_path.as_path().display().to_string();
+            let sync_policy = run_config.sync_policy.as_path().display().to_string();
 
-            let mut node_builder = CoreNodeBuilder::new(database, node_config, node_keys, validation_path)
+            let mut node_builder = CoreNodeBuilder::new(database, node_config, node_keys, sync_policy)
                 .with_genesis_config(genesis_config)
                 .with_config_manager(config_manager)
                 .with_plugin(SystemApiPlugin)

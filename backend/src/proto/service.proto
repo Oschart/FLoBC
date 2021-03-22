@@ -21,3 +21,10 @@ message TxShareUpdates {
   // Auxiliary number to guarantee non-idempotence of transactions.
   uint64 seed = 2;
 }
+
+// Transaction type for adding a synchronized barrier
+message TxSyncBarrier {
+
+  // Auxiliary number to guarantee non-idempotence of transactions.
+  uint64 seed = 1;
+}

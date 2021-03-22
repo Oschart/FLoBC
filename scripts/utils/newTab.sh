@@ -190,6 +190,6 @@ openTab(){
     then
         gnome-terminal -x bash -c "$command; exec bash"
     else
-        newtab $command $i
+        newtab $command
     fi
 }

@@ -1,4 +1,4 @@
-node_count=4
+node_count=$3
 start_peer_port=7091
 start_public_port=9000
 
@@ -6,7 +6,7 @@ cd example
 
 i=$(($1))
 
-val_dir=$2
+sync_policy=$2
 
 echo "i = $i"
 
@@ -15,4 +15,4 @@ private_port=$((public_port + node_count))
 
 echo "new node with ports: $public_port (public)"
 exonum-ML run --node-config $((i + 1))/node.toml --db-path $((i + 1))/db --public-api-address 0.0.0.0:${public_port} --master-key-pass pass \
---validation-path $val_dir
+--sync-policy $sync_policy

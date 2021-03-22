@@ -864,6 +864,20 @@ impl NodeHandler {
             // we will be able to panic.
             // Thus, we don't stop the execution here.
             outcome = Err(HandleTxError::Invalid(e));
+
+        } else if msg.payload().call_info.method_id == 1 {
+            // Sync barrier transaction
+            if self.state.persist_txs_immediately() {
+                let fork = self.blockchain.fork();
+                Schema::new(&fork).add_transaction_into_pool(msg);
+                self.blockchain
+                    .merge(fork.into_patch())
+                    .expect("Cannot add transaction to persistent pool");
+            } else {
+                self.state.tx_cache_mut().insert(hash, msg);
+            }
+            outcome = Ok(());
+
         } else {
             // Updates Validation
             println!("{}", "---------------------------------------");
@@ -872,10 +886,15 @@ impl NodeHandler {
                 "Model update received".yellow(),
                 "validating...".italic()
             );
+            let val_id: u16;
+            unsafe {
+                val_id = VALIDATOR_ID.load(Ordering::SeqCst);
+            }
             let output = Command::new("node")
                 .arg("app.js")
-                .arg(self.validation_path.clone())
+                .arg(self.sync_policy.clone())
                 .arg(hex::encode(&msg.payload().arguments).clone())
+                .arg(val_id.to_string())
                 .current_dir("../tx_validator/dist")
                 .output()
                 .expect("failed to execute process");
