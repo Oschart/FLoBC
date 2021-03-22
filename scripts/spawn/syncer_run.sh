@@ -1,4 +1,4 @@
-sleep 10
+sleep 5
 path=$1
 period=$2
 cur_path=$(pwd)

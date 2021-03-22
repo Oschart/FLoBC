@@ -18,13 +18,13 @@ fi
 #     source ./scripts/utils/newTab.sh
 #     openTab $command_start "$command_start ./scripts/spawn/syncer_run.sh $path"
 # fi
-
+source ./scripts/utils/newTab.sh
 cd $path/backend
 if [[ $sync == "BAP" ]]
 then
     $command_start "./run_node.sh" $i "BAP" $nodes
 else 
-    $command_start "./run_node.sh" $i $sync $nodes
     openTab $command_start "$command_start ./scripts/spawn/syncer_run.sh $path $period"
+    $command_start "./run_node.sh" $i $sync $nodes
 fi
 
