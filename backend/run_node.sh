@@ -8,7 +8,7 @@ i=$(($1))
 
 sync_policy=$2
 
-scoring_flag=$3
+scoring_flag=$4
 
 echo "i = $i"
 
