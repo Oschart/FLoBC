@@ -81,6 +81,10 @@ do
     sleep 10
 
 done
+if [[ $sync != "BAP" ]]
+then
+    openTab $command_start "$command_start ./scripts/spawn/syncer_run.sh $path $duration"
+fi
 printf "%0.s*" {1..70} 
 printf "\n"
 
