@@ -48,6 +48,13 @@ function readMetadataFile(){
     })
 }
 
+export function clearMetadataFile(){
+    let metaDataFileExists = fs.existsSync(METADATA_FILE_NAME);
+    if(metaDataFileExists){
+        fs.unlink(METADATA_FILE_NAME, ()=>{});
+    }
+}
+
 function writeToMetadataFile(index){
     return new Promise((resolve, reject) => {
         index = index.toString();

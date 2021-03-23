@@ -81,6 +81,7 @@ impl ExonumCommand for RunDev {
         let private_config_path = config_dir.join(PRIVATE_CONFIG_FILE_NAME);
         let db_path = self.blockchain_path.join("db");
         let sync_policy = PathBuf::from("Dev Run: no validation");
+        let scoring_flag = PathBuf::from("Dev Run: no validation");
 
         if !node_config_path.exists() {
             let generate_template = GenerateTemplate {
@@ -120,6 +121,7 @@ impl ExonumCommand for RunDev {
             private_api_address: None,
             master_key_pass: Some(FromStr::from_str("pass:").unwrap()),
             sync_policy,
+            scoring_flag,
         };
         run.execute()
     }
