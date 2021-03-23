@@ -112,8 +112,9 @@ do
     fi
     start_public_port=$(($((start_public_port))+$(($((i))%$((node_count))))))
     echo $start_public_port
+    trainer_noise=$(echo "$i * $accumulated_error_scale" | bc)
     rm $lightclient/ModelMetadata
-    openTab $command_start "npm start --prefix $lightclient -- $start_public_port models/test_model/data.csv $(($((i))*$((accumulated_error_scale))))"
+    openTab $command_start "npm start --prefix $lightclient -- $start_public_port models/test_model/data.csv $trainer_noise"
     sleep 10
 done
 
