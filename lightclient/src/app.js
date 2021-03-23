@@ -3,7 +3,7 @@ import * as proto from './proto'
 import fetchPythonWeights from './utils/fetchPythonWeights';
 import fetchDatasetDirectory, { fetchImposterState, fetchPortNumber } from './utils/fetchDatasetDirectory';
 import fetchClientKeys from './utils/fetchClientKeys';
-import { fetchLatestModelTrainer } from './utils/fetchLatestModel';
+import { fetchLatestModelTrainer, clearMetadataFile } from './utils/fetchLatestModel';
 import store_encoded_vector, { clear_encoded_vector } from './utils/store_encoded_vector'
 import generateNormalNoise from './utils/generateNormalNoise';
 
@@ -79,7 +79,7 @@ function trainNewModel(newModel_flag, modelWeights){
 
         exonum.send(explorerPath, serialized, 10, 5000)
         .then((obj) => console.log(obj))
-        .catch((obj) => console.log(obj))
+        .catch((obj) => { console.log(obj); clearMetadataFile()})
         .finally(() => { can_train = true; })
     });
     // }
