@@ -1,16 +1,13 @@
 .DS_Store
 
+node_modules/
+dist/
+
 backend/target/
 backend/example/
-backend/tx_validator/node_modules/
-backend/tx_validator/dist
-backend/syncBarrier/node_modules/
-backend/syncBarrier/dist
 target/
 
 Cargo.lock
-lightclient/node_modules
-lightclient/dist
 
 lightclient/ModelMetadata
 lightclient/keys.json
