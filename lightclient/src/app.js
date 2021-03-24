@@ -23,6 +23,10 @@ fetchClientKeys()
   TRAINER_KEY = client_keys
 });
 
+let sr = require('seedrandom');
+let noise_scale = fetchImposterState();
+sr(noise_scale, { global: true });
+
 function trainNewModel(newModel_flag, modelWeights){
     require("regenerator-runtime/runtime");
 

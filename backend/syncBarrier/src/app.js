@@ -35,7 +35,7 @@ function sleep(time) { return new Promise(res => setTimeout(res, time * 1000)); 
 let current_period;
 async function main() {
 
-  await sleep(base_period);
+  await sleep(3 * base_period);
   while (true) {
     const syncBarrierPayload = {
       seed: exonum.randomUint64(),
