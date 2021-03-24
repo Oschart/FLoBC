@@ -8,7 +8,7 @@ willTerminate=0
 start_public_port=9000
 start_peer_port=7091
 sync="BAP"
-accumulated_error_scale=0.1
+accumulated_error_scale=0
 scoring_flag=1
 duration=60
 while getopts "n:t:p:w:q:e:s:d:f:a:cbjlr" arg; do
