@@ -3,6 +3,7 @@ cd ./backend/
 command_start="sh "
 command="./build_finalize.sh "
 path="./"
+path2=""
 endS=0
 willTerminate=0
 start_public_port=9000
@@ -11,7 +12,7 @@ sync="BAP"
 accumulated_error_scale=0
 scoring_flag=1
 duration=60
-while getopts "n:t:p:w:q:e:s:d:f:a:cbjlr" arg; do
+while getopts "n:t:p:g:w:q:e:s:d:f:a:cbjlr" arg; do
     case $arg in
     n) 
         node_count=$(($OPTARG)) 
@@ -36,6 +37,9 @@ while getopts "n:t:p:w:q:e:s:d:f:a:cbjlr" arg; do
     p) 
         path="$OPTARG"
         ;;
+    g) 
+        path2="$OPTARG"
+        ;;
     w) 
         start_public_port="$OPTARG" 
         command+="-w $start_public_port "
@@ -46,11 +50,9 @@ while getopts "n:t:p:w:q:e:s:d:f:a:cbjlr" arg; do
         ;;
     e)
         endS=$(($OPTARG)) 
-        command+="-e "
         command+="$endS "
         ;;
     r) 
-        command+="-r "
         willTerminate=1
         ;;
     s)
@@ -122,7 +124,6 @@ do
     sleep 10
 done
 
-sleep 10
 if [ $endS -ne 0 ]
 then
     currentT=0
@@ -139,7 +140,7 @@ then
             currentT=$((tmp+0))
         fi
     fi
-    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT"
+    openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT $path2"
 fi
 
 # sleep 10
