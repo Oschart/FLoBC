@@ -50,7 +50,6 @@ while getopts "n:t:p:g:w:q:e:s:d:f:a:cbjlr" arg; do
         ;;
     e)
         endS=$(($OPTARG)) 
-        command+="$endS "
         ;;
     r) 
         willTerminate=1
@@ -141,6 +140,7 @@ then
         fi
     fi
     openTab $command_start "$command_start ./scripts/track_plot/track.sh $endS $currentT $path2"
+    # $command_start ./scripts/track_plot/track.sh $endS $currentT
 fi
 
 # sleep 10

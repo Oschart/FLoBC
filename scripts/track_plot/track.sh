@@ -1,5 +1,6 @@
 targetS=$(($1))
-filename="$OPTARG""log.csv"
+# mkdir $3
+filename=$3"log.csv"
 targetV=0
 currentV=-1
 
