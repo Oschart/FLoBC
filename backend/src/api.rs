@@ -20,7 +20,7 @@ use exonum::{
     messages::{AnyTx, Verified},
     runtime::CallerAddress as Address,
 };
-use exonum_merkledb::{proof_map::Raw, ListProof, MapProof};
+use exonum_merkledb::{proof_map::Raw, ListProof, MapProof, ObjectHash};
 use exonum_rust_runtime::api::{self, ServiceApiBuilder, ServiceApiState};
 
 use crate::{schema::{SchemaImpl, SchemaUtils}, model::Model};
@@ -142,6 +142,29 @@ impl PublicApi {
         Ok(latest)
     }
 
+    pub async fn get_trainers_scores(
+        state: ServiceApiState,
+        query: (),
+    ) -> api::Result<String>{
+        let model_schema = SchemaImpl::new(state.service_data());
+        let scores = model_schema.trainers_scores; //unwrap?
+        let mut res : String = "{".to_string(); 
+        let mut flag = 0; 
+        for v in scores.iter() {
+            if (flag > 0){
+                res.push_str(",");
+            }
+            flag = 1;
+            res.push_str(r#"""#);
+            res.push_str(&v.0.object_hash().to_hex());
+            res.push_str(r##"":""##);
+            res.push_str(&v.1);
+            res.push_str(r#"""#);
+        }
+        res.push_str("}");
+        Ok(res)
+    }
+        
     /// Model accuracy getter
     pub async fn get_model_accuracy(
         state: ServiceApiState,
@@ -183,6 +206,7 @@ impl PublicApi {
             .public_scope()
             .endpoint("v1/models/info", Self::model_info)
             .endpoint("v1/models/getmodel", Self::get_model)
+            .endpoint("v1/models/trainersscores", Self::get_trainers_scores)
             .endpoint("v1/models/latestmodel", Self::latest_model)
             .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy)
             .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio)

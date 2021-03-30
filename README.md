@@ -23,7 +23,7 @@ $ cd ..
 ### To run the validating node
 ``` shell
 $ cd backend
-$ sh run_node <node number> ./dummy/path/
+$ sh run_node <node number> <sync scheme> <scoring flag>
 $ cd ..
 ````
 ### To build the lightclient 

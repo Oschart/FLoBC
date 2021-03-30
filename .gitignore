@@ -19,4 +19,6 @@ __pycache__/
 lightclient2/
 lightclient3/
 
+RP Experiment/node_modules
+RP Experiment/dist
 **/*.csv

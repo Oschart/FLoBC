@@ -1,4 +1,6 @@
 targetS=$(($1))
+# mkdir $3
+filename=$3"log.csv"
 targetV=0
 currentV=-1
 
@@ -24,13 +26,13 @@ else
 fi
 
 currentV=0
-rm -f log.csv
+rm -f $filename
 
 while [ $currentV -le $targetV ]
 do
     
     currentA=$(curl -s http://127.0.0.1:9000/api/services/ml_service/v1/models/getmodelaccuracy?version=$currentV)
-    echo "$currentV, $currentA" >> log.csv
+    echo "$currentV, $currentA" >> $filename
     currentV=$((currentV+1))
 done
 
