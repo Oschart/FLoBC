@@ -6,17 +6,21 @@ import numpy as np
 ################################
 # Formatted print back to node
 ################################
-def send_to_node(initial_model, update_vector):
-  if len(update_vector) == 0:
-      print("VECTOR[]ENDVECTOR")
-  else:
-      print(len(update_vector))
-      print(len(initial_model))
-      print("VECTOR[", flush=True, end="")
-      for i in range(len(update_vector) - 1):
-          print(update_vector[i] - initial_model[i], flush=True, end=",")
-      print(update_vector[-1] - initial_model[-1], flush=True, end="")
-      print("]ENDVECTOR",end="\n",flush=True)
+def send_to_node(newModel_flag, initial_model, update_vector):
+    if len(update_vector) == 0:
+        print("VECTOR[]ENDVECTOR")
+    else:
+        print(len(update_vector))
+        print(len(initial_model))
+        print("VECTOR[", flush=True, end="")
+        if newModel_flag:
+          for i in range(len(update_vector) - 1):
+            print(update_vector[i], flush=True, end=",")
+        else:
+            for i in range(len(update_vector) - 1):
+                print(update_vector[i] - initial_model[i], flush=True, end=",")
+        print(update_vector[-1] - initial_model[-1], flush=True, end="")
+        print("]ENDVECTOR",end="\n",flush=True)
 # %%
 ################################
 # Reading dataframe

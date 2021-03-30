@@ -103,6 +103,8 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
                 0 => {
                     if slack_ratio > 0.0 {
                         schema.set_deadline_status(1);
+                    } else {
+                        schema.initiate_release();
                     }
                 }
                 1 => {

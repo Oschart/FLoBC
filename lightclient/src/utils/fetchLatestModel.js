@@ -1,9 +1,18 @@
 const http = require('http');
 const fs = require('fs');
-const GET_LATEST_MODEL_INDEX_URL = "http://127.0.0.1:9000/api/services/ml_service/v1/models/latestmodel"
-const GET_MODEL_BY_INDEX_URL = "http://127.0.0.1:9000/api/services/ml_service/v1/models/getmodel"
+
 const METADATA_FILE_NAME = 'ModelMetadata';
 const WEIGHTS_LENGTH = 4010;
+import {fetchPortNumber} from './fetchDatasetDirectory';
+
+const latest_model_index_fmt = (isVal=false) => {
+    let port_number = fetchPortNumber(isVal);
+    return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/models/latestmodel`
+}
+const get_model_by_index_fmt = (isVal=false) => {
+    let port_number = fetchPortNumber(isVal);
+    return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/models/getmodel`
+}
 
 function HTTPGet(endpointURL, options = ''){
     let getURL = endpointURL + options;
@@ -49,18 +58,18 @@ function writeToMetadataFile(index){
     })
 }
 
-function getLatestModelIndex(){
+function getLatestModelIndex(isVal=false){
     return new Promise((resolve, reject) => {
-        HTTPGet(GET_LATEST_MODEL_INDEX_URL)
+        HTTPGet(latest_model_index_fmt(isVal))
         .then(res => resolve(parseInt(res)))
         .catch(err => reject(err))
     })
 }
 
-function getModelByIndex(index){
+function getModelByIndex(index, isVal = false){
     let option = '?version=' + index;
     return new Promise((resolve, reject) => {
-        HTTPGet(GET_MODEL_BY_INDEX_URL, option)
+        HTTPGet(get_model_by_index_fmt(isVal), option)
         .then(res => resolve(JSON.parse(res).weights))
         .catch(err => reject(err))
     })
@@ -69,7 +78,7 @@ function getModelByIndex(index){
 function getMinScoreByIndex(index){
     let option = '?version=' + index;
     return new Promise((resolve, reject) => {
-        HTTPGet(GET_MODEL_BY_INDEX_URL, option)
+        HTTPGet(get_model_by_index_fmt(true), option)
         .then(res => resolve(JSON.parse(res).min_score))
         .catch(err => reject(err))
     })
@@ -111,7 +120,7 @@ export function fetchLatestModelTrainer(){
 
 export function fetchLatestModelValidator(){
     return new Promise((resolve, reject) => {
-        getLatestModelIndex()   //retrieve the index of the latest model from the BC
+        getLatestModelIndex(true)   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
             if([0, -1].includes(latestIndex)){  //new model 
                 // let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
@@ -119,7 +128,7 @@ export function fetchLatestModelValidator(){
                 resolve(0);
             }
             else{
-                getModelByIndex(latestIndex)    //fetch latest model weights
+                getModelByIndex(latestIndex, true)    //fetch latest model weights
                 .then(latestModelWeights => {
                     resolve(latestModelWeights)
                 })
@@ -132,7 +141,7 @@ export function fetchLatestModelValidator(){
 
 export function fetchMinScore(){
     return new Promise((resolve, reject) => {
-        getLatestModelIndex()   //retrieve the index of the latest model from the BC
+        getLatestModelIndex(true)   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
             if([0, -1].includes(latestIndex)){  //new model 
                 let min_score = 0.5;
