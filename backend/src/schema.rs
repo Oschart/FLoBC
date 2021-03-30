@@ -219,6 +219,7 @@ where
             new_model.aggregate(&updates, tw_f32);
         }
         self.pending_transactions.clear();
+        self.rt_round_count.clear();
 
         let new_model_score = SchemaUtils::evaluate_model(&(&new_model).weights);
         new_model.score = new_model_score;
