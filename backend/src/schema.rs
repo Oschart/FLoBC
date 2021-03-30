@@ -44,6 +44,7 @@ use rand::Rng;
 
 use crate::get_static;
 use exonum_node::VALIDATOR_ID;
+use exonum_node::SYNC_POLICY;
 use exonum_node::SCORING_FLAG;
 use std::sync::atomic::Ordering;
 
@@ -98,8 +99,13 @@ impl<T: Access> SchemaImpl<T> {
     }
 
     pub fn _get_retrain_quota_(&self, trainer_addr: &Address) -> u8 {
+        let sp: u16 = get_static!(SYNC_POLICY);
+        let rt_bound = match sp {
+            0 => 1,
+            _ => MAX_RETRAIN,
+        };
         let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
-        return MAX_RETRAIN - rt_count;
+        return rt_bound - rt_count;
     }
 }
 
