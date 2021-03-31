@@ -36,7 +36,7 @@ pub struct ModelQuery {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct TrainerQuery {
     /// Public key of the queried model.
-    pub trainer_addr: Address,
+    pub trainer_addr: PublicKey,
 }
 
 /// Proof of existence for specific model.
@@ -195,7 +195,7 @@ impl PublicApi {
         query: TrainerQuery,
     ) -> api::Result<u8>{
         let schema = SchemaImpl::new(state.service_data());
-        let tr_addr = query.trainer_addr;
+        let tr_addr = Address::from_key(query.trainer_addr);
         let retrain_quota = schema._get_retrain_quota_(&tr_addr);
         Ok(retrain_quota)
     }
