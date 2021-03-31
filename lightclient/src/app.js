@@ -4,7 +4,7 @@ import fetchPythonWeights from './utils/fetchPythonWeights';
 import fetchDatasetDirectory, { fetchImposterState, fetchPortNumber } from './utils/fetchDatasetDirectory';
 import fetchClientKeys from './utils/fetchClientKeys';
 import { fetchLatestModelTrainer, clearMetadataFile } from './utils/fetchLatestModel';
-import store_encoded_vector, { clear_encoded_vector } from './utils/store_encoded_vector'
+import { store_encoded_vector,  clear_encoded_vector } from './utils/store_encoded_vector'
 import generateNormalNoise from './utils/generateNormalNoise';
 
 const INTERVAL_DURATION = 5000
@@ -13,6 +13,7 @@ const MODEL_LENGTH = 4010
 
 const BASE_URL = "http://127.0.0.1";
 const TRANSACTIONS_SERVICE = "/api/explorer/v1/transactions";
+const MODELS_CACHE = "cached_model";
 
 let can_train = true
 
@@ -23,7 +24,7 @@ fetchClientKeys()
   TRAINER_KEY = client_keys
 });
 
-function trainNewModel(newModel_flag, modelWeights){
+async function trainNewModel(newModel_flag, modelWeightsPath, modelWeights){
     require("regenerator-runtime/runtime");
 
     // Numeric identifier of the machinelearning service
@@ -60,13 +61,25 @@ function trainNewModel(newModel_flag, modelWeights){
     //     .catch((obj) => console.log(obj))
 
     // } else {
-    fetchPythonWeights(newModel_flag, dataset_directory, modelWeights, (model_weights) => {
+    fetchPythonWeights(newModel_flag, dataset_directory, modelWeightsPath, (model_weights) => {
         clear_encoded_vector();
         
         if (noise_scale){
             let noise = generateNormalNoise(MODEL_LENGTH, noise_scale);
             for (let i = 0 ; i < MODEL_LENGTH ; i++) model_weights[i] += noise[i];
         }
+        
+        //caching weights before adding them to a BC transaction
+        console.log("NEW LOCAL MODEL") 
+        let newModel = model_weights;
+        if(!newModel_flag){
+            newModel = model_weights.map((val, idx) => {
+                return val + modelWeights[idx];
+            });
+        }
+        console.log("NEW LOCAL MODEL")
+        console.log(newModel)
+        store_encoded_vector(newModel, MODELS_CACHE);
         
         const shareUpdatesPayload = {
         gradients: model_weights,
@@ -86,7 +99,7 @@ function trainNewModel(newModel_flag, modelWeights){
 }
 
 setInterval(() => {
-    fetchLatestModelTrainer()
+    fetchLatestModelTrainer(TRAINER_KEY.publicKey)
     .then(newModel => {
         if (newModel == 0){
             console.log("First model version");
@@ -94,16 +107,17 @@ setInterval(() => {
         }
         else if(newModel !== -1){
             setTimeout(() => {
-                console.log("New model fetched")
                 if (can_train){
                     can_train = false;
-                    store_encoded_vector(newModel).then((newModel_path) => {
-                        trainNewModel(false, newModel_path)
+                    console.log("NEW MODEL")
+                    console.log(newModel)
+                    store_encoded_vector(newModel).then(async (newModel_path) => {
+                        await trainNewModel(false, newModel_path, newModel)
                     });
                 }
             }, INTERVAL_DURATION)
         }
-        else console.log("No New model to fetch, will retry in a bit")
+        else console.log("No retrain quota at the moment, will retry in a bit")
     })
 }, INTERVAL_DURATION)
 

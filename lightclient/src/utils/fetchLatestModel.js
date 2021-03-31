@@ -3,7 +3,9 @@ const fs = require('fs');
 
 const METADATA_FILE_NAME = 'ModelMetadata';
 const WEIGHTS_LENGTH = 4010;
+const MODELS_CACHE = "cached_model";
 import {fetchPortNumber} from './fetchDatasetDirectory';
+import { read_encoded_vector } from './store_encoded_vector';
 
 const latest_model_index_fmt = (isVal=false) => {
     let port_number = fetchPortNumber(isVal);
@@ -106,12 +108,14 @@ function getRetrainQuote(trainerKey){
     })
 }
 
+export function fetchLatestModelTrainer(trainerKey){
     return new Promise((resolve, reject) => {
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
             readMetadataFile() 
             .then(fileContent => {
                 if(latestIndex > fileContent){          //if there is a new model (relative to the latest model this LC trained on )
+                    console.log("New model released by the validator!")
                     if([0, -1].includes(latestIndex)){  //new model 
                         let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
                         writeToMetadataFile(0)          //update metadata file to indicate working on an empty model 
@@ -132,7 +136,18 @@ function getRetrainQuote(trainerKey){
                         })
                     }
                 }
-                else resolve(-1); //the LC doesn't need to train (already trained this model)
+                else {
+                    getRetrainQuote(trainerKey)
+                    .then(retrainQuota => {
+                        if(retrainQuota > 0){
+                            console.log("Will retrain on the locally cached model")
+                            let cachedModel = read_encoded_vector(MODELS_CACHE);
+                            resolve(cachedModel)
+                        }
+                        else resolve(-1); //the LC doesn't need to train (already trained this model)
+                    })
+                    
+                }
             })
         })
         .catch(err => reject(err))
