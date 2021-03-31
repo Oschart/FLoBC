@@ -13,6 +13,10 @@ const get_model_by_index_fmt = (isVal=false) => {
     let port_number = fetchPortNumber(isVal);
     return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/models/getmodel`
 }
+const get_retrain_quote_fmt = (isVal=false) => {
+    let port_number = fetchPortNumber(isVal);
+    return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/trainer/retrain_quota`
+}
 
 function HTTPGet(endpointURL, options = ''){
     let getURL = endpointURL + options;
@@ -91,7 +95,17 @@ function getMinScoreByIndex(index){
     })
 }
 
-export function fetchLatestModelTrainer(){
+function getRetrainQuote(trainerKey){
+    let option = '?trainer_addr=' + trainerKey;
+    return new Promise((resolve, reject) => {
+        HTTPGet(get_retrain_quote_fmt(true), option)
+        .then(res => {
+            resolve(parseInt(res));
+        })
+        .catch(err => reject(err))
+    })
+}
+
     return new Promise((resolve, reject) => {
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
