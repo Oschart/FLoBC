@@ -104,7 +104,7 @@ impl<T: Access> SchemaImpl<T> {
             0 => 1,
             _ => MAX_RETRAIN,
         };
-        let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
+        let rt_count = self.rt_round_count.get(&trainer_addr).unwrap_or(0);
         return rt_bound - rt_count;
     }
 }
@@ -243,8 +243,13 @@ where
     }
 
     pub fn allowed_to_retrain(&self, trainer_addr: &Address) -> bool {
+        let sp: u16 = get_static!(SYNC_POLICY);
+        let rt_bound = match sp {
+            0 => 1,
+            _ => MAX_RETRAIN,
+        };
         let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
-        return rt_count < MAX_RETRAIN;
+        return rt_count < rt_bound;
     }
 
     pub fn cache_update(&mut self, trainer_addr: &Address, updates: &Vec<f32>) {
