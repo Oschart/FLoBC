@@ -48,7 +48,7 @@ use exonum_node::SYNC_POLICY;
 use exonum_node::VALIDATOR_ID;
 use std::sync::atomic::Ordering;
 
-const DEBUG: bool = true;
+const DEBUG: bool = false;
 
 /// Database schema for the cryptocurrency.
 ///
