@@ -124,7 +124,7 @@ export function fetchLatestModelTrainer(trainerKey){
                         store_encoded_vector(randArr, 'validator');
                         writeToMetadataFile(0)          //update metadata file to indicate working on an empty model 
                         .then(() => {
-                            resolve([zerosArr, 0]);
+                            resolve([randArr, 0, 1]);
                         })
                         .catch(err => reject(err))
                     }
@@ -134,7 +134,7 @@ export function fetchLatestModelTrainer(trainerKey){
                             store_encoded_vector(latestModelWeights, 'validator');
                             writeToMetadataFile(latestIndex)    //update metadata file
                             .then(() => {
-                                resolve([latestModelWeights, 0])
+                                resolve([latestModelWeights, 0, 0])
                             })
                             .catch(err => reject(err))
                             
@@ -147,9 +147,10 @@ export function fetchLatestModelTrainer(trainerKey){
                         if(retrainQuota > 0){
                             console.log("Will retrain on the locally cached model")
                             let cachedModel = read_encoded_vector('retrain');
-                            resolve([cachedModel, 1])
+                            let firstIteration = (latestIndex <= 0);
+                            resolve([cachedModel, 1, firstIteration])
                         }
-                        else resolve([-1, 0]); //the LC doesn't need to train (already trained this model)
+                        else resolve([-1, 0, 0]); //the LC doesn't need to train (already trained this model)
                     })
                     
                 }

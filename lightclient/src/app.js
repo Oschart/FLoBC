@@ -111,15 +111,12 @@ setInterval(() => {
     .then(fetcherResult => {
         let newModel = fetcherResult[0];
         let isLocallyCached = fetcherResult[1];
-        if (newModel == 0){
-            console.log("First model version");
-            trainNewModel(true, "");
-        }
-        else if(newModel !== -1){
+        let firstIteration = fetcherResult[2];
+        if (newModel !== -1){
             if (can_train){
                 can_train = false;
                 let newModel_path = store_encoded_vector(newModel);
-                trainNewModel(false, newModel_path, newModel, isLocallyCached)
+                trainNewModel(firstIteration, newModel_path, newModel, isLocallyCached)
             }
         }
         else console.log("No retrain quota at the moment, will retry in a bit")
