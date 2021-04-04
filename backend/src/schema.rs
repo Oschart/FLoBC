@@ -43,9 +43,9 @@ use rand::distributions::Alphanumeric;
 use rand::Rng;
 
 use crate::get_static;
-use exonum_node::VALIDATOR_ID;
-use exonum_node::SYNC_POLICY;
 use exonum_node::SCORING_FLAG;
+use exonum_node::SYNC_POLICY;
+use exonum_node::VALIDATOR_ID;
 use std::sync::atomic::Ordering;
 
 const DEBUG: bool = false;
@@ -116,28 +116,21 @@ where
 {
     // Register a trainer's identity
     pub fn register_trainer(&mut self, trainer_addr: &Address) {
-        if DEBUG {
-            println!("Registering {:?}...", trainer_addr);
-        }
-
-        let num_of_trainers = (self.trainers_scores.values().count() + 1) as f64;
-        //let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
-        let starter_score: f64 = 1.0 / (num_of_trainers);
         // Insert new score only if trainer wasn't registered
         if self.trainers_scores.contains(trainer_addr) == false {
-            // Modify existing scores
-            let mut existing_addrs: Vec<Address> = Vec::new();
-            for existing_addr in self.trainers_scores.keys() {
-                existing_addrs.push(existing_addr);
+            if DEBUG {
+                println!("Registering {:?}...", trainer_addr);
             }
-            self.trainers_scores.clear();
-            for existing_addr in existing_addrs {
-                self.trainers_scores
-                    .put(&existing_addr, starter_score.to_string());
-            }
+
+            let num_of_trainers = (self.trainers_scores.values().count() + 1) as f64;
+            //let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
+            let starter_score: f64 = 1.0 / (num_of_trainers);
+            
             // Adding new score
             self.trainers_scores
                 .put(trainer_addr, starter_score.to_string());
+
+            self.normalize_scores();
         }
         if DEBUG {
             println!("Printing trainer addr / scores:");
