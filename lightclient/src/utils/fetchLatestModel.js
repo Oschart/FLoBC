@@ -117,8 +117,11 @@ export function fetchLatestModelTrainer(trainerKey){
                 if(latestIndex > fileContent){          //if there is a new model (relative to the latest model this LC trained on )
                     console.log("New model released by the validator!, #" + latestIndex)
                     if([0, -1].includes(latestIndex)){  //new model 
-                        let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
-                        store_encoded_vector(zerosArr, 'validator');
+                        let randArr = new Array(WEIGHTS_LENGTH).fill(0);
+                        randArr = randArr.map(val => {
+                            return Math.random() * 0.2 - 0.1;
+                        });
+                        store_encoded_vector(randArr, 'validator');
                         writeToMetadataFile(0)          //update metadata file to indicate working on an empty model 
                         .then(() => {
                             resolve([zerosArr, 0]);
