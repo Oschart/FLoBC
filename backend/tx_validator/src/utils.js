@@ -1,5 +1,27 @@
+const http = require('http');
+
 function fetchPortNumber(){
     return 9000+parseInt(process.argv[4].trim());
+}
+
+function HTTPGet(endpointURL, options = ''){
+    let getURL = endpointURL + options;
+    return new Promise((resolve, reject) => {
+        let request = http.get(getURL, (resp) => {
+            let data = '';
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
+    
+            resp.on('end', () => {
+                resolve(data);
+            });
+        })
+        
+        request.on("error", (err) => {
+            reject("Error: " + err.message);
+        })
+    });
 }
 
 const latest_model_index_fmt = () => {
