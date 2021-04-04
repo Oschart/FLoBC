@@ -48,7 +48,7 @@ use exonum_node::SYNC_POLICY;
 use exonum_node::VALIDATOR_ID;
 use std::sync::atomic::Ordering;
 
-const DEBUG: bool = false;
+const DEBUG: bool = true;
 
 /// Database schema for the cryptocurrency.
 ///
@@ -140,15 +140,32 @@ where
         }
     }
 
+    pub fn update_registry(&mut self) {
+        let val_id: u16 = get_static!(VALIDATOR_ID);
+        let score_filename: String = format!("v{}_scores.txt", val_id);
+        let file = File::open(&score_filename).unwrap();
+        let reader = BufReader::new(file);
+        for line in reader.lines() {
+            let uline: String = line.unwrap();
+            let delim_pos = uline.find(':').unwrap();
+
+            let trainer_addr_str: String = uline.chars().take(delim_pos).collect();
+            let pub_key = PublicKey::from_hex(trainer_addr_str).unwrap();
+
+            let trainer_addr: Address = Address::from_key(pub_key);
+
+            self.register_trainer(&trainer_addr);
+        }
+    }
+
     pub fn initiate_release(&mut self) {
         if self.pending_transactions_exist() {
-            
             // Update trainer scores
             let scoring_flag: u16 = get_static!(SCORING_FLAG);
             if scoring_flag == 1 {
                 self.update_scores();
             }
-            
+
             // Updating the most recent model using schema
             self.update_model();
             // Remove the scores file when you're done
@@ -253,11 +270,12 @@ where
                 SchemaUtils::float_vec_to_byte_slice(&updates),
             );
             let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
-            self.rt_round_count.put(&trainer_addr, rt_count+1);
+            self.rt_round_count.put(&trainer_addr, rt_count + 1);
         }
     }
 
     pub fn get_slack_ratio(&mut self) -> f32 {
+        self.update_registry();
         // Calculating contributers ratio
         let num_of_trainers = (self.trainers_scores.values().count()) as f32;
         let num_of_contributers = (self.pending_transactions.values().count()) as f32;
