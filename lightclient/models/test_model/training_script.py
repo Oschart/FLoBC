@@ -21,7 +21,7 @@ INPUT_SHAPE = (20, 20, 1)
 
 def reshapeData(index):
     df = read_input(index)
-    df = df.head(int(len(df) * 0.9))
+    # df = df.head(int(len(df) * 0.9))
     df = df.sample(int(0.7*len(df)))
     label = df.iloc[:, 0]
     label = label.to_numpy()
@@ -60,10 +60,9 @@ def createModel():
 # ###############################
 newModel_flag = readNewModel_flag(1)
 data_train, label_train = reshapeData(2)
-if (not newModel_flag):
-    list = read_weights(3)
+list = read_weights(3)
 model = createModel()
-model, list = rebuildModel(model, list, newModel_flag)
+model, list = rebuildModel(model, list)
 model = trainModel(model, data_train, label_train)
 # ################################
 # # 2) Flattening
