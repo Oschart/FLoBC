@@ -116,28 +116,6 @@ impl MachineLearningInterface<ExecutionContext<'_>> for MachineLearningService {
                     schema.set_deadline_status(0);
                 }
             }
-        } else {
-            // BAP: In case a syncer is used
-            // KEEP EXTENDING UNTIL MAJORITY IS ACHIEVED //
-            let work_ratio = 1.0 - schema.get_slack_ratio();
-            let deadline_status = schema.get_deadline_status();
-            match deadline_status {
-                0 => {
-                    if work_ratio >= MAJORITY_RATIO {
-                        schema.initiate_release();
-                    }
-                }
-                1 => {
-                    if work_ratio >= MAJORITY_RATIO {
-                        schema.initiate_release();
-                        schema.set_deadline_status(0);
-                    }
-                }
-                _ => {
-                    println!("Invalid deadline status!");
-                    schema.set_deadline_status(0);
-                }
-            }
         }
 
         Ok(())

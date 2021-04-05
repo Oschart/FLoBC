@@ -48,6 +48,8 @@ pub const LAMBDA: f64 = 4.0;
 pub const MAJORITY_RATIO: f32 = 1.0 ;
 /// Maximum allowable ratio of decay from previous model
 pub const MAX_SCORE_DECAY: f32 = 0.9;
+/// Maximum allowable number of retrain rounds
+pub const MAX_RETRAIN: u8 = 3;
 
 /// Cryptocurrency service implementation.
 #[derive(Debug, ServiceDispatcher, ServiceFactory)]

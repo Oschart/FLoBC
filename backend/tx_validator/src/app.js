@@ -2,8 +2,7 @@ import * as exonum from 'exonum-client'
 import * as proto from './proto'
 import validate_vector from './validate_vector'
 import store_encoded_vector, { clear_encoded_vector } from './store_encoded_vector'
-import { fetchLatestModelValidator } from '../../../lightclient/dist/utils/fetchLatestModel';
-import { fetchMinScore } from '../../../lightclient/dist/utils/fetchLatestModel';
+import { fetchLatestModel, fetchMinScore } from './utils';
 
 function validation() {
   let transaction = proto.TxShareUpdates.decode(exonum.hexadecimalToUint8Array(process.argv[3]));
@@ -22,7 +21,7 @@ function validation() {
   });
 }
 
-fetchLatestModelValidator()
+fetchLatestModel()
   .then((base_model) => {
     fetchMinScore()
       .then((min_score) => {

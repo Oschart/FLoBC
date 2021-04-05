@@ -3,7 +3,9 @@ const fs = require('fs');
 
 const METADATA_FILE_NAME = 'ModelMetadata';
 const WEIGHTS_LENGTH = 4010;
+const MODELS_CACHE = "cached_model";
 import {fetchPortNumber} from './fetchDatasetDirectory';
+import { store_encoded_vector, read_encoded_vector } from './store_encoded_vector';
 
 const latest_model_index_fmt = (isVal=false) => {
     let port_number = fetchPortNumber(isVal);
@@ -12,6 +14,10 @@ const latest_model_index_fmt = (isVal=false) => {
 const get_model_by_index_fmt = (isVal=false) => {
     let port_number = fetchPortNumber(isVal);
     return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/models/getmodel`
+}
+const get_retrain_quote_fmt = (isVal=false) => {
+    let port_number = fetchPortNumber(isVal);
+    return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/trainer/retrain_quota`
 }
 
 function HTTPGet(endpointURL, options = ''){
@@ -91,76 +97,64 @@ function getMinScoreByIndex(index){
     })
 }
 
-export function fetchLatestModelTrainer(){
+function getRetrainQuote(trainerKey){
+    let option = '?trainer_addr=' + trainerKey;
+    return new Promise((resolve, reject) => {
+        HTTPGet(get_retrain_quote_fmt(true), option)
+        .then(res => {
+            resolve(parseInt(res));
+        })
+        .catch(err => reject(err))
+    })
+}
+
+export function fetchLatestModelTrainer(trainerKey){
     return new Promise((resolve, reject) => {
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
             readMetadataFile() 
             .then(fileContent => {
                 if(latestIndex > fileContent){          //if there is a new model (relative to the latest model this LC trained on )
+                    console.log("New model released by the validator!, #" + latestIndex)
                     if([0, -1].includes(latestIndex)){  //new model 
-                        let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
+                        let randArr = new Array(WEIGHTS_LENGTH).fill(0);
+                        randArr = randArr.map(val => {
+                            return Math.random() * 0.2 - 0.1;
+                        });
+                        store_encoded_vector(randArr, 'validator');
                         writeToMetadataFile(0)          //update metadata file to indicate working on an empty model 
                         .then(() => {
-                            resolve(zerosArr);
+                            resolve([randArr, 0, 1]);
                         })
                         .catch(err => reject(err))
                     }
                     else{
                         getModelByIndex(latestIndex)    //fetch latest model weights
                         .then(latestModelWeights => {
+                            store_encoded_vector(latestModelWeights, 'validator');
                             writeToMetadataFile(latestIndex)    //update metadata file
                             .then(() => {
-                                resolve(latestModelWeights)
+                                resolve([latestModelWeights, 0, 0])
                             })
                             .catch(err => reject(err))
                             
                         })
                     }
                 }
-                else resolve(-1); //the LC doesn't need to train (already trained this model)
+                else {
+                    getRetrainQuote(trainerKey)
+                    .then(retrainQuota => {
+                        if(retrainQuota > 0){
+                            console.log("Will retrain on the locally cached model")
+                            let cachedModel = read_encoded_vector('retrain');
+                            let firstIteration = (latestIndex <= 0);
+                            resolve([cachedModel, 1, firstIteration])
+                        }
+                        else resolve([-1, 0, 0]); //the LC doesn't need to train (already trained this model)
+                    })
+                    
+                }
             })
-        })
-        .catch(err => reject(err))
-    })
-}
-
-export function fetchLatestModelValidator(){
-    return new Promise((resolve, reject) => {
-        getLatestModelIndex(true)   //retrieve the index of the latest model from the BC
-        .then(latestIndex => {
-            if([0, -1].includes(latestIndex)){  //new model 
-                // let zerosArr = new Array(WEIGHTS_LENGTH).fill(0);
-                // resolve(zerosArr);
-                resolve(0);
-            }
-            else{
-                getModelByIndex(latestIndex, true)    //fetch latest model weights
-                .then(latestModelWeights => {
-                    resolve(latestModelWeights)
-                })
-                .catch(err => reject(err))
-            }
-        })
-        .catch(err => reject(err))
-    })
-}
-
-export function fetchMinScore(){
-    return new Promise((resolve, reject) => {
-        getLatestModelIndex(true)   //retrieve the index of the latest model from the BC
-        .then(latestIndex => {
-            if([0, -1].includes(latestIndex)){  //new model 
-                let min_score = 0.5;
-                resolve(min_score);
-            }
-            else{
-                getMinScoreByIndex(latestIndex)    //fetch latest model weights
-                .then(latestMinScore => {
-                    resolve(latestMinScore)
-                })
-                .catch(err => reject(err))
-            }
         })
         .catch(err => reject(err))
     })

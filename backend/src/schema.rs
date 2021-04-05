@@ -25,7 +25,9 @@ use exonum_derive::{FromAccess, RequireArtifact};
 use hex::FromHex;
 
 // modified
-use crate::{model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_SCORE_DECAY, MODEL_SIZE};
+use crate::{
+    model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_RETRAIN, MAX_SCORE_DECAY, MODEL_SIZE,
+};
 #[path = "model.rs"]
 use itertools::Itertools;
 use std::fs::File;
@@ -41,8 +43,9 @@ use rand::distributions::Alphanumeric;
 use rand::Rng;
 
 use crate::get_static;
-use exonum_node::VALIDATOR_ID;
 use exonum_node::SCORING_FLAG;
+use exonum_node::SYNC_POLICY;
+use exonum_node::VALIDATOR_ID;
 use std::sync::atomic::Ordering;
 
 const DEBUG: bool = false;
@@ -62,6 +65,8 @@ pub(crate) struct SchemaImpl<T: Access> {
     pub trainers_scores: MapIndex<T::Base, Address, String>,
     /// Pending transactions of the current round
     pub pending_transactions: MapIndex<T::Base, Address, Vec<u8>>,
+    /// Retrain rounds count for each trainer
+    pub rt_round_count: MapIndex<T::Base, Address, u8>,
     /// Deadline extension status (SSP)
     /// 0 -> Original deadline
     /// 1 -> Active extension
@@ -92,6 +97,16 @@ impl<T: Access> SchemaImpl<T> {
         let slack_ratio = (num_of_trainers - num_of_contributers) / num_of_trainers;
         return slack_ratio;
     }
+
+    pub fn _get_retrain_quota_(&self, trainer_addr: &Address) -> u8 {
+        let sp: u16 = get_static!(SYNC_POLICY);
+        let rt_bound = match sp {
+            0 => 1,
+            _ => MAX_RETRAIN,
+        };
+        let rt_count = self.rt_round_count.get(&trainer_addr).unwrap_or(0);
+        return rt_bound - rt_count;
+    }
 }
 
 impl<T> SchemaImpl<T>
@@ -101,28 +116,21 @@ where
 {
     // Register a trainer's identity
     pub fn register_trainer(&mut self, trainer_addr: &Address) {
-        if DEBUG {
-            println!("Registering {:?}...", trainer_addr);
-        }
-
-        let num_of_trainers = (self.trainers_scores.values().count() + 1) as f64;
-        //let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
-        let starter_score: f64 = 1.0 / (num_of_trainers);
         // Insert new score only if trainer wasn't registered
         if self.trainers_scores.contains(trainer_addr) == false {
-            // Modify existing scores
-            let mut existing_addrs: Vec<Address> = Vec::new();
-            for existing_addr in self.trainers_scores.keys() {
-                existing_addrs.push(existing_addr);
+            if DEBUG {
+                println!("Registering {:?}...", trainer_addr);
             }
-            self.trainers_scores.clear();
-            for existing_addr in existing_addrs {
-                self.trainers_scores
-                    .put(&existing_addr, starter_score.to_string());
-            }
+
+            let num_of_trainers = (self.trainers_scores.values().count() + 1) as f64;
+            //let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
+            let starter_score: f64 = 1.0 / (num_of_trainers);
+            
             // Adding new score
             self.trainers_scores
                 .put(trainer_addr, starter_score.to_string());
+
+            self.normalize_scores();
         }
         if DEBUG {
             println!("Printing trainer addr / scores:");
@@ -132,15 +140,32 @@ where
         }
     }
 
+    pub fn update_registry(&mut self) {
+        let val_id: u16 = get_static!(VALIDATOR_ID);
+        let score_filename: String = format!("v{}_scores.txt", val_id);
+        let file = File::open(&score_filename).unwrap();
+        let reader = BufReader::new(file);
+        for line in reader.lines() {
+            let uline: String = line.unwrap();
+            let delim_pos = uline.find(':').unwrap();
+
+            let trainer_addr_str: String = uline.chars().take(delim_pos).collect();
+            let pub_key = PublicKey::from_hex(trainer_addr_str).unwrap();
+
+            let trainer_addr: Address = Address::from_key(pub_key);
+
+            self.register_trainer(&trainer_addr);
+        }
+    }
+
     pub fn initiate_release(&mut self) {
         if self.pending_transactions_exist() {
-            
             // Update trainer scores
             let scoring_flag: u16 = get_static!(SCORING_FLAG);
             if scoring_flag == 1 {
                 self.update_scores();
             }
-            
+
             // Updating the most recent model using schema
             self.update_model();
             // Remove the scores file when you're done
@@ -210,6 +235,7 @@ where
             new_model.aggregate(&updates, tw_f32);
         }
         self.pending_transactions.clear();
+        self.rt_round_count.clear();
 
         let new_model_score = SchemaUtils::evaluate_model(&(&new_model).weights);
         new_model.score = new_model_score;
@@ -226,15 +252,30 @@ where
         self.public.latest_version_addr.set(new_version_hash);
     }
 
+    pub fn allowed_to_retrain(&self, trainer_addr: &Address) -> bool {
+        let sp: u16 = get_static!(SYNC_POLICY);
+        let rt_bound = match sp {
+            0 => 1,
+            _ => MAX_RETRAIN,
+        };
+        let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
+        return rt_count < rt_bound;
+    }
+
     pub fn cache_update(&mut self, trainer_addr: &Address, updates: &Vec<f32>) {
-        // NOTE: Overwrite latest model update
-        self.pending_transactions.put(
-            &trainer_addr,
-            SchemaUtils::float_vec_to_byte_slice(&updates),
-        );
+        if self.allowed_to_retrain(trainer_addr) {
+            // NOTE: Overwrite latest model update
+            self.pending_transactions.put(
+                &trainer_addr,
+                SchemaUtils::float_vec_to_byte_slice(&updates),
+            );
+            let rt_count = self.rt_round_count.get(trainer_addr).unwrap_or(0);
+            self.rt_round_count.put(&trainer_addr, rt_count + 1);
+        }
     }
 
     pub fn get_slack_ratio(&mut self) -> f32 {
+        self.update_registry();
         // Calculating contributers ratio
         let num_of_trainers = (self.trainers_scores.values().count()) as f32;
         let num_of_contributers = (self.pending_transactions.values().count()) as f32;
@@ -318,7 +359,7 @@ where
             let norm_score = score_str.parse::<f32>().unwrap() / sum;
             tr_addrs.push(trainer_addr);
             norm_scores.push(norm_score);
-            
+
             println!(
                 "Trainer <{:?}>, normalized_score={}",
                 trainer_addr, norm_score
@@ -326,7 +367,7 @@ where
         }
         for i in 0..tr_addrs.len() {
             self.trainers_scores
-            .put(&tr_addrs[i], norm_scores[i].to_string());
+                .put(&tr_addrs[i], norm_scores[i].to_string());
         }
     }
 }
