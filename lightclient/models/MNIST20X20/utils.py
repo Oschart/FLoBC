@@ -73,11 +73,11 @@ def trainModel(model, data_train, label_train):
   return model
 
 # %%
-def rebuildModel(new_model, list, newModel_flag):
-    if (newModel_flag):
-        list = []
-        np.random.seed(0)
-        list = np.random.uniform(low = -0.09, high = 0.09, size = new_model.count_params()).tolist()
+def rebuildModel(new_model, list):
+    # if (newModel_flag):
+    #     list = []
+    #     np.random.seed(0)
+    #     list = np.random.uniform(low = -0.09, high = 0.09, size = new_model.count_params()).tolist()
     start = 0
     for i in range (0, len(new_model.layers)):
         bound = np.array(new_model.layers[i].get_weights(), dtype="object").size

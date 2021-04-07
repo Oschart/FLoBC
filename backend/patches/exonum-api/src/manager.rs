@@ -355,7 +355,7 @@ impl ApiManager {
 
         let mut server_builder = HttpServer::new(move || {
             App::new()
-                .app_data(web::JsonConfig::default().limit(1024 * 1024))
+                .app_data(web::JsonConfig::default().limit(5 * 1024 * 1024))
                 .wrap(server_config.cors_factory())
                 .service(aggregator.extend_backend(access, web::scope("api")))
         })

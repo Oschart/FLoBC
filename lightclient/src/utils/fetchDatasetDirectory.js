@@ -11,7 +11,7 @@ export function fetchImposterState(){
         console.log("Error: No imposter state provided");
         process.exit();
     }
-    return process.argv[4].trim() != "0";
+    return parseFloat(process.argv[4].trim());
 }
 
 export function fetchPortNumber(isVal=false){

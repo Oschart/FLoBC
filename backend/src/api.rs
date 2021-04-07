@@ -20,7 +20,7 @@ use exonum::{
     messages::{AnyTx, Verified},
     runtime::CallerAddress as Address,
 };
-use exonum_merkledb::{proof_map::Raw, ListProof, MapProof};
+use exonum_merkledb::{proof_map::Raw, ListProof, MapProof, ObjectHash};
 use exonum_rust_runtime::api::{self, ServiceApiBuilder, ServiceApiState};
 
 use crate::{schema::{SchemaImpl, SchemaUtils}, model::Model};
@@ -30,6 +30,13 @@ use crate::{schema::{SchemaImpl, SchemaUtils}, model::Model};
 pub struct ModelQuery {
     /// Public key of the queried model.
     pub version: u32,
+}
+
+/// Describes the query parameters for the `get_model` endpoint.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct TrainerQuery {
+    /// Public key of the queried model.
+    pub trainer_addr: PublicKey,
 }
 
 /// Proof of existence for specific model.
@@ -135,6 +142,29 @@ impl PublicApi {
         Ok(latest)
     }
 
+    pub async fn get_trainers_scores(
+        state: ServiceApiState,
+        query: (),
+    ) -> api::Result<String>{
+        let model_schema = SchemaImpl::new(state.service_data());
+        let scores = model_schema.trainers_scores; //unwrap?
+        let mut res : String = "{".to_string(); 
+        let mut flag = 0; 
+        for v in scores.iter() {
+            if (flag > 0){
+                res.push_str(",");
+            }
+            flag = 1;
+            res.push_str(r#"""#);
+            res.push_str(&v.0.object_hash().to_hex());
+            res.push_str(r##"":""##);
+            res.push_str(&v.1);
+            res.push_str(r#"""#);
+        }
+        res.push_str("}");
+        Ok(res)
+    }
+        
     /// Model accuracy getter
     pub async fn get_model_accuracy(
         state: ServiceApiState,
@@ -158,6 +188,17 @@ impl PublicApi {
         let slack_ratio = schema._get_slack_ratio_();
         Ok(slack_ratio)
     }
+
+    /// Returns the remaini
+    pub async fn get_retrain_quota(
+        state: ServiceApiState,
+        query: TrainerQuery,
+    ) -> api::Result<u8>{
+        let schema = SchemaImpl::new(state.service_data());
+        let tr_addr = Address::from_key(query.trainer_addr);
+        let retrain_quota = schema._get_retrain_quota_(&tr_addr);
+        Ok(retrain_quota)
+    }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
@@ -165,8 +206,10 @@ impl PublicApi {
             .public_scope()
             .endpoint("v1/models/info", Self::model_info)
             .endpoint("v1/models/getmodel", Self::get_model)
+            .endpoint("v1/models/trainersscores", Self::get_trainers_scores)
             .endpoint("v1/models/latestmodel", Self::latest_model)
             .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy)
-            .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio);
+            .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio)
+            .endpoint("v1/trainer/retrain_quota", Self::get_retrain_quota);
     }
 }

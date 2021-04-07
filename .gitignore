@@ -19,6 +19,8 @@ __pycache__/
 lightclient2/
 lightclient3/
 
+RP Experiment/node_modules
+RP Experiment/dist
 **/*.csv
 lightclient/models_cache/last_validator_model
 lightclient/models_cache/python_bus

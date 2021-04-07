@@ -2,8 +2,7 @@ import * as exonum from 'exonum-client'
 import * as proto from './proto'
 import validate_vector from './validate_vector'
 import store_encoded_vector, { clear_encoded_vector } from './store_encoded_vector'
-import { fetchLatestModelValidator } from '../../../lightclient/dist/utils/fetchLatestModel';
-import { fetchMinScore } from '../../../lightclient/dist/utils/fetchLatestModel';
+import { fetchLatestModel, fetchMinScore } from './utils';
 
 function validation() {
   let transaction = proto.TxShareUpdates.decode(exonum.hexadecimalToUint8Array(process.argv[3]));
@@ -22,11 +21,23 @@ function validation() {
   });
 }
 
-fetchLatestModelValidator()
+fetchLatestModel()
   .then((base_model) => {
     fetchMinScore()
       .then((min_score) => {
-        let transaction = proto.TxShareUpdates.decode(exonum.hexadecimalToUint8Array(process.argv[3]));
+        var fs = require("fs");
+        var text = fs.readFileSync("../../example/"+process.argv[3], {encoding:"utf8"});
+        text = text.replace("[", "")
+        text = text.replace("]", "")
+        text = text.split(",")
+        text = text.map(Number);
+        // delete a file
+        fs.unlink("../../example/"+process.argv[3], (err) => {
+          if (err) {
+              throw err;
+          }
+        });
+        let transaction = proto.TxShareUpdates.decode(text);
         let val_id = process.argv[4];
         store_encoded_vector(transaction.gradients, "gradients"+val_id).then((encoded_vector_path) => {
           if (base_model == 0) {

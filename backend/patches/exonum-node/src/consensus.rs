@@ -890,10 +890,26 @@ impl NodeHandler {
             unsafe {
                 val_id = VALIDATOR_ID.load(Ordering::SeqCst);
             }
+            let gradients_filename: String = format!("v{}_gradients_{}.txt", val_id, msg.author().to_hex());
+            // let gradients_filename: String = format!("v{}_gradients.txt", val_id);
+
+            let mut file = OpenOptions::new()
+                .write(true)
+                .append(true)
+                .create(true)
+                .open(&gradients_filename)
+                .unwrap();
+
+            if let Err(e) = writeln!(file, "{:?}", msg.payload().arguments) {
+                eprintln!("Couldn't write to file: {}", e);
+            }
+            // let gradients_filename: String = format!("v{}_gradients_{}.txt", val_id, aut);
+            // let gradients_filename: String = format!("v{}_gradients.txt", val_id);
+
             let output = Command::new("node")
                 .arg("app.js")
                 .arg(self.sync_policy.clone())
-                .arg(hex::encode(&msg.payload().arguments).clone())
+                .arg(gradients_filename)
                 .arg(val_id.to_string())
                 .current_dir("../tx_validator/dist")
                 .output()

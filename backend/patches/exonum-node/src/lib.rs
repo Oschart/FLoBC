@@ -131,6 +131,10 @@ pub static mut VALIDATOR_ID: AtomicU16 = AtomicU16::new(0);
 /// 0 -> BSP
 /// 1 -> SSP
 pub static mut SYNC_POLICY: AtomicU16 = AtomicU16::new(0);
+/// Scoring Flag
+/// 0 -> No Scoring
+/// 1 -> Scoring
+pub static mut SCORING_FLAG: AtomicU16 = AtomicU16::new(0);
 
 // Logically private types re-exported for benchmarks.
 #[doc(hidden)]
@@ -217,6 +221,8 @@ pub(crate) struct NodeHandler {
     block_proposer: Box<dyn ProposeBlock>,
     /// Sync Policy
     sync_policy: String,
+    /// Scoring flag
+    scoring_flag: String,
 }
 
 /// HTTP API configuration options.
@@ -541,6 +547,7 @@ impl NodeHandler {
         config_manager: Option<Box<dyn ConfigManager>>,
         block_proposer: Box<dyn ProposeBlock>,
         sync_policy: String,
+        scoring_flag: String,
     ) -> Self {
         let snapshot = blockchain.snapshot();
         let schema = Schema::new(&snapshot);
@@ -581,8 +588,13 @@ impl NodeHandler {
                 _ => 0
             };
             SYNC_POLICY = AtomicU16::new(sp);
+            let sf: u16 = match scoring_flag.as_str() {
+                "1" => 1,
+                _ => 0
+            };
+            SCORING_FLAG = AtomicU16::new(sf);
         }
-
+        
         let node_role = NodeRole::new(validator_id);
         let is_enabled = api_state.is_enabled();
         api_state.set_node_role(node_role);
@@ -601,6 +613,7 @@ impl NodeHandler {
             allow_expedited_propose: true,
             block_proposer,
             sync_policy,
+            scoring_flag,
         }
     }
 
@@ -1005,6 +1018,7 @@ pub struct Node {
     api_options: NodeApiConfig,
     network_config: NetworkConfiguration,
     sync_policy: String,
+    scoring_flag: String,
     handler: NodeHandler,
     channel: NodeChannel,
     max_message_len: u32,
@@ -1064,6 +1078,7 @@ pub struct NodeBuilder {
     plugins: Vec<Box<dyn NodePlugin>>,
     disable_signals: bool,
     sync_policy: String,
+    scoring_flag: String,
 }
 
 impl fmt::Debug for NodeBuilder {
@@ -1084,6 +1099,7 @@ impl NodeBuilder {
         node_config: NodeConfig,
         node_keys: Keys,
         sync_policy: String,
+        scoring_flag: String,
     ) -> Self {
         node_config
             .validate()
@@ -1103,6 +1119,7 @@ impl NodeBuilder {
             block_proposer: Box::new(StandardProposer),
             disable_signals: false,
             sync_policy,
+            scoring_flag,
         }
     }
 
@@ -1183,6 +1200,7 @@ impl NodeBuilder {
             self.plugins,
             self.block_proposer,
             self.sync_policy,
+            self.scoring_flag,
         );
         node.disable_signals = self.disable_signals;
         node
@@ -1200,6 +1218,7 @@ impl Node {
         plugins: Vec<Box<dyn NodePlugin>>,
         block_proposer: Box<dyn ProposeBlock>,
         sync_policy: String,
+        scoring_flag: String,
     ) -> Self {
         crypto::init();
 
@@ -1254,6 +1273,7 @@ impl Node {
             config_manager,
             block_proposer,
             sync_policy.clone(),
+            scoring_flag.clone(),
         );
         handler.plugins = plugins;
 
@@ -1267,6 +1287,7 @@ impl Node {
             api_manager_config: api_runtime_config,
             disable_signals: false,
             sync_policy,
+            scoring_flag,
         }
     }
 
