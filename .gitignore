@@ -20,3 +20,5 @@ lightclient2/
 lightclient3/
 
 **/*.csv
+lightclient/models_cache/last_validator_model
+lightclient/models_cache/python_bus
