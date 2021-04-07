@@ -4,8 +4,7 @@ import pandas as pd
 
 MODELS_DIR = '../src/models/'
 
-# Hardcoded
-model_id = 'mnist'
+model_id = sys.argv[6]
 
 data_dir = MODELS_DIR + model_id + '/data.csv'
 
