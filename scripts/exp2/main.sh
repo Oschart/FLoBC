@@ -1,9 +1,11 @@
 command_start="sh "
 trainers_max=2
 validators_max=1
+start_t=1
+start_v=1
 command="./scripts/spawn/spawn.sh "
 # while getopts "n:t:cbjl" arg; do
-while getopts "n:t:e:blr" arg; do
+while getopts "n:v:s:t:e:blr" arg; do
     case $arg in
     n) 
         validators_max=$(($OPTARG)) 
@@ -24,6 +26,12 @@ while getopts "n:t:e:blr" arg; do
     t) 
         trainers_max="$OPTARG"
         ;;
+    s) 
+        start_t="$OPTARG"
+        ;;
+    v) 
+        start_v="$OPTARG"
+        ;;
     e)
         command+="-e "
         endS=$(($OPTARG)) 
@@ -39,9 +47,9 @@ done
 # start_peer_port=5000
 command_string=$command
 mkdir exp2
-for ((i=1;i<=trainers_max;i++));
-do
-    for ((j=1;j<=validators_max;j++));
+for ((i=start_t;i<=trainers_max;i++));
+do    
+    for ((j=start_v;j<=validators_max;j++));
     do
         echo "Trainers =  $i, Validators = $j"
         command=$command_string
@@ -53,5 +61,6 @@ do
         # start_public_port=$((start_public_port+1))
         # start_peer_port=$((start_peer_port+1))
     done
+    $start_v=1
 done
 
