@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 
 const METADATA_FILE_NAME = 'ModelMetadata';
-const WEIGHTS_LENGTH = 4010;
+// const WEIGHTS_LENGTH = 4010;
 const MODELS_CACHE = "cached_model";
 import {fetchPortNumber} from './fetchDatasetDirectory';
 import { store_encoded_vector, read_encoded_vector } from './store_encoded_vector';
@@ -22,21 +22,27 @@ const get_retrain_quote_fmt = (isVal=false) => {
 
 function HTTPGet(endpointURL, options = ''){
     let getURL = endpointURL + options;
+    console.log("yes2")
+    console.log(getURL)
     return new Promise((resolve, reject) => {
+        console.log("yes")
         let request = http.get(getURL, (resp) => {
+            console.log("yes3")
             let data = '';
             resp.on('data', (chunk) => {
                 data += chunk;
             });
-    
+            console.log("yes4")
             resp.on('end', () => {
                 resolve(data);
             });
+            console.log("yes5")
         })
-        
+        console.log("yes6")
         request.on("error", (err) => {
             reject("Error: " + err.message);
         })
+        console.log("yes7")
     });
 }
 
@@ -75,7 +81,10 @@ function getLatestModelIndex(isVal=false){
     return new Promise((resolve, reject) => {
         HTTPGet(latest_model_index_fmt(isVal))
         .then(res => resolve(parseInt(res)))
-        .catch(err => reject(err))
+        .catch(err => {
+            console.log(err)
+            reject(err)
+        })
     })
 }
 
@@ -108,15 +117,20 @@ function getRetrainQuote(trainerKey){
     })
 }
 
-export function fetchLatestModelTrainer(trainerKey){
+export function fetchLatestModelTrainer(trainerKey, WEIGHTS_LENGTH){
+    console.log("here5")
+    console.log(WEIGHTS_LENGTH)
     return new Promise((resolve, reject) => {
+        console.log("here6")
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {
+            console.log("here7")
             readMetadataFile() 
             .then(fileContent => {
                 if(latestIndex > fileContent){          //if there is a new model (relative to the latest model this LC trained on )
                     console.log("New model released by the validator!, #" + latestIndex)
                     if([0, -1].includes(latestIndex)){  //new model 
+                        console.log("here4")
                         let randArr = new Array(WEIGHTS_LENGTH).fill(0);
                         randArr = randArr.map(val => {
                             return Math.random() * 0.2 - 0.1;

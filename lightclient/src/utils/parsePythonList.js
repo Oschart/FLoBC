@@ -1,7 +1,7 @@
 //Default weights length
-const WEIGHTS_LENGTH = 4010;
+// const WEIGHTS_LENGTH = 4010;
 
-export default function parsePythonList(list){
+export default function parsePythonList(list, WEIGHTS_LENGTH){
     let in_arr = list.trim().replace(/(\r\n|\n|\r)/gm, "");
     let st = in_arr.search("VECTOR");
     let end = in_arr.search("ENDVECTOR");
