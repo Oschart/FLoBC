@@ -4,8 +4,9 @@ import fetchPythonWeights from './utils/fetchPythonWeights';
 import fetchDatasetDirectory, { fetchImposterState, fetchPortNumber } from './utils/fetchDatasetDirectory';
 import fetchClientKeys from './utils/fetchClientKeys';
 import { fetchLatestModelTrainer, clearMetadataFile } from './utils/fetchLatestModel';
-import store_encoded_vector, { clear_encoded_vector } from './utils/store_encoded_vector'
+import { store_encoded_vector,  clear_encoded_vector, read_encoded_vector } from './utils/store_encoded_vector'
 import generateNormalNoise from './utils/generateNormalNoise';
+require("regenerator-runtime/runtime");
 
 const INTERVAL_DURATION = 5000
 
@@ -13,6 +14,7 @@ const MODEL_LENGTH = 4010
 
 const BASE_URL = "http://127.0.0.1";
 const TRANSACTIONS_SERVICE = "/api/explorer/v1/transactions";
+const MODELS_CACHE = "cached_model";
 
 let can_train = true
 
@@ -23,8 +25,7 @@ fetchClientKeys()
   TRAINER_KEY = client_keys
 });
 
-function trainNewModel(newModel_flag, modelWeights){
-    require("regenerator-runtime/runtime");
+function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalCache){
 
     // Numeric identifier of the machinelearning service
     const SERVICE_ID = 3
@@ -60,16 +61,32 @@ function trainNewModel(newModel_flag, modelWeights){
     //     .catch((obj) => console.log(obj))
 
     // } else {
-    fetchPythonWeights(newModel_flag, dataset_directory, modelWeights, (model_weights) => {
+    fetchPythonWeights(newModel_flag, dataset_directory, modelWeightsPath, (update_gradients) => {
         clear_encoded_vector();
         
         if (noise_scale){
             let noise = generateNormalNoise(MODEL_LENGTH, noise_scale);
-            for (let i = 0 ; i < MODEL_LENGTH ; i++) model_weights[i] += noise[i];
+            for (let i = 0 ; i < MODEL_LENGTH ; i++) update_gradients[i] += noise[i];
+        }
+        
+        //caching weights before adding them to a BC transaction
+        let newModel = update_gradients;
+        if(!newModel_flag){
+            newModel = update_gradients.map((val, idx) => {
+                return val + modelWeights[idx];
+            });
+        }
+        store_encoded_vector(newModel, 'retrain');
+
+        if(fromLocalCache){ //accumalating gradients in the case of a retrain
+            let latestValidatorModel = read_encoded_vector('validator')
+            update_gradients = update_gradients.map((val, idx) => {
+                return val + (modelWeights[idx] - latestValidatorModel[idx]);
+            });
         }
         
         const shareUpdatesPayload = {
-        gradients: model_weights,
+        gradients: update_gradients,
         seed: exonum.randomUint64(),
         }
 
@@ -86,24 +103,22 @@ function trainNewModel(newModel_flag, modelWeights){
 }
 
 setInterval(() => {
-    fetchLatestModelTrainer()
-    .then(newModel => {
-        if (newModel == 0){
-            console.log("First model version");
-            trainNewModel(true, "");
+    if(!can_train){
+        console.log("training is in progress")
+        return;
+    }
+    fetchLatestModelTrainer(TRAINER_KEY.publicKey)
+    .then(fetcherResult => {
+        let newModel = fetcherResult[0];
+        let isLocallyCached = fetcherResult[1];
+        let firstIteration = fetcherResult[2];
+        if (newModel !== -1){
+            if (can_train){
+                can_train = false;
+                let newModel_path = store_encoded_vector(newModel);
+                trainNewModel(firstIteration, newModel_path, newModel, isLocallyCached)
+            }
         }
-        else if(newModel !== -1){
-            setTimeout(() => {
-                console.log("New model fetched")
-                if (can_train){
-                    can_train = false;
-                    store_encoded_vector(newModel).then((newModel_path) => {
-                        trainNewModel(false, newModel_path)
-                    });
-                }
-            }, INTERVAL_DURATION)
-        }
-        else console.log("No New model to fetch, will retry in a bit")
+        else console.log("No retrain quota at the moment, will retry in a bit")
     })
 }, INTERVAL_DURATION)
-
