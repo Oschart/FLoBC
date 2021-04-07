@@ -3,14 +3,19 @@ import * as proto from './proto'
 import fetchPythonWeights from './utils/fetchPythonWeights';
 import fetchDatasetDirectory, { fetchImposterState, fetchPortNumber } from './utils/fetchDatasetDirectory';
 import fetchClientKeys from './utils/fetchClientKeys';
+// import getModelLength from './utils/getModelLength';
 import { fetchLatestModelTrainer, clearMetadataFile } from './utils/fetchLatestModel';
 import { store_encoded_vector,  clear_encoded_vector, read_encoded_vector } from './utils/store_encoded_vector'
 import generateNormalNoise from './utils/generateNormalNoise';
 require("regenerator-runtime/runtime");
 
 const INTERVAL_DURATION = 5000
+const MODEL_NAME="test_model"
+const fs = require("fs");
 
-const MODEL_LENGTH = 4010
+let model_metadata = fs.readFileSync("./models/"+MODEL_NAME+"/metadata", {encoding:"utf8"});
+let MODEL_LENGTH = model_metadata.substring(model_metadata.indexOf('WEIGHTS_LENGTH=') + 1).split("=")[1].split("\n")[0]
+MODEL_LENGTH = parseInt(MODEL_LENGTH)
 
 const BASE_URL = "http://127.0.0.1";
 const TRANSACTIONS_SERVICE = "/api/explorer/v1/transactions";
@@ -32,7 +37,6 @@ function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalC
 
     // Numeric ID of the `TxShareUpdates` transaction within the service
     const SHAREUPDATES_ID = 0
-
     const ShareUpdates = new exonum.Transaction({
         schema: proto.TxShareUpdates,
         serviceId: SERVICE_ID,
@@ -61,7 +65,7 @@ function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalC
     //     .catch((obj) => console.log(obj))
 
     // } else {
-    fetchPythonWeights(newModel_flag, dataset_directory, modelWeightsPath, (update_gradients) => {
+    fetchPythonWeights(newModel_flag, dataset_directory, modelWeightsPath, MODEL_NAME, MODEL_LENGTH, (update_gradients) => {
         clear_encoded_vector();
         
         if (noise_scale){
@@ -103,12 +107,15 @@ function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalC
 }
 
 setInterval(() => {
+    console.log("here")
     if(!can_train){
         console.log("training is in progress")
         return;
     }
-    fetchLatestModelTrainer(TRAINER_KEY.publicKey)
+    console.log(MODEL_LENGTH)
+    fetchLatestModelTrainer(TRAINER_KEY.publicKey, MODEL_LENGTH)
     .then(fetcherResult => {
+        console.log("her3")
         let newModel = fetcherResult[0];
         let isLocallyCached = fetcherResult[1];
         let firstIteration = fetcherResult[2];
