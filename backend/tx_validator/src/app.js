@@ -38,6 +38,8 @@ fetchLatestModel()
           }
         });
         let transaction = proto.TxShareUpdates.decode(text);
+        // console.log("First element = ",transaction.gradients[0])
+        // console.log("Last element = ",transaction.gradients[transaction.gradients.length-1])
         let val_id = process.argv[4];
         store_encoded_vector(transaction.gradients, "gradients"+val_id).then((encoded_vector_path) => {
           if (base_model == 0) {

@@ -20,7 +20,7 @@ def send_to_node(newModel_flag, initial_model, update_vector):
             for i in range(len(update_vector) - 1):
                 print(update_vector[i] - initial_model[i], flush=True, end=",")
         print(update_vector[-1] - initial_model[-1], flush=True, end="")
-        print("]ENDVECTOR",end="\n",flush=True)
+        print("]ENDVECTOR" ,end="\n",flush=True)
 # %%
 ################################
 # Reading dataframe

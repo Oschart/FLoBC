@@ -48,6 +48,7 @@ def createModel():
     model.add(Conv2D(28, kernel_size=(3,3), input_shape=input_shape))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten()) # Flattening the 2D arrays for fully connected layers
+    model.add(Dense(128, activation=tf.nn.relu))
     model.add(Dense(16, activation=tf.nn.relu))
     model.add(Dropout(0.2))
     model.add(Dense(10,activation=tf.nn.softmax))
@@ -60,10 +61,6 @@ def evaluateModel(model, data_test, label_test):
   # Return accuracy
   return results[1]
 
-  if(results[1] > 0.7):
-    return True
-  else:
-    return False
 
 # %%
 def rebuildModel(flat_model):
@@ -88,7 +85,6 @@ def rebuildModel(flat_model):
 ################################
 def compute_validation_score(flat_model, data_dir):
   data_test, label_test = reshapeData(data_dir)
-  # list = [0.5] * 4010
   model = rebuildModel(flat_model)
   result = evaluateModel(model, data_test, label_test)
   print(result)

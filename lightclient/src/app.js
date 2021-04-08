@@ -107,15 +107,12 @@ function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalC
 }
 
 setInterval(() => {
-    console.log("here")
     if(!can_train){
         console.log("training is in progress")
         return;
     }
-    console.log(MODEL_LENGTH)
     fetchLatestModelTrainer(TRAINER_KEY.publicKey, MODEL_LENGTH)
     .then(fetcherResult => {
-        console.log("her3")
         let newModel = fetcherResult[0];
         let isLocallyCached = fetcherResult[1];
         let firstIteration = fetcherResult[2];

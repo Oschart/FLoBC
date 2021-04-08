@@ -6,7 +6,7 @@ import pandas as pd
 MODELS_DIR = '../src/models/'
 
 # Hardcoded
-model_id = 'mnist'
+model_id = 'MNIST28X28'
 
 data_dir = MODELS_DIR + model_id + '/data.csv'
 
