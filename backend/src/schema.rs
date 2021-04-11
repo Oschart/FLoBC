@@ -124,13 +124,25 @@ where
 
             let num_of_trainers = (self.trainers_scores.values().count() + 1) as f64;
             //let starter_score: f64 = 1.0 / (LAMBDA * num_of_trainers);
+
             let starter_score: f64 = 1.0 / (num_of_trainers);
-            
+
+            // Modify existing scores
+            let mut existing_addrs: Vec<Address> = Vec::new();
+            for existing_addr in self.trainers_scores.keys() {
+                existing_addrs.push(existing_addr);
+            }
+            self.trainers_scores.clear();
+            for existing_addr in existing_addrs {
+                self.trainers_scores
+                    .put(&existing_addr, starter_score.to_string());
+            }
             // Adding new score
             self.trainers_scores
                 .put(trainer_addr, starter_score.to_string());
 
-            self.normalize_scores();
+            
+            //self.normalize_scores();
         }
         if DEBUG {
             println!("Printing trainer addr / scores:");
@@ -216,7 +228,10 @@ where
         let version_hash = self.public.latest_version_addr.get().unwrap();
         latest_model = self.public.models.get(&version_hash).unwrap();
         if DEBUG {
-            println!("Latest Model: {:?}", (&latest_model).weights[(&latest_model).weights.len()-1]);
+            println!(
+                "Latest Model: {:?}",
+                (&latest_model).weights[(&latest_model).weights.len() - 1]
+            );
         };
         let mut new_model: Model = Model::new(
             (&latest_model).version + 1,
@@ -245,7 +260,10 @@ where
 
         if DEBUG {
             println!("Created New Model: {:?}", new_model.weights[0]);
-            println!("Created New Model: {:?}", new_model.weights[new_model.weights.len()-1]);
+            println!(
+                "Created New Model: {:?}",
+                new_model.weights[new_model.weights.len() - 1]
+            );
         }
 
         SchemaUtils::print_model_meta(&new_model);
