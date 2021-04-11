@@ -70,8 +70,6 @@ def flattenWeights(model):
 
 # %%
 def trainModel(model, data_train, label_train):
-    print(data_train.shape)
-    print(label_train.shape)
     model.fit(data_train, label_train, epochs=1, verbose=1)
     return model
 

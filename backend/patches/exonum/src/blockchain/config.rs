@@ -151,7 +151,7 @@ impl Default for ConsensusConfig {
 
 impl ConsensusConfig {
     /// Default value for `max_message_len`.
-    pub const DEFAULT_MAX_MESSAGE_LEN: u32 = 1024 * 1024; // 1 MB
+    pub const DEFAULT_MAX_MESSAGE_LEN: u32 = 5 * 1024 * 1024; // 1 MB
     /// Time that will be added to round timeout for each next round in terms of percent of `first_round_timeout`.
     pub const TIMEOUT_LINEAR_INCREASE_PERCENT: u64 = 10; // 10%
 
