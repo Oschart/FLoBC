@@ -14,12 +14,13 @@ def send_to_node(newModel_flag, initial_model, update_vector):
         print(len(initial_model))
         print("VECTOR[", flush=True, end="")
         if newModel_flag:
-          for i in range(len(update_vector) - 1):
-            print(update_vector[i], flush=True, end=",")
+            for i in range(len(update_vector) - 1):
+                print(update_vector[i], flush=True, end=",")
+            print(update_vector[-1], flush=True, end="")
         else:
             for i in range(len(update_vector) - 1):
                 print(update_vector[i] - initial_model[i], flush=True, end=",")
-        print(update_vector[-1] - initial_model[-1], flush=True, end="")
+            print(update_vector[-1] - initial_model[-1], flush=True, end="")
         print("]ENDVECTOR",end="\n",flush=True)
 # %%
 ################################
@@ -40,7 +41,7 @@ def readNewModel_flag(index):
     if len(sys.argv) < (index+1):
         raise Exception('No new model flag found')
     
-    return sys.argv[index]
+    return int(sys.argv[index])
 
 # %%
 ################################
@@ -69,8 +70,10 @@ def flattenWeights(model):
 
 # %%
 def trainModel(model, data_train, label_train):
-  model.fit(data_train, label_train, epochs=2, verbose=0)
-  return model
+    print(data_train.shape)
+    print(label_train.shape)
+    model.fit(data_train, label_train, epochs=1, verbose=1)
+    return model
 
 # %%
 def rebuildModel(new_model, list):
@@ -90,4 +93,4 @@ def rebuildModel(new_model, list):
             start += size
         if (bound > 0):
             new_model.layers[i].set_weights(weights)
-    return new_model, list
+    return new_model

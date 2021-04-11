@@ -198,7 +198,7 @@ where
             let version: u32 = 0;
             let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(version));
             let start_score = 0.0;
-            let min_score = 0.5;
+            let min_score = 0.0;
             latest_model = Model::new(
                 version,
                 MODEL_SIZE,
@@ -216,7 +216,7 @@ where
         let version_hash = self.public.latest_version_addr.get().unwrap();
         latest_model = self.public.models.get(&version_hash).unwrap();
         if DEBUG {
-            println!("Latest Model: {:?}", (&latest_model));
+            println!("Latest Model: {:?}", (&latest_model).weights[(&latest_model).weights.len()-1]);
         };
         let mut new_model: Model = Model::new(
             (&latest_model).version + 1,
@@ -244,7 +244,8 @@ where
         let new_version_hash = Address::from_key(SchemaUtils::pubkey_from_version(new_version));
 
         if DEBUG {
-            println!("Created New Model: {:?}", new_model);
+            println!("Created New Model: {:?}", new_model.weights[0]);
+            println!("Created New Model: {:?}", new_model.weights[new_model.weights.len()-1]);
         }
 
         SchemaUtils::print_model_meta(&new_model);

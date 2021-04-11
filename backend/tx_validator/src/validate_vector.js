@@ -17,7 +17,7 @@ function run_python(newModel_flag, validation_path, base_model, gradients, min_s
         const options = {
             mode: 'text',
             scriptPath: '../src/',
-            args: [newModel_flag, "../../" + validation_path, base_model, gradients, min_score]
+            args: [newModel_flag, validation_path, base_model, gradients, min_score]
         };
         PythonShell.run('validation_wrapper.py', options, function (err, results) {
             if (err) throw err;

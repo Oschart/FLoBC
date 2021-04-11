@@ -5,7 +5,7 @@ import pandas as pd
 MODELS_DIR = '../src/models/'
 
 # Hardcoded
-model_id = 'mnist'
+model_id = 'MNIST28X28'
 
 data_dir = MODELS_DIR + model_id + '/data.csv'
 
@@ -28,7 +28,7 @@ def send_score(score):
 
 #data_validation = pd.read_csv(data_dir)
 gradients = parse_gradients(sys.argv[4])
-newModel_flag = sys.argv[2]
+newModel_flag = int(sys.argv[1])
 if newModel_flag:
     evaluate_model = gradients
 else:

@@ -41,13 +41,13 @@ use backtrace::Backtrace;
 /// Initial weights of the model.
 pub const INIT_WEIGHT: f32 = 0.0;
 /// Model size
-pub const MODEL_SIZE : u32 = 4010;
+pub const MODEL_SIZE : u32 = 608338;
 /// Regularization factor
 pub const LAMBDA: f64 = 4.0;
 /// Minimum ratio of a majority of clients
 pub const MAJORITY_RATIO: f32 = 1.0 ;
 /// Maximum allowable ratio of decay from previous model
-pub const MAX_SCORE_DECAY: f32 = 0.9;
+pub const MAX_SCORE_DECAY: f32 = 0.6;
 /// Maximum allowable number of retrain rounds
 pub const MAX_RETRAIN: u8 = 3;
 
