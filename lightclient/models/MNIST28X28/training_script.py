@@ -49,12 +49,12 @@ def createModel():
 # ###############################
 newModel_flag = readNewModel_flag(1)
 data_train, label_train = reshapeData(2)
-list = read_weights(3)
+list_ = read_weights(3)
 model = createModel()
-model, list = rebuildModel(model, list)
+model = rebuildModel(model, list_)
 model = trainModel(model, data_train, label_train)
 # ################################
 # # 2) Flattening
 # ################################
 new_list = flattenWeights(model)
-send_to_node(newModel_flag, list, new_list)
+send_to_node(newModel_flag, list_, new_list)

@@ -43,7 +43,7 @@ fetchLatestModel()
         let val_id = process.argv[4];
         store_encoded_vector(transaction.gradients, "gradients"+val_id).then((encoded_vector_path) => {
           if (base_model == 0) {
-            validate_vector(true, "", encoded_vector_path, process.argv[2], min_score, (results) => {
+            validate_vector(1, "", encoded_vector_path, process.argv[2], min_score, (results) => {
               clear_encoded_vector("gradients"+val_id);
               clear_encoded_vector("basemodel"+val_id);
 
@@ -55,7 +55,7 @@ fetchLatestModel()
             });
           } else {
             store_encoded_vector(base_model, "basemodel"+val_id).then((encoded_basemodel_path) => {
-              validate_vector(false, encoded_basemodel_path, encoded_vector_path, process.argv[2], min_score, (results) => {
+              validate_vector(0, encoded_basemodel_path, encoded_vector_path, process.argv[2], min_score, (results) => {
                 clear_encoded_vector("gradients"+val_id);
                 clear_encoded_vector("basemodel"+val_id);
 
