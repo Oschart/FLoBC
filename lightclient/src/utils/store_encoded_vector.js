@@ -10,7 +10,6 @@ const CACHE_FILE_RESOLVER = {
 
 export function store_encoded_vector(gradients, target='python'){
     let targetFile = CACHE_FOLDER + CACHE_FILE_RESOLVER[target];
-    console.log("IN FUNC: " + target)
     let encoded = gradients.join(ENCODING_SEPARATOR); 
     fs.writeFileSync(targetFile, encoded);
     return targetFile;
