@@ -9,7 +9,7 @@ import { store_encoded_vector,  clear_encoded_vector, read_encoded_vector } from
 import generateNormalNoise from './utils/generateNormalNoise';
 require("regenerator-runtime/runtime");
 
-let intervalDuration = 10
+let intervalDuration = 20
 const MODEL_NAME="MNIST28X28"
 const fs = require("fs");
 
@@ -111,7 +111,7 @@ function timeout(s) {
 }
 
 function randomizeDuration(){
-    let secs = Math.round(Math.random() * 20) + 10;
+    let secs = Math.round(Math.random() * 30) + 20;
     intervalDuration = secs;
 }
 
