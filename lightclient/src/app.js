@@ -9,7 +9,7 @@ import { store_encoded_vector,  clear_encoded_vector, read_encoded_vector } from
 import generateNormalNoise from './utils/generateNormalNoise';
 require("regenerator-runtime/runtime");
 
-const INTERVAL_DURATION = 5000
+let intervalDuration = 10
 const MODEL_NAME="MNIST28X28"
 const fs = require("fs");
 
@@ -106,23 +106,43 @@ function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalC
     // }
 }
 
-setInterval(() => {
+function timeout(s) {
+    return new Promise(resolve => setTimeout(resolve, s * 1000));
+}
+
+function randomizeDuration(){
+    let secs = Math.round(Math.random() * 20) + 10;
+    intervalDuration = secs;
+}
+
+async function fetchingRoutine(){
     if(!can_train){
         console.log("training is in progress")
-        return;
     }
-    fetchLatestModelTrainer(TRAINER_KEY.publicKey, MODEL_LENGTH)
-    .then(fetcherResult => {
-        let newModel = fetcherResult[0];
-        let isLocallyCached = fetcherResult[1];
-        let firstIteration = fetcherResult[2];
-        if (newModel !== -1){
-            if (can_train){
-                can_train = false;
-                let newModel_path = store_encoded_vector(newModel);
-                trainNewModel(firstIteration, newModel_path, newModel, isLocallyCached)
-            }
+    let fetcherResult = await fetchLatestModelTrainer(TRAINER_KEY.publicKey, MODEL_LENGTH)
+    let newModel = fetcherResult[0];
+    let isLocallyCached = fetcherResult[1];
+    let firstIteration = fetcherResult[2];
+    if (newModel !== -1){
+        if (can_train){
+            can_train = false;
+            let newModel_path = store_encoded_vector(newModel);
+            trainNewModel(firstIteration, newModel_path, newModel, isLocallyCached)
         }
-        else console.log("No retrain quota at the moment, will retry in a bit")
-    })
-}, INTERVAL_DURATION)
+    }
+    else console.log("No retrain quota at the moment, will retry in a bit")
+}
+
+async function main(){
+    while(1){
+        console.log("Will pause for " + intervalDuration + " secs")
+        
+        await timeout(intervalDuration);
+
+        await fetchingRoutine()
+
+        randomizeDuration();
+    }
+}
+
+main();
