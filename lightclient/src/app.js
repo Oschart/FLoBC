@@ -98,7 +98,7 @@ async function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, from
         const serialized = transaction.serialize()
         console.log(serialized)
 
-        await exonum.send(explorerPath, serialized, 10, 15000)
+        await exonum.send(explorerPath, serialized, 10, 20000)
         .then((obj) => console.log(obj))
         .catch((obj) => { console.log(obj); clearMetadataFile()})
         .finally(() => { can_train = true; })
