@@ -30,7 +30,7 @@ fetchClientKeys()
   TRAINER_KEY = client_keys
 });
 
-function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalCache){
+async function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalCache){
 
     // Numeric identifier of the machinelearning service
     const SERVICE_ID = 3
@@ -65,7 +65,7 @@ function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalC
     //     .catch((obj) => console.log(obj))
 
     // } else {
-    fetchPythonWeights(newModel_flag, dataset_directory, modelWeightsPath, MODEL_NAME, MODEL_LENGTH, (update_gradients) => {
+    fetchPythonWeights(newModel_flag, dataset_directory, modelWeightsPath, MODEL_NAME, MODEL_LENGTH, async (update_gradients) => {
         clear_encoded_vector();
         
         if (noise_scale){
@@ -115,31 +115,32 @@ function randomizeDuration(){
     intervalDuration = secs;
 }
 
-async function fetchingRoutine(){
-    if(!can_train){
-        console.log("training is in progress")
-    }
-    let fetcherResult = await fetchLatestModelTrainer(TRAINER_KEY.publicKey, MODEL_LENGTH)
-    let newModel = fetcherResult[0];
-    let isLocallyCached = fetcherResult[1];
-    let firstIteration = fetcherResult[2];
-    if (newModel !== -1){
-        if (can_train){
-            can_train = false;
-            let newModel_path = store_encoded_vector(newModel);
-            trainNewModel(firstIteration, newModel_path, newModel, isLocallyCached)
-        }
-    }
-    else console.log("No retrain quota at the moment, will retry in a bit")
-}
-
 async function main(){
     while(1){
         console.log("Will pause for " + intervalDuration + " secs")
         
         await timeout(intervalDuration);
 
-        await fetchingRoutine()
+        if(!can_train){
+            console.log("training is in progress")
+        }
+        else{
+            await fetchLatestModelTrainer(TRAINER_KEY.publicKey, MODEL_LENGTH)
+            .then(async fetcherResult => {
+                let newModel = fetcherResult[0];
+                let isLocallyCached = fetcherResult[1];
+                let firstIteration = fetcherResult[2];
+                if (newModel !== -1){
+                    if (can_train){
+                        can_train = false;
+                        let newModel_path = store_encoded_vector(newModel);
+                        await trainNewModel(firstIteration, newModel_path, newModel, isLocallyCached)
+                    }
+                }
+                else console.log("No retrain quota at the moment, will retry in a bit")
+            })
+        }
+        
 
         randomizeDuration();
     }
