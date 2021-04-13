@@ -28,7 +28,14 @@ def send_score(score):
 
 #data_validation = pd.read_csv(data_dir)
 gradients = parse_gradients(sys.argv[4])
-newModel_flag = int(sys.argv[1])
+newModel_flag = str(sys.argv[1])
+if (newModel_flag == "true"):
+    newModel_flag = 1
+elif (newModel_flag == "false"):
+    newModel_flag = 0
+else:
+    newModel_flag = int(newModel_flag)
+
 if newModel_flag:
     evaluate_model = gradients
 else:

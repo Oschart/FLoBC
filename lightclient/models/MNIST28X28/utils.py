@@ -41,7 +41,7 @@ def readNewModel_flag(index):
     if len(sys.argv) < (index+1):
         raise Exception('No new model flag found')
     
-    return int(sys.argv[index])
+    return sys.argv[index]
 
 # %%
 ################################

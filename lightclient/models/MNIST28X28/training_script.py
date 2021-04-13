@@ -47,7 +47,13 @@ def createModel():
 # ###############################
 # 1) Training
 # ###############################
-newModel_flag = readNewModel_flag(1)
+newModel_flag = str(readNewModel_flag(1))
+if (newModel_flag == "true"):
+    newModel_flag = 1
+elif (newModel_flag == "false"):
+    newModel_flag = 0
+else:
+    newModel_flag = int(newModel_flag)
 data_train, label_train = reshapeData(2)
 list_ = read_weights(3)
 model = createModel()

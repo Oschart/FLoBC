@@ -481,9 +481,12 @@ impl SchemaUtils {
         println!("{}", "---------------------------------------");
     }
 
-    fn clear_scores_file() {
+    fn clear_scores_file() -> std::io::Result<()> {
         let val_id: u16 = get_static!(VALIDATOR_ID);
         let score_filename: String = format!("v{}_scores.txt", val_id);
-        fs::remove_file(&score_filename).expect("Unable to delete scores file");
+        // fs::remove_file(&score_filename).expect("Unable to delete scores file");
+        let mut f = File::create(&score_filename)?;
+        f.set_len(0)?;
+        Ok(())
     }
 }

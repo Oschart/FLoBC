@@ -40,8 +40,8 @@ do
     echo "Trainers =  $i, Validators = $j"
     command=$command_string
     # openTab $command_start "$command_start $command -n $j -t $i -p ./exp_n${j}_t${i} -w $start_public_port -q $start_peer_port"
-    echo $command_start $command -c -j -n $j -t $i -g "./exp2/exp_n$j_t${i}_"
-    $command_start $command -c -j -n $j -t $i -g "./exp2/exp_n$j_t${i}_"
+    echo $command_start $command -c -j -n $j -t $i -g "./exp2/n${j}_t${i}_" -s "BSP" -d 240
+    $command_start $command -c -j -n $j -t $i -g "./exp2/n${j}_t${i}_" -s "BSP" -d 240
     
     sleep 10
     # start_public_port=$((start_public_port+1))
