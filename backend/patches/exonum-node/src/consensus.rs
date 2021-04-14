@@ -43,13 +43,12 @@ use crate::{
 
 const DEBUG: bool = true;
 
+use crate::SCORING_FLAG;
+use crate::VALIDATOR_ID;
 use colored::*;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
-use crate::VALIDATOR_ID;
-use std::sync::atomic::{Ordering};
-
-
+use std::sync::atomic::Ordering;
 
 /// Shortcut to get verified messages from bytes.
 fn into_verified<T: TryFrom<SignedMessage>>(raw: &[Vec<u8>]) -> anyhow::Result<Vec<Verified<T>>> {
@@ -803,7 +802,6 @@ impl NodeHandler {
         }
     }
 
-
     /// Record latest trainer update score
     pub(crate) fn write_score_record(&mut self, trainer_key: PublicKey, score: &String) {
         let val_id: u16;
@@ -864,7 +862,6 @@ impl NodeHandler {
             // we will be able to panic.
             // Thus, we don't stop the execution here.
             outcome = Err(HandleTxError::Invalid(e));
-
         } else if msg.payload().call_info.method_id == 1 {
             // Sync barrier transaction
             if self.state.persist_txs_immediately() {
@@ -877,7 +874,6 @@ impl NodeHandler {
                 self.state.tx_cache_mut().insert(hash, msg);
             }
             outcome = Ok(());
-
         } else {
             // Updates Validation
             println!("{}", "---------------------------------------");
@@ -890,7 +886,8 @@ impl NodeHandler {
             unsafe {
                 val_id = VALIDATOR_ID.load(Ordering::SeqCst);
             }
-            let gradients_filename: String = format!("v{}_gradients_{}.txt", val_id, msg.author().to_hex());
+            let gradients_filename: String =
+                format!("v{}_gradients_{}.txt", val_id, msg.author().to_hex());
             // let gradients_filename: String = format!("v{}_gradients.txt", val_id);
 
             let mut file = OpenOptions::new()
@@ -924,8 +921,14 @@ impl NodeHandler {
             let verdict: String = results.chars().take(delim_pos).collect();
             let score: String = results.chars().skip(delim_pos + 1).collect();
 
-            // Record the score
-            self.write_score_record(msg.author(), &score);
+            let scoring_flag: u16;
+            unsafe {
+                scoring_flag = SCORING_FLAG.load(Ordering::SeqCst);
+            }
+            if scoring_flag == 1 {
+                // Record the score
+                self.write_score_record(msg.author(), &score);
+            }
 
             print!("{}: ", "Validation verdict".white().bold().underline());
             if verdict == "VALID" {
