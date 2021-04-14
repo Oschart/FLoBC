@@ -182,8 +182,6 @@ where
 
             // Updating the most recent model using schema
             self.update_model();
-            // Remove the scores file when you're done
-            SchemaUtils::clear_scores_file();
         }
     }
 
