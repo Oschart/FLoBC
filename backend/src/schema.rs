@@ -31,6 +31,7 @@ use crate::{
 #[path = "model.rs"]
 use itertools::Itertools;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::{self, prelude::*, BufReader};
 use std::process::Command;
 use std::{
@@ -335,7 +336,7 @@ where
         let file = File::open(&score_filename).unwrap();
         let reader = BufReader::new(file);
 
-        let delayed_records = Vec::new();
+        let mut delayed_records = Vec::new();
         for line in reader.lines() {
             let uline: String = line.unwrap();
             let delim_pos = uline.find(':').unwrap();
