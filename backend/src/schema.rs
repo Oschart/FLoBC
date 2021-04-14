@@ -172,6 +172,7 @@ where
 
     pub fn initiate_release(&mut self) {
         if self.pending_transactions_exist() {
+            self.update_registry();
             // Update trainer scores
             let scoring_flag: u16 = get_static!(SCORING_FLAG);
             if scoring_flag == 1 {
