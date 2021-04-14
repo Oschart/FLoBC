@@ -45,8 +45,9 @@ async function main() {
     const serialized = transaction.serialize();
     console.log(serialized)
 
-    let res = await exonum.send(explorerPath, serialized, 10, 20000);
-    console.log(res);
+    exonum.send(explorerPath, serialized, 1000, 3000)
+    .then((obj) => console.log(obj))
+    .catch((obj) => console.log(obj))
 
     let extension_ratio = await get_slack_ratio().catch((err) => console.log(err));
 

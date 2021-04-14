@@ -25,11 +25,6 @@ let can_train = true
 
 let TRAINER_KEY
 
-fetchClientKeys()
-.then((client_keys) => {
-  TRAINER_KEY = client_keys
-});
-
 async function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, fromLocalCache){
 
     // Numeric identifier of the machinelearning service
@@ -65,44 +60,44 @@ async function trainNewModel(newModel_flag, modelWeightsPath, modelWeights, from
     //     .catch((obj) => console.log(obj))
 
     // } else {
-    fetchPythonWeights(newModel_flag, dataset_directory, modelWeightsPath, MODEL_NAME, MODEL_LENGTH, async (update_gradients) => {
-        clear_encoded_vector();
+    let update_gradients = await fetchPythonWeights(newModel_flag, dataset_directory, modelWeightsPath, MODEL_NAME, MODEL_LENGTH)
+    
+    clear_encoded_vector();
         
-        if (noise_scale){
-            let noise = generateNormalNoise(MODEL_LENGTH, noise_scale);
-            for (let i = 0 ; i < MODEL_LENGTH ; i++) update_gradients[i] += noise[i];
-        }
-        
-        //caching weights before adding them to a BC transaction
-        let newModel = update_gradients;
-        if(!newModel_flag){
-            newModel = update_gradients.map((val, idx) => {
-                return val + modelWeights[idx];
-            });
-        }
-        store_encoded_vector(newModel, 'retrain');
+    if (noise_scale){
+        let noise = generateNormalNoise(MODEL_LENGTH, noise_scale);
+        for (let i = 0 ; i < MODEL_LENGTH ; i++) update_gradients[i] += noise[i];
+    }
+    
+    //caching weights before adding them to a BC transaction
+    let newModel = update_gradients;
+    if(!newModel_flag){
+        newModel = update_gradients.map((val, idx) => {
+            return val + modelWeights[idx];
+        });
+    }
+    store_encoded_vector(newModel, 'retrain');
 
-        if(fromLocalCache){ //accumalating gradients in the case of a retrain
-            let latestValidatorModel = read_encoded_vector('validator')
-            update_gradients = update_gradients.map((val, idx) => {
-                return val + (modelWeights[idx] - latestValidatorModel[idx]);
-            });
-        }
-        
-        const shareUpdatesPayload = {
-        gradients: update_gradients,
-        seed: exonum.randomUint64(),
-        }
+    if(fromLocalCache){ //accumalating gradients in the case of a retrain
+        let latestValidatorModel = read_encoded_vector('validator')
+        update_gradients = update_gradients.map((val, idx) => {
+            return val + (modelWeights[idx] - latestValidatorModel[idx]);
+        });
+    }
+    
+    const shareUpdatesPayload = {
+    gradients: update_gradients,
+    seed: exonum.randomUint64(),
+    }
 
-        const transaction = ShareUpdates.create(shareUpdatesPayload, TRAINER_KEY)
-        const serialized = transaction.serialize()
-        console.log(serialized)
+    const transaction = ShareUpdates.create(shareUpdatesPayload, TRAINER_KEY)
+    const serialized = transaction.serialize()
+    console.log(serialized)
 
-        await exonum.send(explorerPath, serialized, 10, 20000)
-        .then((obj) => console.log(obj))
-        .catch((obj) => { console.log(obj); clearMetadataFile()})
-        .finally(() => { can_train = true; })
-    });
+    await exonum.send(explorerPath, serialized, 1000, 3000)
+    .then((obj) => {console.log(obj); })
+    .catch((obj) => { console.log(obj); clearMetadataFile()})
+    .finally(() => { can_train = true; })
     // }
 }
 
@@ -111,15 +106,21 @@ function timeout(s) {
 }
 
 function randomizeDuration(){
-    let secs = Math.round(Math.random() * 6) * 5; //from 0 to 30 in a steps of 5
+    let secs = Math.round(Math.random() * 6) * 10; //from 0 to 60 in a steps of 10
     intervalDuration = secs;
 }
 
 async function main(){
+
+    await fetchClientKeys()
+    .then((client_keys) => {
+        TRAINER_KEY = client_keys
+    });
+
     while(1){
+        randomizeDuration();
         console.log("Will pause for " + intervalDuration + " secs")
-        
-        await timeout(intervalDuration);
+        await timeout(intervalDuration);        
 
         if(!can_train){
             console.log("training is in progress")
@@ -137,13 +138,15 @@ async function main(){
                         await trainNewModel(firstIteration, newModel_path, newModel, isLocallyCached)
                     }
                 }
-                else console.log("No retrain quota at the moment, will retry in a bit")
+                else{
+                    console.log("No retrain quota at the moment, will retry in a bit")
+                } 
             })
         }
         
 
-        randomizeDuration();
+        
     }
 }
 
-main();
+main()

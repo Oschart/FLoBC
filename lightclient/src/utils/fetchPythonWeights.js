@@ -26,10 +26,10 @@ function run_python(newModel_flag, dataset_path, modelWeights_path, MODEL_NAME){
 
 //onSuccess: callback function taking one parameter: the vector from python
 //onFailure prints the python error and terminates by default
-export default function fetchPythonWeights(newModel_flag, dataset_path, modelWeights_path, MODEL_NAME, MODEL_LENGTH, onSuccess){
-    run_python(newModel_flag, dataset_path, modelWeights_path, MODEL_NAME)
+export default function fetchPythonWeights(newModel_flag, dataset_path, modelWeights_path, MODEL_NAME, MODEL_LENGTH){
+    return run_python(newModel_flag, dataset_path, modelWeights_path, MODEL_NAME)
     .then((res) => {
         let model_weights = parsePythonList(res.toString(), MODEL_LENGTH);
-        onSuccess(model_weights);
+        return model_weights;
     })
 }
