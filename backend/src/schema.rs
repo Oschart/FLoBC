@@ -99,6 +99,11 @@ impl<T: Access> SchemaImpl<T> {
         return slack_ratio;
     }
 
+    pub fn _get_trainer_status_(&self, trainer_addr: &Address) -> u8 {
+        let trst = self.pending_transactions.contains(&trainer_addr);
+        return trst as u8;
+    }
+
     pub fn _get_retrain_quota_(&self, trainer_addr: &Address) -> u8 {
         let sp: u16 = get_static!(SYNC_POLICY);
         let rt_bound = match sp {
