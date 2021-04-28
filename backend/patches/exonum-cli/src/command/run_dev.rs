@@ -82,6 +82,7 @@ impl ExonumCommand for RunDev {
         let db_path = self.blockchain_path.join("db");
         let sync_policy = PathBuf::from("Dev Run: no validation");
         let scoring_flag = PathBuf::from("Dev Run: no validation");
+        let model_name = PathBuf::from("Dev Run: no validation");
 
         if !node_config_path.exists() {
             let generate_template = GenerateTemplate {
@@ -122,6 +123,7 @@ impl ExonumCommand for RunDev {
             master_key_pass: Some(FromStr::from_str("pass:").unwrap()),
             sync_policy,
             scoring_flag,
+            model_name,
         };
         run.execute()
     }

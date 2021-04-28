@@ -93,7 +93,9 @@ use std::{
     sync::Arc,
     thread,
     time::{Duration, SystemTime},
+    fs::File,
 };
+use std::io::{prelude::*, BufReader};
 
 use crate::{
     connect_list::ConnectList,
@@ -123,7 +125,9 @@ mod sandbox;
 mod schema;
 mod state;
 
-use std::sync::atomic::{AtomicU16,};
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+use std::sync::atomic::{AtomicU16, AtomicU32};
 
 /// Validator ID
 pub static mut VALIDATOR_ID: AtomicU16 = AtomicU16::new(0);
@@ -135,6 +139,12 @@ pub static mut SYNC_POLICY: AtomicU16 = AtomicU16::new(0);
 /// 0 -> No Scoring
 /// 1 -> Scoring
 pub static mut SCORING_FLAG: AtomicU16 = AtomicU16::new(0);
+/// Dynamic model size
+pub static mut MODEL_SIZE: AtomicU32 = AtomicU32::new(0);
+/// Model name
+lazy_static! {
+    pub static ref MODEL_NAME: Mutex<String> = Mutex::new(String::new());
+}
 
 // Logically private types re-exported for benchmarks.
 #[doc(hidden)]
@@ -223,6 +233,8 @@ pub(crate) struct NodeHandler {
     sync_policy: String,
     /// Scoring flag
     scoring_flag: String,
+    /// Model name
+    model_name: String,
 }
 
 /// HTTP API configuration options.
@@ -548,6 +560,7 @@ impl NodeHandler {
         block_proposer: Box<dyn ProposeBlock>,
         sync_policy: String,
         scoring_flag: String,
+        model_name: String,
     ) -> Self {
         let snapshot = blockchain.snapshot();
         let schema = Schema::new(&snapshot);
@@ -593,6 +606,14 @@ impl NodeHandler {
                 _ => 0
             };
             SCORING_FLAG = AtomicU16::new(sf);
+            
+            let size_filename: String = format!("../tx_validator/src/models/{}/metadata", model_name);
+            let file = File::open(&size_filename).unwrap();
+            let reader = BufReader::new(file);
+            let model_size: String = reader.lines().next().unwrap().unwrap();
+            let mz: u32 = model_size.parse::<u32>().unwrap();
+            MODEL_SIZE = AtomicU32::new(mz);
+            *MODEL_NAME.lock().unwrap() = model_name.clone();
         }
         
         let node_role = NodeRole::new(validator_id);
@@ -614,6 +635,7 @@ impl NodeHandler {
             block_proposer,
             sync_policy,
             scoring_flag,
+            model_name,
         }
     }
 
@@ -1019,6 +1041,7 @@ pub struct Node {
     network_config: NetworkConfiguration,
     sync_policy: String,
     scoring_flag: String,
+    model_name: String,
     handler: NodeHandler,
     channel: NodeChannel,
     max_message_len: u32,
@@ -1079,6 +1102,7 @@ pub struct NodeBuilder {
     disable_signals: bool,
     sync_policy: String,
     scoring_flag: String,
+    model_name: String,
 }
 
 impl fmt::Debug for NodeBuilder {
@@ -1100,6 +1124,7 @@ impl NodeBuilder {
         node_keys: Keys,
         sync_policy: String,
         scoring_flag: String,
+        model_name: String,
     ) -> Self {
         node_config
             .validate()
@@ -1120,6 +1145,7 @@ impl NodeBuilder {
             disable_signals: false,
             sync_policy,
             scoring_flag,
+            model_name,
         }
     }
 
@@ -1201,6 +1227,7 @@ impl NodeBuilder {
             self.block_proposer,
             self.sync_policy,
             self.scoring_flag,
+            self.model_name,
         );
         node.disable_signals = self.disable_signals;
         node
@@ -1219,6 +1246,7 @@ impl Node {
         block_proposer: Box<dyn ProposeBlock>,
         sync_policy: String,
         scoring_flag: String,
+        model_name: String,
     ) -> Self {
         crypto::init();
 
@@ -1274,6 +1302,7 @@ impl Node {
             block_proposer,
             sync_policy.clone(),
             scoring_flag.clone(),
+            model_name.clone(),
         );
         handler.plugins = plugins;
 
@@ -1288,6 +1317,7 @@ impl Node {
             disable_signals: false,
             sync_policy,
             scoring_flag,
+            model_name,
         }
     }
 
