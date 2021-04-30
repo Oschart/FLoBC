@@ -26,7 +26,7 @@ use hex::FromHex;
 
 // modified
 use crate::{
-    model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_RETRAIN, MAX_SCORE_DECAY, MODEL_SIZE,
+    model::Model, INIT_WEIGHT, LAMBDA, MAJORITY_RATIO, MAX_RETRAIN, MAX_SCORE_DECAY,
 };
 #[path = "model.rs"]
 use itertools::Itertools;
@@ -47,6 +47,8 @@ use crate::get_static;
 use exonum_node::SCORING_FLAG;
 use exonum_node::SYNC_POLICY;
 use exonum_node::VALIDATOR_ID;
+use exonum_node::MODEL_SIZE;
+use exonum_node::MODEL_NAME;
 use std::sync::atomic::Ordering;
 
 const DEBUG: bool = false;
@@ -216,10 +218,11 @@ where
             let version_hash = Address::from_key(SchemaUtils::pubkey_from_version(version));
             let start_score = 0.0;
             let min_score = 0.0;
+            let mz: u32 = get_static!(MODEL_SIZE);
             latest_model = Model::new(
                 version,
-                MODEL_SIZE,
-                vec![INIT_WEIGHT; MODEL_SIZE as usize],
+                mz,
+                vec![INIT_WEIGHT; mz as usize],
                 start_score,
                 min_score,
             );
@@ -424,15 +427,17 @@ impl SchemaUtils {
     }
     /// float_vec_to_byte_slice
     pub fn float_vec_to_byte_slice<'a>(floats: &Vec<f32>) -> Vec<u8> {
+        let mz: u32 = get_static!(MODEL_SIZE);
         unsafe {
-            std::slice::from_raw_parts(floats.as_ptr() as *const _, (MODEL_SIZE * 4) as usize)
+            std::slice::from_raw_parts(floats.as_ptr() as *const _, (mz * 4) as usize)
                 .to_vec()
         }
     }
     /// byte_slice_to_float_vec
     pub fn byte_slice_to_float_vec<'a>(bytes: &Vec<u8>) -> Vec<f32> {
+        let mz: u32 = get_static!(MODEL_SIZE);
         unsafe {
-            std::slice::from_raw_parts(bytes.as_ptr() as *const f32, MODEL_SIZE as usize).to_vec()
+            std::slice::from_raw_parts(bytes.as_ptr() as *const f32, mz as usize).to_vec()
         }
     }
 
@@ -454,9 +459,11 @@ impl SchemaUtils {
             fs::write(&tempfile_path, weights_str).expect("Unable to write file");
         }
 
+        let model_name = MODEL_NAME.lock().unwrap();
         let output = Command::new("python")
             .arg("evaluation_wrapper.py")
             .arg(tempfile_name)
+            .arg((*model_name).clone())
             .current_dir("../tx_validator/src")
             .output()
             .expect("failed to execute process");
