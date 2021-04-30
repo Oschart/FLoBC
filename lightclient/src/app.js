@@ -10,7 +10,7 @@ import generateNormalNoise from './utils/generateNormalNoise';
 require("regenerator-runtime/runtime");
 
 const INTERVAL_DURATION = 5000
-const MODEL_NAME="MNIST28X28"
+const MODEL_NAME=process.argv[5]
 const fs = require("fs");
 
 let model_metadata = fs.readFileSync("./models/"+MODEL_NAME+"/metadata", {encoding:"utf8"});

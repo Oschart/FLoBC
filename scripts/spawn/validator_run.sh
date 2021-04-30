@@ -5,6 +5,7 @@ nodes=$4
 sync=$5
 period=$6
 scoring_flag=$7
+model_name=$8
 if [[ $path != "./" ]]
 then 
     mkdir $path
@@ -21,4 +22,4 @@ fi
 # fi
 source ./scripts/utils/newTab.sh
 cd $path/backend
-$command_start "./run_node.sh" $i $sync $nodes $scoring_flag
+$command_start "./run_node.sh" $i $sync $nodes $scoring_flag $model_name
