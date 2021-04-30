@@ -48,6 +48,8 @@ pub struct NodeRunConfig {
     pub sync_policy: PathBuf,
     /// Flag for enabling the scoring
     pub scoring_flag: PathBuf,
+    /// Name of the ML model
+    pub model_name: PathBuf,
 }
 
 /// Run the node with provided node config.
@@ -66,6 +68,9 @@ pub struct Run {
     /// Flag for enabling scoring
     #[structopt(long, short = "d")]
     pub scoring_flag: PathBuf,
+    /// Name of the ML model
+    #[structopt(long, short = "d")]
+    pub model_name: PathBuf,
     /// Listen address for node public API.
     ///
     /// Public API is used mainly for sending API requests to user services.
@@ -119,6 +124,7 @@ impl ExonumCommand for Run {
             node_config_path: self.node_config,
             sync_policy: self.sync_policy,
             scoring_flag: self.scoring_flag,
+            model_name: self.model_name,
         };
 
         Ok(StandardResult::Run(Box::new(run_config)))

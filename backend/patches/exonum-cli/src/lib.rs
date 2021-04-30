@@ -276,8 +276,9 @@ impl NodeBuilder {
             let node_keys = run_config.node_keys;
             let sync_policy = run_config.sync_policy.as_path().display().to_string();
             let scoring_flag = run_config.scoring_flag.as_path().display().to_string();
+            let model_name = run_config.model_name.as_path().display().to_string();
 
-            let mut node_builder = CoreNodeBuilder::new(database, node_config, node_keys, sync_policy, scoring_flag)
+            let mut node_builder = CoreNodeBuilder::new(database, node_config, node_keys, sync_policy, scoring_flag, model_name)
                 .with_genesis_config(genesis_config)
                 .with_config_manager(config_manager)
                 .with_plugin(SystemApiPlugin)

@@ -40,8 +40,6 @@ use backtrace::Backtrace;
 
 /// Initial weights of the model.
 pub const INIT_WEIGHT: f32 = 0.0;
-/// Model size
-pub const MODEL_SIZE : u32 = 608338;
 /// Regularization factor
 pub const LAMBDA: f64 = 4.0;
 /// Minimum ratio of a majority of clients
