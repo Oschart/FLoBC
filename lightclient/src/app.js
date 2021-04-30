@@ -9,7 +9,7 @@ import { store_encoded_vector,  clear_encoded_vector, read_encoded_vector } from
 import generateNormalNoise from './utils/generateNormalNoise';
 require("regenerator-runtime/runtime");
 
-const INTERVAL_DURATION = 15
+const intervalDuration = 15
 const MODEL_NAME=process.argv[5]
 const fs = require("fs");
 
