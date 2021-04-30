@@ -1,23 +1,5 @@
 import React, { Component } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-        return (
-            <div style={{
-                backgroundColor: "rgba(255,255,255,0.85)",
-                borderRadius: 20, paddingBottom: 2, paddingTop: 2,
-                paddingLeft: 10, paddingRight: 10,
-                border: '1px solid rgba(0, 0, 0, 0.5)'
-            }}>
-                <p style={{ color: 'black' }}>{`Iteration : ${label}`}</p>
-                <p style={{ color: 'black' }}>{`Accuracy : ${payload[0].value}%`}</p>
-            </div>
-        );
-    }
-
-    return null;
-};
 class InitializationPage extends Component {
     constructor(props) {
         super(props);
@@ -62,8 +44,16 @@ class InitializationPage extends Component {
         if (syncScheme === "BAP" && (!Number.isNaN(period) || period > 0)){
             alert("Period will not be used for BAP");
         }
-
-        alert('Form submitted successfully:\n' + this.state.trainers + " " + this.state.validators + " " + this.state.syncScheme + " " + this.state.modelName);
+        
+        // let command = "bash ../../../scripts/spawn/spawn.sh -b -j -c -l -n " + validators + " -t " + trainers + " -s " + syncScheme + " -d " + period;
+        const options={method:"GET"};
+        fetch(`http://localhost:24587/runSpawn?trainers=${trainers}&validators=${validators}&sync=${syncScheme}&period=${period}`, options)
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+        })
+        alert("System spawning in progress");
+        // change page
     }
 
     render() {
