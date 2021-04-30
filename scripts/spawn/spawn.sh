@@ -12,7 +12,8 @@ sync="BAP"
 accumulated_error_scale=0
 scoring_flag=1
 duration=60
-while getopts "n:t:p:g:w:q:e:s:d:f:a:cbjlr" arg; do
+modelName="MNIST20X20"
+while getopts "n:t:p:g:w:q:e:s:d:f:a:m:cbjlr" arg; do
     case $arg in
     n) 
         node_count=$(($OPTARG)) 
@@ -62,6 +63,8 @@ while getopts "n:t:p:g:w:q:e:s:d:f:a:cbjlr" arg; do
         scoring_flag="$OPTARG" ;;
     a)
         accumulated_error_scale="$OPTARG" ;;
+    m) 
+        modelName="$OPTARG" ;;
     esac
 done
 printf "%0.s*" {1..70} 
@@ -78,7 +81,7 @@ for ((i=0;i<node_count;i++));
 do
     echo "Staring validator #$i"
     source ./scripts/utils/newTab.sh
-    openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path $node_count $sync $duration $scoring_flag"
+    openTab $command_start "$command_start ./scripts/spawn/validator_run.sh $command_start $i $path $node_count $sync $duration $scoring_flag $modelName"
     sleep 10
 
 done
@@ -119,7 +122,7 @@ do
     echo $start_public_port
     trainer_noise=$(echo "$i * $accumulated_error_scale" | bc)
     rm $lightclient/ModelMetadata
-    openTab $command_start "npm start --prefix $lightclient -- $assigned_trainer_port models/MNIST28X28/data.csv $trainer_noise"
+    openTab $command_start "npm start --prefix $lightclient -- $assigned_trainer_port models/MNIST28X28/data.csv $trainer_noise $modelName"
     sleep 10
 done
 
