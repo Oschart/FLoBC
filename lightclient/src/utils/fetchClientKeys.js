@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import * as exonum from 'exonum-client'
 const fs = require('fs');
 

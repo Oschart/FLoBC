@@ -110,7 +110,7 @@ function getRetrainQuote(trainerKey){
     })
 }
 
-export function fetchLatestModelTrainer(trainerKey, WEIGHTS_LENGTH){
+export async function fetchLatestModelTrainer(trainerKey, WEIGHTS_LENGTH){
     return new Promise((resolve, reject) => {
         getLatestModelIndex()   //retrieve the index of the latest model from the BC
         .then(latestIndex => {

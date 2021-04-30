@@ -31,6 +31,7 @@ use crate::{
 #[path = "model.rs"]
 use itertools::Itertools;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::{self, prelude::*, BufReader};
 use std::process::Command;
 use std::{
@@ -98,6 +99,11 @@ impl<T: Access> SchemaImpl<T> {
         let num_of_contributers = (self.pending_transactions.values().count()) as f32;
         let slack_ratio = (num_of_trainers - num_of_contributers) / num_of_trainers;
         return slack_ratio;
+    }
+
+    pub fn _get_trainer_status_(&self, trainer_addr: &Address) -> u8 {
+        let trst = self.pending_transactions.contains(&trainer_addr);
+        return trst as u8;
     }
 
     pub fn _get_retrain_quota_(&self, trainer_addr: &Address) -> u8 {
@@ -174,6 +180,7 @@ where
 
     pub fn initiate_release(&mut self) {
         if self.pending_transactions_exist() {
+            //self.update_registry();
             // Update trainer scores
             let scoring_flag: u16 = get_static!(SCORING_FLAG);
             if scoring_flag == 1 {
@@ -182,8 +189,6 @@ where
 
             // Updating the most recent model using schema
             self.update_model();
-            // Remove the scores file when you're done
-            SchemaUtils::clear_scores_file();
         }
     }
 
@@ -297,7 +302,7 @@ where
     }
 
     pub fn get_slack_ratio(&mut self) -> f32 {
-        self.update_registry();
+        //self.update_registry();
         // Calculating contributers ratio
         let num_of_trainers = (self.trainers_scores.values().count()) as f32;
         let num_of_contributers = (self.pending_transactions.values().count()) as f32;
@@ -336,6 +341,8 @@ where
         let score_filename: String = format!("v{}_scores.txt", val_id);
         let file = File::open(&score_filename).unwrap();
         let reader = BufReader::new(file);
+
+        let mut delayed_records = Vec::new();
         for line in reader.lines() {
             let uline: String = line.unwrap();
             let delim_pos = uline.find(':').unwrap();
@@ -350,7 +357,15 @@ where
 
             let delta: f32 = val_score - latest_model_score;
 
-            let curr_score = self.trainers_scores.get(&trainer_addr).unwrap();
+            let curr_score = self.trainers_scores.get(&trainer_addr);
+
+            let curr_score = match curr_score {
+                None => {
+                    delayed_records.push(uline);
+                    continue;
+                },
+                _ => curr_score.unwrap()
+            };
             let curr_score = curr_score.parse::<f32>().unwrap();
 
             let new_trainer_score = f32::max(curr_score + delta, 0.0);
@@ -364,6 +379,7 @@ where
                 trainer_addr, curr_score, val_score, new_trainer_score, delta
             );
         }
+        SchemaUtils::write_delayed_records(&delayed_records);
         self.normalize_scores();
 
         return Some(0);
@@ -486,6 +502,24 @@ impl SchemaUtils {
             accr.green()
         );
         println!("{}", "---------------------------------------");
+    }
+
+    pub fn write_delayed_records(records: &Vec<String>) {
+        let val_id: u16 = get_static!(VALIDATOR_ID);
+        let score_filename: String = format!("v{}_scores.txt", val_id);
+        
+        let mut file = OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(score_filename)
+            .unwrap();
+
+        for record in records {
+            if let Err(e) = writeln!(file, "{}", record) {
+                eprintln!("Couldn't write to file: {}", e);
+            }
+        }
     }
 
     fn clear_scores_file() -> std::io::Result<()> {

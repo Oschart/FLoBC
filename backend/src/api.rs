@@ -189,7 +189,7 @@ impl PublicApi {
         Ok(slack_ratio)
     }
 
-    /// Returns the remaini
+    /// Returns the remaining trainer quota
     pub async fn get_retrain_quota(
         state: ServiceApiState,
         query: TrainerQuery,
@@ -198,6 +198,17 @@ impl PublicApi {
         let tr_addr = Address::from_key(query.trainer_addr);
         let retrain_quota = schema._get_retrain_quota_(&tr_addr);
         Ok(retrain_quota)
+    }
+
+    /// Returns trainer status (TRAINING, SUBMITTED)
+    pub async fn get_trainer_status(
+        state: ServiceApiState,
+        query: TrainerQuery,
+    ) -> api::Result<u8>{
+        let schema = SchemaImpl::new(state.service_data());
+        let tr_addr = Address::from_key(query.trainer_addr);
+        let tr_status = schema._get_trainer_status_(&tr_addr);
+        Ok(tr_status)
     }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
@@ -210,6 +221,7 @@ impl PublicApi {
             .endpoint("v1/models/latestmodel", Self::latest_model)
             .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy)
             .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio)
-            .endpoint("v1/trainer/retrain_quota", Self::get_retrain_quota);
+            .endpoint("v1/trainer/retrain_quota", Self::get_retrain_quota)
+            .endpoint("v1/trainer/trainer_status", Self::get_trainer_status);
     }
 }
