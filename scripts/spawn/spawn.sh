@@ -12,7 +12,7 @@ sync="BAP"
 accumulated_error_scale=0
 scoring_flag=1
 duration=60
-modelName="MNIST20X20"
+modelName="MNIST28X28"
 while getopts "n:t:p:g:w:q:e:s:d:f:a:m:cbjlr" arg; do
     case $arg in
     n) 
