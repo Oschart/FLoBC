@@ -6,11 +6,14 @@
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
+    "child-process": "^1.0.2",
+    "express": "^4.17.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "recharts": "^2.0.9",
-    "web-vitals": "^1.1.1"
+    "web-vitals": "^1.1.1",
+    "xhr": "^2.6.0"
   },
   "scripts": {
     "start": "react-scripts start",
