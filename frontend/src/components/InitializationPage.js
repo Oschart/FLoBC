@@ -9,6 +9,7 @@ class InitializationPage extends Component {
             trainers: null,
             validators: null,
             period: null,
+            version: null,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -27,7 +28,7 @@ class InitializationPage extends Component {
         let validators = parseInt(this.state.validators);
         let syncScheme = this.state.syncScheme;
         let period = parseInt(this.state.period);
-        
+        let version = parseInt(this.state.version);
         // Validating that trainers and validators numbers are greater than 1
         if (trainers < 1 || validators < 1 || Number.isNaN(trainers) || Number.isNaN(validators)) {
             alert("Trainers and Validators must be a number greater than or equal to 1");
@@ -45,14 +46,21 @@ class InitializationPage extends Component {
             alert("Period will not be used for BAP");
         }
         
-        // let command = "bash ../../../scripts/spawn/spawn.sh -b -j -c -l -n " + validators + " -t " + trainers + " -s " + syncScheme + " -d " + period;
+        let url = `http://localhost:24587/runSpawn?trainers=${trainers}&validators=${validators}&sync=${syncScheme}&period=${period}`;
+        let message = "System spawning in progress";
+        if (version == 0 || Number.isNaN(version)){
+            message += "\nWill not automatically stop training";
+        } else{
+            url += `&version=${version}`;
+        }
+
         const options={method:"GET"};
-        fetch(`http://localhost:24587/runSpawn?trainers=${trainers}&validators=${validators}&sync=${syncScheme}&period=${period}`, options)
+        fetch(url, options)
         .then(res => res.json())
         .then(data => {
             console.log(data)
         })
-        alert("System spawning in progress");
+        alert(message);
         // change page
     }
 
@@ -88,6 +96,11 @@ class InitializationPage extends Component {
             <label>
                 Number of Validators:
                 <input type="number" name="validators" onChange={this.handleChange} />
+            </label>
+            <br />
+            <label>
+                Stop at Version:
+                <input type="number" name="version" onChange={this.handleChange} />
             </label>
             <br />
             <input type="submit" value="Submit" />

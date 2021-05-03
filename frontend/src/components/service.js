@@ -6,7 +6,6 @@ const { join } = require('path')
 const port = process.env.PORT || 24587
 const app = express()
 
-console.log("Hello");
 app.use(express.static(join(__dirname, '../')))
 
 // app.get('/runSpawn', (req, res) => {
@@ -28,14 +27,18 @@ app.use(express.static(join(__dirname, '../')))
 // })
 
 app.get('/runSpawn', (req, res) => {
-    console.log("here");
     let trainers = req.query.trainers;
     let validators = req.query.validators;
     let syncScheme = req.query.sync;
     let period = req.query.period;
-    // console.log(command);
-    // exec(command);
-    let child = spawn("bash", ["../../../scripts/spawn/spawn.sh", "-b","-c", "-j", "-l", "-n", validators, "-t", trainers, "-s", syncScheme, "-d", period]);
+    let version =  req.query.version;
+    let args = ["../../../scripts/spawn/spawn.sh", "-b","-c", "-j", "-l", "-n", validators, "-t", trainers, "-s", syncScheme, "-d", period];
+    if (version != undefined){
+        args.push("-r");
+        args.push("-e");
+        args.push(version);
+    }
+    let child = spawn("bash", args);
     child.stdout.on('data', function (data) {
         console.log(data.toString());
     });
