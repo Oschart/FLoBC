@@ -21,17 +21,15 @@ import StatusPage from "./components/StatusPage";
 
 var routes = [
   {
-    path: "/dashboard",
+    path: "/monitor",
     name: "System Monitor",
-    rtlName: "لوحة القيادة",
     icon: "tim-icons icon-chart-pie-36",
     component: StatusPage,
     layout: "/admin",
   },
   {
-    path: "/z",
+    path: "/spawn",
     name: "Spawn Page",
-    rtlName: "لوحة القيادة",
     icon: "tim-icons icon-chart-pie-36",
     component: InitializationPage,
     layout: "/admin",

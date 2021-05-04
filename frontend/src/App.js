@@ -106,7 +106,7 @@ class App extends Component {
           <BrowserRouter>
             <Switch>
               <Route path="/admin" render={(props) => <AdminLayout {...this.state} />} />
-              <Redirect from="/" to="/admin/dashboard" />
+              <Redirect from="/" to="/admin/spawn" />
             </Switch>
           </BrowserRouter>
         </BackgroundColorWrapper>
