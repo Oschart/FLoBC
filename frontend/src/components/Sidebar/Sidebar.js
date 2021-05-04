@@ -107,7 +107,7 @@ function Sidebar(props) {
       );
     }
   }
-   console.warn(props.sys_state);
+  console.warn(props.sys_state);
   let { modelName,
     validatorsNum,
     trainersNum,
@@ -136,7 +136,7 @@ function Sidebar(props) {
 
               <li>
                 <NavLink
-                  to={'a8a'}
+                  to={'/admin/monitor'}
                   className="nav-link"
                   activeClassName="active"
                 >
@@ -145,7 +145,7 @@ function Sidebar(props) {
               </li>
               <li>
                 <NavLink
-                  to={'a8a'}
+                  to={'/admin/monitor'}
                   className="nav-link"
                   activeClassName="active"
                 >
@@ -154,7 +154,7 @@ function Sidebar(props) {
               </li>
               <li>
                 <NavLink
-                  to={'a8a'}
+                  to={'/admin/monitor'}
                   className="nav-link"
                   activeClassName="active"
                 >
@@ -164,7 +164,7 @@ function Sidebar(props) {
 
               <li>
                 <NavLink
-                  to={'a8a'}
+                  to={'/admin/monitor'}
                   className="nav-link"
                   activeClassName="active"
                 >
@@ -174,7 +174,7 @@ function Sidebar(props) {
 
               <li>
                 <NavLink
-                  to={'a8a'}
+                  to={'/admin/monitor'}
                   className="nav-link"
                   activeClassName="active"
                 >
@@ -184,7 +184,7 @@ function Sidebar(props) {
 
               <li>
                 <NavLink
-                  to={'a8a'}
+                  to={'/admin/monitor'}
                   className="nav-link"
                   activeClassName="active"
                 >
@@ -214,6 +214,18 @@ function Sidebar(props) {
                   </li>
                 );
               })}
+
+              <li>
+                <NavLink
+                  to={'/admin/spawn'}
+                  className="nav-link"
+                  activeClassName="active"
+                  onClick={() => alert('Terminate')}
+                >
+                  <p style={{ fontWeight: 'bold', color: 'red' }}>TERMINATE SYSTEM</p>
+                </NavLink>
+              </li>
+
             </Nav>
           </div>
         </div>
