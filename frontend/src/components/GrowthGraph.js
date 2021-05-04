@@ -101,7 +101,7 @@ class GrowthGraph extends Component {
                 labels: Array.from({ length: this.props.maxIterations }, (_, i) => i + 1),
                 datasets: [
                     {
-                        label: "Accuracy",
+                        label: "Accuracy (%)",
                         fill: true,
                         backgroundColor: gradientStroke,
                         borderColor: "#1f8ef1",

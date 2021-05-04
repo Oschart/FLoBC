@@ -118,13 +118,47 @@ function Sidebar(props) {
                 {logoText}
               </div>
             ) : null}
+
+
+
+
             <Nav>
+
+              <li>
+                <NavLink
+                  to={'a8a'}
+                  className="nav-link"
+                  activeClassName="active"
+                >
+                  <p style={{fontWeight: 'bold'}}>MODEL NAME</p>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to={'a8a'}
+                  className="nav-link"
+                  activeClassName="active"
+                >
+                  <p style={{fontWeight: 'bold'}}>LATEST SCORE</p>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to={'a8a'}
+                  className="nav-link"
+                  activeClassName="active"
+                >
+                  <p style={{fontWeight: 'bold'}}>CURRENT ROUND</p>
+                </NavLink>
+              </li>
+
+
               {routes.map((prop, key) => {
                 if (prop.redirect) return null;
                 return (
                   <li
                     className={
-                      activeRoute(prop.path) + (prop.pro ? " active-pro" : "")
+                      activeRoute(prop.path)
                     }
                     key={key}
                   >
@@ -140,12 +174,6 @@ function Sidebar(props) {
                   </li>
                 );
               })}
-              <li className="active-pro">
-                <ReactstrapNavLink href="https://www.creative-tim.com/product/black-dashboard-pro-react?ref=bdr-user-archive-sidebar-upgrade-pro">
-                  <i className="tim-icons icon-spaceship" />
-                  <p>Upgrade to PRO</p>
-                </ReactstrapNavLink>
-              </li>
             </Nav>
           </div>
         </div>
