@@ -11,3 +11,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'nucleo';
+  src: local('nucleo'), url(./assets/fonts/nucleo.woff) format('woff');
+}
