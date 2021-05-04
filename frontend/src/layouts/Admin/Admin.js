@@ -110,10 +110,11 @@ function Admin(props) {
         <React.Fragment>
           <div className="wrapper">
             <Sidebar
+              sys_state={props}
               routes={routes}
               logo={{
                 outterLink: "https://www.creative-tim.com/",
-                text: "Creative Tim",
+                text: "General Info",
                 imgSrc: logo,
               }}
               toggleSidebar={toggleSidebar}

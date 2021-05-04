@@ -22,7 +22,7 @@ import StatusPage from "./components/StatusPage";
 var routes = [
   {
     path: "/dashboard",
-    name: "Dashboard",
+    name: "System Monitor",
     rtlName: "لوحة القيادة",
     icon: "tim-icons icon-chart-pie-36",
     component: StatusPage,

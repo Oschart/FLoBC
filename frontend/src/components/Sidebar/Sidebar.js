@@ -107,6 +107,16 @@ function Sidebar(props) {
       );
     }
   }
+   console.warn(props.sys_state);
+  let { modelName,
+    validatorsNum,
+    trainersNum,
+    syncPolicy,
+    currentModelIndex,
+    currentNodelScore,
+  } = props.sys_state
+
+
   return (
     <BackgroundColorContext.Consumer>
       {({ color }) => (
@@ -130,7 +140,7 @@ function Sidebar(props) {
                   className="nav-link"
                   activeClassName="active"
                 >
-                  <p style={{fontWeight: 'bold'}}>MODEL NAME</p>
+                  <p style={{ fontWeight: 'bold' }}>MODEL NAME: {modelName}</p>
                 </NavLink>
               </li>
               <li>
@@ -139,7 +149,7 @@ function Sidebar(props) {
                   className="nav-link"
                   activeClassName="active"
                 >
-                  <p style={{fontWeight: 'bold'}}>LATEST SCORE</p>
+                  <p style={{ fontWeight: 'bold' }}>LATEST SCORE: {currentNodelScore}</p>
                 </NavLink>
               </li>
               <li>
@@ -148,7 +158,37 @@ function Sidebar(props) {
                   className="nav-link"
                   activeClassName="active"
                 >
-                  <p style={{fontWeight: 'bold'}}>CURRENT ROUND</p>
+                  <p style={{ fontWeight: 'bold' }}>CURRENT ROUND: {currentModelIndex}</p>
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to={'a8a'}
+                  className="nav-link"
+                  activeClassName="active"
+                >
+                  <p style={{ fontWeight: 'bold' }}>NUMBER OF VALIDATORS: {validatorsNum}</p>
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to={'a8a'}
+                  className="nav-link"
+                  activeClassName="active"
+                >
+                  <p style={{ fontWeight: 'bold' }}>NUMBER OF TRAINERS: {trainersNum}</p>
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to={'a8a'}
+                  className="nav-link"
+                  activeClassName="active"
+                >
+                  <p style={{ fontWeight: 'bold' }}>SYNC POLICY: {syncPolicy}</p>
                 </NavLink>
               </li>
 
