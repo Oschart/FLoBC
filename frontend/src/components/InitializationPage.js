@@ -61,7 +61,7 @@ class InitializationPage extends Component {
             console.log(data)
         })
         alert(message);
-        // change page
+        this.props.startPolling(this.state.modelName, this.state.syncScheme, this.state.validators, this.state.trainers, this.state.version);
     }
 
     render() {
