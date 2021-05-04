@@ -216,7 +216,7 @@ impl PublicApi {
     pub async fn get_all_trainers_status(
         state: ServiceApiState,
         query: (),
-    ) -> api::Result<HashMap<Address, u8>>{
+    ) -> api::Result<HashMap<Address, (String, u8)>>{
         let schema = SchemaImpl::new(state.service_data());
         let tr_status_map = schema._get_all_trainers_status_();
         Ok(tr_status_map)

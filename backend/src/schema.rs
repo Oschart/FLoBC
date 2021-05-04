@@ -106,11 +106,12 @@ impl<T: Access> SchemaImpl<T> {
         return trst as u8;
     }
 
-    pub fn _get_all_trainers_status_(&self) -> HashMap<Address, u8> {
+    pub fn _get_all_trainers_status_(&self) -> HashMap<Address, (String, u8)> {
         let mut trst_map = HashMap::new();
         for trainer_addr in self.trainers_scores.keys() {
             let trst = self.pending_transactions.contains(&trainer_addr) as u8;
-            trst_map.insert(trainer_addr, trst);
+            let tr_score = self.trainers_scores.get(&trainer_addr).unwrap();
+            trst_map.insert(trainer_addr, (tr_score, trst));
         }
         return trst_map;
     }
