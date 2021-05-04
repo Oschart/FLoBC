@@ -233,6 +233,7 @@ impl PublicApi {
             .endpoint("v1/models/getmodelaccuracy", Self::get_model_accuracy)
             .endpoint("v1/sync/slack_ratio", Self::get_slack_ratio)
             .endpoint("v1/trainer/retrain_quota", Self::get_retrain_quota)
-            .endpoint("v1/trainer/trainer_status", Self::get_trainer_status);
+            .endpoint("v1/trainer/trainer_status", Self::get_trainer_status)
+            .endpoint("v1/trainer/all_trainers_status", Self::get_all_trainers_status);
     }
 }
