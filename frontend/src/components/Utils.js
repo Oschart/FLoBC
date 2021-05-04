@@ -1,12 +1,12 @@
 const http = require('http');
-const latest_model_index = `http://127.0.0.1:9000/api/services/ml_service/v1/models/latestmodel`;
-const model_score = `http://127.0.0.1:9000/api/services/ml_service/v1/models/getmodelaccuracy`;
-const trainer_status = `http://127.0.0.1:9000/api/services/ml_service/v1/trainer/trainer_status`;
-const score_score = `http://127.0.0.1:9000/api/services/ml_service/v1/models/trainersscores`;
+const validator_addr = `http://127.0.0.1:9000/api/services/ml_service/v1/`;
+const latest_model_index = `models/latestmodel`;
+const model_score = `models/getmodelaccuracy`;
+const all_triners_status = `trainer/all_trainers_status`;
 
 
 async function HTTPGet(endpointURL, options = ''){
-    let getURL = endpointURL + options;
+    let getURL = validator_addr + endpointURL + options;
     return await new Promise((resolve, reject) => {
         let request = http.get(getURL, (resp) => {
             let data = '';
