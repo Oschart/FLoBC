@@ -5,6 +5,17 @@ import InitializationPage from './components/InitializationPage';
 import StatusPage from './components/StatusPage';
 import { retrieveStatusInfo } from './components/Utils';
 
+import "assets/scss/black-dashboard-react.scss";
+import "assets/css/nucleo-icons.css";
+import ThemeContextWrapper from "./components/ThemeWrapper/ThemeWrapper";
+import BackgroundColorWrapper from "./components/BackgroundColorWrapper/BackgroundColorWrapper";
+
+import AdminNavbar from "components/Navbars/AdminNavbar.js";
+
+
+import AdminLayout from './layouts/Admin/Admin';
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+
 class App extends Component {
   constructor() {
     super();
@@ -90,24 +101,17 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+      <ThemeContextWrapper>
+        <BackgroundColorWrapper>
+          <BrowserRouter>
+            <Switch>
+              <Route path="/admin" render={(props) => <AdminLayout {...this.state} />} />
+              <Redirect from="/" to="/admin/dashboard" />
+            </Switch>
+          </BrowserRouter>
+        </BackgroundColorWrapper>
 
-          <div className="Main-div">
-            <this.activePage />
-            <div>
-              <p>Model Name: {this.state.modelName}</p>
-              <p>Sync Policy: {this.state.syncPolicy}</p>
-              <p>Validators Number: {this.state.validatorsNum}</p>
-              <p>Trainers Number: {this.state.trainersNum}</p>
-              <p>Current Model: {this.state.currentModelIndex}</p>
-              <p>Current Model Score: {this.state.currentNodelScore}</p>
-            </div>
-
-          </div>
-        </header>
-      </div>
+      </ThemeContextWrapper>
     );
   }
 }

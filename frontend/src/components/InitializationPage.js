@@ -19,7 +19,7 @@ class InitializationPage extends Component {
     handleChange(event) {
         let nam = event.target.name;
         let val = event.target.value;
-        this.setState({[nam]: val});
+        this.setState({ [nam]: val });
     }
 
     handleSubmit(event) {
@@ -36,78 +36,82 @@ class InitializationPage extends Component {
         }
 
         // Validating that for BSP and SSP the period is not 0
-        if ((syncScheme === "BSP" || syncScheme === "SSP") && (Number.isNaN(period) || period < 1)){
+        if ((syncScheme === "BSP" || syncScheme === "SSP") && (Number.isNaN(period) || period < 1)) {
             alert("Period must be a number greater than 0 for " + syncScheme);
             return;
         }
 
         // Reporting that provided period will not be used for BAP
-        if (syncScheme === "BAP" && (!Number.isNaN(period) || period > 0)){
+        if (syncScheme === "BAP" && (!Number.isNaN(period) || period > 0)) {
             alert("Period will not be used for BAP");
         }
-        
+
         let url = `http://localhost:24587/runSpawn?trainers=${trainers}&validators=${validators}&sync=${syncScheme}&period=${period}`;
         let message = "System spawning in progress";
-        if (version == 0 || Number.isNaN(version)){
+        if (version == 0 || Number.isNaN(version)) {
             message += "\nWill not automatically stop training";
-        } else{
+        } else {
             url += `&version=${version}`;
         }
 
-        const options={method:"GET"};
+        const options = { method: "GET" };
         fetch(url, options)
-        .then(res => res.json())
-        .then(data => {
-            console.log(data)
-        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+            })
         alert(message);
         this.props.startPolling(this.state.modelName, this.state.syncScheme, this.state.validators, this.state.trainers, this.state.version);
     }
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
-            <label>
-                Model Name:
+            <>
+                <div className="content">
+                    <form onSubmit={this.handleSubmit}>
+                        <label>
+                            Model Name:
                 <select name="modelName" value={this.state.modelName} onChange={this.handleChange}>
-                    <option selected value="MNIST28X28">MNIST28X28</option>
-                    <option value="MNIST20X20">MNIST20X20</option>
-                </select>
-            </label>
-            <br />
-            <label>
-                Synchronization Scheme:
+                                <option selected value="MNIST28X28">MNIST28X28</option>
+                                <option value="MNIST20X20">MNIST20X20</option>
+                            </select>
+                        </label>
+                        <br />
+                        <label>
+                            Synchronization Scheme:
                 <select name="syncScheme" value={this.state.syncScheme} onChange={this.handleChange}>
-                    <option selected value="BAP">BAP</option>
-                    <option value="BSP">BSP</option>
-                    <option value="SSP">SSP</option>
-                </select>
-            </label>
-            <label>
-                Period:
+                                <option selected value="BAP">BAP</option>
+                                <option value="BSP">BSP</option>
+                                <option value="SSP">SSP</option>
+                            </select>
+                        </label>
+                        <label>
+                            Period:
                 <input type="number" name="period" onChange={this.handleChange} />
-            </label>
-            <br />
-            <label>
-                Number of Trainers:
+                        </label>
+                        <br />
+                        <label>
+                            Number of Trainers:
                 <input type="number" name="trainers" onChange={this.handleChange} />
-            </label>
-            <br />
-            <label>
-                Number of Validators:
+                        </label>
+                        <br />
+                        <label>
+                            Number of Validators:
                 <input type="number" name="validators" onChange={this.handleChange} />
-            </label>
-            <br />
-            <label>
-                Stop at Version:
+                        </label>
+                        <br />
+                        <label>
+                            Stop at Version:
                 <input type="number" name="version" onChange={this.handleChange} />
-            </label>
-            <br />
-            <input type="submit" value="Submit" />
-            </form>
+                        </label>
+                        <br />
+                        <input type="submit" value="Submit" />
+                    </form>
+                </div>
+            </>
         );
     }
-      
+
 }
 
 export default InitializationPage;

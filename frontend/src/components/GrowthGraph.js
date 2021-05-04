@@ -1,23 +1,84 @@
 import React, { Component } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+//import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Line, Bar } from "react-chartjs-2";
 
-const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-        return (
-            <div style={{
-                backgroundColor: "rgba(255,255,255,0.85)",
-                borderRadius: 20, paddingBottom: 2, paddingTop: 2,
-                paddingLeft: 10, paddingRight: 10,
-                border: '1px solid rgba(0, 0, 0, 0.5)'
-            }}>
-                <p style={{ color: 'black' }}>{`Iteration : ${label}`}</p>
-                <p style={{ color: 'black' }}>{`Accuracy : ${payload[0].value}%`}</p>
-            </div>
-        );
-    }
+import {
+    Button,
+    ButtonGroup,
+    Card,
+    CardHeader,
+    CardBody,
+    CardTitle,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem,
+    UncontrolledDropdown,
+    Label,
+    FormGroup,
+    Input,
+    Table,
+    Row,
+    Col,
+    UncontrolledTooltip,
+    Badge
+} from "reactstrap";
 
-    return null;
+let chart1_2_options = {
+    maintainAspectRatio: false,
+    legend: {
+        display: false,
+    },
+    tooltips: {
+        backgroundColor: "#f5f5f5",
+        titleFontColor: "#333",
+        bodyFontColor: "#666",
+        bodySpacing: 4,
+        xPadding: 12,
+        mode: "nearest",
+        intersect: 0,
+        position: "nearest",
+    },
+    responsive: true,
+    scales: {
+        yAxes: [
+            {
+                barPercentage: 1.6,
+                gridLines: {
+                    drawBorder: false,
+                    color: "rgba(29,140,248,0.0)",
+                    zeroLineColor: "transparent",
+                },
+                ticks: {
+                    padding: 20,
+                    fontColor: "#9a9a9a",
+                },
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Accuracy'
+                }
+            },
+        ],
+        xAxes: [
+            {
+                barPercentage: 1.6,
+                gridLines: {
+                    drawBorder: false,
+                    color: "rgba(29,140,248,0.1)",
+                    zeroLineColor: "transparent",
+                },
+                ticks: {
+                    padding: 20,
+                    fontColor: "#9a9a9a",
+                },
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Round'
+                }
+            },
+        ],
+    },
 };
+
 class GrowthGraph extends Component {
 
     static defaultProps = {
@@ -27,29 +88,58 @@ class GrowthGraph extends Component {
     }
 
     render() {
-        let data = this.props.accuracies.map((acc, ind) => ({ Accuracy: Math.round(acc * 10000) / 100, Iteration: ind + 1 }));
-        while (data.length < this.props.maxIterations) {
-            data.push({ Iteration: data.length + 1 });
+        let data = (canvas) => {
+            let ctx = canvas.getContext("2d");
+
+            let gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+            gradientStroke.addColorStop(1, "rgba(29,140,248,0.2)");
+            gradientStroke.addColorStop(0.4, "rgba(29,140,248,0.0)");
+            gradientStroke.addColorStop(0, "rgba(29,140,248,0)"); //blue colors
+
+            return {
+                labels: Array.from({ length: this.props.maxIterations }, (_, i) => i + 1),
+                datasets: [
+                    {
+                        label: "Accuracy",
+                        fill: true,
+                        backgroundColor: gradientStroke,
+                        borderColor: "#1f8ef1",
+                        borderWidth: 2,
+                        borderDash: [],
+                        borderDashOffset: 0.0,
+                        pointBackgroundColor: "#1f8ef1",
+                        pointBorderColor: "rgba(255,255,255,0)",
+                        pointHoverBackgroundColor: "#1f8ef1",
+                        pointBorderWidth: 20,
+                        pointHoverRadius: 4,
+                        pointHoverBorderWidth: 15,
+                        pointRadius: 4,
+                        data: this.props.accuracies.map((acc, ind) => Math.round(acc * 10000) / 100),
+                    },
+                ],
+            }
         }
 
         return (
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                    data={data}
-                    margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 40,
-                    }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="Iteration" label={{ value: "Iteration Number", position: 'bottom', dy: 5 }} />
-                    <YAxis label={{ value: "Model Accuracy(%)", angle: -90, dx: -25 }} />
-                    <Tooltip cursor={true} content={<CustomTooltip />} />
-                    <Line type="monotone" dataKey="Accuracy" stroke={this.props.lineColor} />
-                </LineChart>
-            </ResponsiveContainer>
+            <Card className="card-chart">
+                <CardHeader>
+                    <Row>
+                        <Col className="text-left" sm="6">
+                            <h5 className="card-category">Total Shipments</h5>
+                            <CardTitle tag="h2">Performance</CardTitle>
+                        </Col>
+                    </Row>
+                </CardHeader>
+                <CardBody>
+                    <div className="chart-area">
+                        <Line
+                            data={data}
+                            options={chart1_2_options}
+                        />
+                    </div>
+                </CardBody>
+            </Card>
         );
     }
 }
