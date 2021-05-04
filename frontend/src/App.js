@@ -7,15 +7,18 @@ import { retrieveStatusInfo } from './components/Utils';
 class App extends Component {
   constructor(){
     super(); 
+    this.keyToNum = {}
+    this.lastIndex = 0
     this.state = {
-      accuracies: [0.5, 0.2, 0.3, 0.2, 0.1, 0.5, 0.2, 0.3, 0.2, 0.1],
       modelName: null,
       validatorsNum: null,
       trainersNum: null,
       syncPolicy: null,
       currentModelIndex: null,
       currentNodelScore: null,
+      scoresArray: [],
       targetVersion: null,
+      trainersStatus: {},
       isRunning: false,
     }
   }
@@ -23,9 +26,39 @@ class App extends Component {
   async statusUpdate(){
     if(!this.state.isRunning) return;
     let statusInfo = await retrieveStatusInfo();
+    let updatedTrainersStatus = {};
+    let currentModelIndex = statusInfo[0];
+    let currentNodelScore = statusInfo[1];
+    let updatedScoresArray = this.state.scoresArray;
+
+    if(currentModelIndex > this.lastIndex){
+      this.lastIndex = currentModelIndex;
+      updatedScoresArray = [...updatedScoresArray, currentNodelScore]
+    }
+
+
+    let shuffledTrainerStatus = statusInfo[2];
+    
+    //updates trainers' status object
+    for (const [key, value] of Object.entries(this.keyToNum)) {
+      updatedTrainersStatus[this.keyToNum[key]] = shuffledTrainerStatus[key]
+    }
+
+    //in the case that the trainers' status object is not complete 
+    if(Object.keys(updatedTrainersStatus).length < Object.keys(shuffledTrainerStatus).length){
+      for (const [key, value] of Object.entries(shuffledTrainerStatus)) {
+        if(!(key in this.keyToNum)){
+          this.keyToNum[key] = Object.keys(this.keyToNum).length + 1
+          updatedTrainersStatus[this.keyToNum[key]] = value
+        }
+      }
+    }
+    
     this.setState({
-      currentModelIndex: statusInfo[0],
-      currentNodelScore: statusInfo[1]
+      currentModelIndex,
+      currentNodelScore,
+      scoresArray: updatedScoresArray,
+      trainersStatus: updatedTrainersStatus
     })
   }
 
