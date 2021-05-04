@@ -43,10 +43,20 @@ async function getScoreByIndex(index){
     })
 }
 
+async function getAllTrainersStatus(){
+    return await new Promise((resolve, reject) => {
+        HTTPGet(all_triners_status)
+        .then(res => resolve(JSON.parse(res)))
+        .catch(err => reject(err))
+    })
+}
+
 export async function retrieveStatusInfo(){
     let currentModel = null;
     let currentModelScore = 0;
+    let trainersMap = null;
     currentModel = await getLatestModelIndex();
     if(currentModel >= 0)currentModelScore = await getScoreByIndex(currentModel);
-    return [currentModel, currentModelScore]
+    trainersMap = await getAllTrainersStatus();
+    return [currentModel, currentModelScore, trainersMap]
 }
