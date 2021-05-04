@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Button from './Button';
 import InitializationPage from './components/InitializationPage';
 import { retrieveStatusInfo } from './components/Utils';
 
@@ -31,7 +30,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.timer = setInterval(()=> this.statusUpdate(), 5000);
+    this.timer = setInterval(()=> this.statusUpdate(), 20000);
   }
 
   render(){
