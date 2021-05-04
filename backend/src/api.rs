@@ -24,7 +24,7 @@ use exonum_merkledb::{proof_map::Raw, ListProof, MapProof, ObjectHash};
 use exonum_rust_runtime::api::{self, ServiceApiBuilder, ServiceApiState};
 
 use crate::{schema::{SchemaImpl, SchemaUtils}, model::Model};
-
+use std::collections::HashMap;
 /// Describes the query parameters for the `get_model` endpoint.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct ModelQuery {
@@ -142,6 +142,7 @@ impl PublicApi {
         Ok(latest)
     }
 
+    /// Returns trainer scores
     pub async fn get_trainers_scores(
         state: ServiceApiState,
         query: (),
@@ -209,6 +210,16 @@ impl PublicApi {
         let tr_addr = Address::from_key(query.trainer_addr);
         let tr_status = schema._get_trainer_status_(&tr_addr);
         Ok(tr_status)
+    }
+
+    /// Returns trainer status for all trainers (TRAINING, SUBMITTED)
+    pub async fn get_all_trainers_status(
+        state: ServiceApiState,
+        query: (),
+    ) -> api::Result<HashMap<Address, u8>>{
+        let schema = SchemaImpl::new(state.service_data());
+        let tr_status_map = schema._get_all_trainers_status_();
+        Ok(tr_status_map)
     }
     
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
