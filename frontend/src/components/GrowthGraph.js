@@ -126,8 +126,8 @@ class GrowthGraph extends Component {
                 <CardHeader>
                     <Row>
                         <Col className="text-left" sm="6">
-                            <h5 className="card-category">Total Shipments</h5>
-                            <CardTitle tag="h2">Performance</CardTitle>
+                            <h5 className="card-category">Accuracy vs. Round</h5>
+                            <CardTitle tag="h2">Model Growth</CardTitle>
                         </Col>
                     </Row>
                 </CardHeader>

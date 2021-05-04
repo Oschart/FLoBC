@@ -28,13 +28,6 @@ import {
 
 import { ThemeContext, themes } from "contexts/ThemeContext";
 
-import {
-    chartExample1,
-    chartExample2,
-    chartExample3,
-    chartExample4,
-} from "../variables/charts.js";
-
 let chart1_2_options = {
     maintainAspectRatio: false,
     legend: {
@@ -152,20 +145,20 @@ class StatusPage extends Component {
                 <div className="content">
                     <Row>
                         <Col xs="12">
-                            <GrowthGraph accuracies={[0.1, 0.5, 0.99]} />
+                            <GrowthGraph accuracies={[0.1, 0.5, 0.6, 0.66, 0.99]} />
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="auto">
+                        <Col >
                             <Card>
                                 <CardHeader>
                                     <CardTitle tag="h4">Trainer Status</CardTitle>
                                 </CardHeader>
                                 <CardBody>
-                                    <Table className="tablesorter" responsive>
+                                    <Table className="tablesorter" responsive style={{height: 200}}>
                                         <thead className="text-primary">
                                             <tr>
-                                                <th>Trainer</th>
+                                                <th>Trainer ID</th>
                                                 <th className="text-center">Round Status</th>
                                                 <th className="text-center">Trust Score</th>
                                             </tr>
@@ -178,24 +171,7 @@ class StatusPage extends Component {
                             </Card>
                         </Col>
 
-                        <Col lg="4">
-                            <Card className="card-chart">
-                                <CardHeader>
-                                    <h5 className="card-category">Completed Tasks</h5>
-                                    <CardTitle tag="h3">
-                                        <i className="tim-icons icon-send text-success" /> 12,100K
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardBody>
-                                    <div className="chart-area">
-                                        <Line
-                                            data={[1, 2, 3, 4]}
-                                            options={chart1_2_options}
-                                        />
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        </Col>
+                        
                     </Row>
 
                 </div>
