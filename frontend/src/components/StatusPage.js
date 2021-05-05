@@ -142,7 +142,7 @@ class StatusPage extends Component {
                 <div className="content">
                     <Row>
                         <Col xs="12">
-                            <GrowthGraph maxIterations={this.props.maxIterations} accuracies={this.props.accuracies}/>
+                            <GrowthGraph maxIterations={this.props.maxIterations} accuracies={this.props.scoresArray}/>
                         </Col>
                     </Row>
                     <Row>
