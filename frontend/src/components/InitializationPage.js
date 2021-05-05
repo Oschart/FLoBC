@@ -1,4 +1,13 @@
 import React, { Component } from 'react';
+// reactstrap components
+import {
+    Card,
+    CardHeader,
+    CardBody,
+    CardTitle,
+    Col,
+} from "reactstrap";
+
 
 class InitializationPage extends Component {
     constructor(props) {
@@ -10,7 +19,7 @@ class InitializationPage extends Component {
             validators: null,
             period: null,
             version: null,
-            noise:null,
+            noise: null,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -56,7 +65,7 @@ class InitializationPage extends Component {
             url += `&version=${version}`;
         }
 
-        if (Number.isNaN(noise) == false){
+        if (Number.isNaN(noise) == false) {
             url += `&noise=${noise}`;
         }
 
@@ -73,53 +82,65 @@ class InitializationPage extends Component {
     render() {
         return (
             <>
-                <div className="content">
-                    <form onSubmit={this.handleSubmit}>
-                        <label>
-                            Model Name:
+                <div className="content" >
+                    <Col sm={{ size: 5, order: 2, offset: 3 }}>
+                        <Card style={{ alignItems: 'center', justifyContent: 'space-between' }}>
+                            <CardHeader>
+                                <CardTitle tag="h4">System Specs</CardTitle>
+                            </CardHeader>
+                            <CardBody style={{ alignItems: 'center', justifyContent: 'space-around' }}>
+                                <form onSubmit={this.handleSubmit}>
+                                    <label>
+                                        Model Name:
                 <select name="modelName" value={this.state.modelName} onChange={this.handleChange}>
-                                <option selected value="MNIST28X28">MNIST28X28</option>
-                                <option value="MNIST20X20">MNIST20X20</option>
-                            </select>
-                        </label>
-                        <br />
-                        <label>
-                            Synchronization Scheme:
+                                            <option selected value="MNIST28X28">MNIST28X28</option>
+                                            <option value="MNIST20X20">MNIST20X20</option>
+                                        </select>
+                                    </label>
+                                    <br />
+                                    <label>
+                                        Synchronization Scheme:
                 <select name="syncScheme" value={this.state.syncScheme} onChange={this.handleChange}>
-                                <option selected value="BAP">BAP</option>
-                                <option value="BSP">BSP</option>
-                                <option value="SSP">SSP</option>
-                            </select>
-                        </label>
-                        <label>
-                            Period:
+                                            <option selected value="BAP">BAP</option>
+                                            <option value="BSP">BSP</option>
+                                            <option value="SSP">SSP</option>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        Period:
                 <input type="number" name="period" onChange={this.handleChange} />
-                        </label>
-                        <br />
-                        <label>
-                            Number of Trainers:
+                                    </label>
+                                    <br />
+                                    <label>
+                                        Number of Trainers:
                 <input type="number" name="trainers" onChange={this.handleChange} />
-                        </label>
-                        <br />
-                        <label>
-                            Number of Validators:
+                                    </label>
+                                    <br />
+                                    <label>
+                                        Number of Validators:
                 <input type="number" name="validators" onChange={this.handleChange} />
-                        </label>
-                        <br />
-                        <label>
-                            Stop at Version:
+                                    </label>
+                                    <br />
+                                    <label>
+                                        Stop at Version:
                 <input type="number" name="version" onChange={this.handleChange} />
-                        </label>
-                        <br />
-                        <label>
-                            Noise Step:
+                                    </label>
+                                    <br />
+                                    <label>
+                                        Noise Step:
                 <input type="number" step="0.01" name="noise" onChange={this.handleChange} />
-                        </label>
-                        <br />
-                        <input type="submit" value="Submit" />
-                    </form>
+                                    </label>
+                                    <br />
+
+                                    <input type="submit" value="Start" style={{ marginLeft: '37.5%', marginTop: '8%', width: '25%' }} />
+                                </form>
+                            </CardBody>
+
+                        </Card>
+                    </Col>
                 </div>
             </>
+
         );
     }
 

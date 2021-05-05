@@ -16,3 +16,13 @@ code {
   font-family: 'nucleo';
   src: local('nucleo'), url(./assets/fonts/nucleo.woff) format('woff');
 }
+
+label, input {
+  display: block;
+}
+
+label {
+  margin-bottom: 15px;
+  margin-block: 15px;
+  margin-left: 20px;
+}
