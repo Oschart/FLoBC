@@ -113,7 +113,7 @@ function Sidebar(props) {
     trainersNum,
     syncPolicy,
     currentModelIndex,
-    currentNodelScore,
+    currentModelScore,
   } = props.sys_state
 
 
@@ -149,7 +149,7 @@ function Sidebar(props) {
                   className="nav-link"
                   activeClassName="active"
                 >
-                  <p style={{ fontWeight: 'bold' }}>LATEST SCORE: {currentNodelScore}</p>
+                  <p style={{ fontWeight: 'bold' }}>LATEST SCORE: {currentModelScore}</p>
                 </NavLink>
               </li>
               <li>
