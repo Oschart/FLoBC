@@ -19,7 +19,7 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 class App extends Component {
   constructor() {
     super();
-    
+
     this.keyToNum = {}
     this.lastIndex = 0
     this.state = {
@@ -73,7 +73,7 @@ class App extends Component {
       currentModelScore,
       scoresArray: updatedScoresArray,
       trainersStatus: updatedTrainersStatus,
-      accuracies: [...(prevState.accuracies), currentModelScore]
+      accuracies: currentModelIndex != prevState.currentModelIndex ? [...(prevState.accuracies), currentModelScore] : prevState.accuracies
     }))
   }
 
@@ -97,7 +97,7 @@ class App extends Component {
         <BackgroundColorWrapper>
           <BrowserRouter>
             <Switch>
-              <Route path="/admin" render={(props) => <AdminLayout {...{...this.state, startPolling:this.pollingCallback}} />} />
+              <Route path="/admin" render={(props) => <AdminLayout {...{ ...this.state, startPolling: this.pollingCallback }} />} />
               <Redirect from="/" to="/admin/spawn" />
             </Switch>
           </BrowserRouter>
