@@ -107,7 +107,7 @@ class StatusPage extends Component {
         let statusStr = hasSubmitted ? "SUBMITTED" : "TRAINING"
         return (
             <>
-                <h1 style={{ color: colorClass, fontFamily: 'inherit', fontSize: 15, textAlign: 'center', alignSelf: 'center', alignItems: 'center', justifyContent: 'center' }}>{statusStr}</h1>
+                <h1 style={{ color: colorClass, fontFamily: 'inherit', fontSize: 15, textAlign: 'center'}}>{statusStr}</h1>
             </>
         )
     }

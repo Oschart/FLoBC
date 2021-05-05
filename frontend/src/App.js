@@ -85,7 +85,11 @@ class App extends Component {
     syncPolicy,
     validatorsNum,
     trainersNum,
-    targetVersion
+    targetVersion,
+    currentModelIndex: null,
+    currentModelScore: null,
+    scoresArray: [],
+    trainersStatus: {},
   })
 
 
