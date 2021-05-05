@@ -118,6 +118,9 @@ function Admin(props) {
                 imgSrc: logo,
               }}
               toggleSidebar={toggleSidebar}
+              trainersNum={props.trainersNum}
+              validatorsNum={props.validatorsNum}
+              syncPolicy={props.syncPolicy}
             />
             <div className="main-panel" ref={mainPanelRef} data={color}>
               <AdminNavbar

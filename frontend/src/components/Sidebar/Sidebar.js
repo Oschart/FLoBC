@@ -220,7 +220,20 @@ function Sidebar(props) {
                   to={'/admin/spawn'}
                   className="nav-link"
                   activeClassName="active"
-                  onClick={() => alert('Terminate')}
+                  onClick={() => 
+                    {
+                      let terminals = (props.syncPolicy == "BAP") ? 0 : 1;
+                      terminals += parseInt(props.validatorsNum) + parseInt(props.trainersNum);
+                      let url = `http://localhost:24587/terminate?terminals=${terminals}`;
+                      const options = { method: "GET" };
+                      fetch(url, options)
+                          .then(res => res.json())
+                          .then(data => {
+                              console.log(data)
+                          })
+                      alert("Terminated");
+                    }
+                  }
                 >
                   <p style={{ fontWeight: 'bold', color: 'red' }}>TERMINATE SYSTEM</p>
                 </NavLink>
@@ -237,6 +250,9 @@ function Sidebar(props) {
 Sidebar.defaultProps = {
   rtlActive: false,
   routes: [{}],
+  trainersNum: 0,
+  validatorsNum: 0,
+  syncPolicy: "BAP"
 };
 
 Sidebar.propTypes = {
