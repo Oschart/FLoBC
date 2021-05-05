@@ -114,17 +114,19 @@ class StatusPage extends Component {
 
     trainerInfoEntries() {
         let entries = []
-        let { scoresArray, trainersStatus } = this.props
+        let { trainersStatus } = this.props
 
-        for (let i = 0; i < scoresArray.length; ++i) {
+        let n = Object.keys(trainersStatus).length
+        for (let i = 0; i < n; ++i) {
+            let trainerInfo = trainersStatus[i + 1]
             let name = `Trainer ${i + 1}`
-            let hasSubmitted = trainersStatus[i + 1] == 1
+            let hasSubmitted = trainerInfo[1] == 1
             let status = this.statusIcon(hasSubmitted)
             let row = (
                 <tr style={{ alignItems: 'center', justifyContent: 'center' }}>
                     <td>{name}</td>
                     <td className="text-center">{status}</td>
-                    <td className="text-center">{scoresArray[i]}</td>
+                    <td className="text-center">{trainerInfo[0]}</td>
                 </tr>
             )
 

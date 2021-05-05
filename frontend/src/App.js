@@ -29,7 +29,6 @@ class App extends Component {
       syncPolicy: null,
       currentModelIndex: null,
       currentModelScore: null,
-      accuracies: [],
       scoresArray: [],
       targetVersion: null,
       trainersStatus: {},
@@ -68,13 +67,12 @@ class App extends Component {
       }
     }
 
-    this.setState(prevState => ({
+    this.setState({
       currentModelIndex,
       currentModelScore,
       scoresArray: updatedScoresArray,
       trainersStatus: updatedTrainersStatus,
-      accuracies: currentModelIndex != prevState.currentModelIndex ? [...(prevState.accuracies), currentModelScore] : prevState.accuracies
-    }))
+    })
   }
 
   componentDidMount() {
