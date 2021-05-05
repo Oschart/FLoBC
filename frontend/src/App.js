@@ -19,7 +19,7 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 class App extends Component {
   constructor() {
     super();
-    this.activePage = this.activePage.bind(this)
+    
     this.keyToNum = {}
     this.lastIndex = 0
     this.state = {
@@ -79,25 +79,15 @@ class App extends Component {
     this.timer = setInterval(() => this.statusUpdate(), 20000);
   }
 
-  activePage() {
-    if (!this.state.isRunning) {
-      return <StatusPage />
-    }
-    else {
-      return (
-        <InitializationPage
-          startPolling={(modelName, syncPolicy, validatorsNum, trainersNum, targetVersion) => this.setState({
-            isRunning: true,
-            modelName,
-            syncPolicy,
-            validatorsNum,
-            trainersNum,
-            targetVersion
-          })}
-        />
-      )
-    }
-  }
+  pollingCallback = (modelName, syncPolicy, validatorsNum, trainersNum, targetVersion) => this.setState({
+    isRunning: true,
+    modelName,
+    syncPolicy,
+    validatorsNum,
+    trainersNum,
+    targetVersion
+  })
+
 
   render() {
     return (
@@ -105,7 +95,7 @@ class App extends Component {
         <BackgroundColorWrapper>
           <BrowserRouter>
             <Switch>
-              <Route path="/admin" render={(props) => <AdminLayout {...this.state} />} />
+              <Route path="/admin" render={(props) => <AdminLayout {...{...this.state, startPolling:this.pollingCallback}} />} />
               <Redirect from="/" to="/admin/spawn" />
             </Switch>
           </BrowserRouter>
