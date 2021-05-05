@@ -28,7 +28,8 @@ class App extends Component {
       trainersNum: null,
       syncPolicy: null,
       currentModelIndex: null,
-      currentNodelScore: null,
+      currentModelScore: null,
+      accuracies: [],
       scoresArray: [],
       targetVersion: null,
       trainersStatus: {},
@@ -41,12 +42,12 @@ class App extends Component {
     let statusInfo = await retrieveStatusInfo();
     let updatedTrainersStatus = {};
     let currentModelIndex = statusInfo[0];
-    let currentNodelScore = statusInfo[1];
+    let currentModelScore = statusInfo[1];
     let updatedScoresArray = this.state.scoresArray;
 
     if (currentModelIndex > this.lastIndex) {
       this.lastIndex = currentModelIndex;
-      updatedScoresArray = [...updatedScoresArray, currentNodelScore]
+      updatedScoresArray = [...updatedScoresArray, currentModelScore]
     }
 
 
@@ -67,12 +68,13 @@ class App extends Component {
       }
     }
 
-    this.setState({
+    this.setState(prevState => ({
       currentModelIndex,
-      currentNodelScore,
+      currentModelScore,
       scoresArray: updatedScoresArray,
-      trainersStatus: updatedTrainersStatus
-    })
+      trainersStatus: updatedTrainersStatus,
+      accuracies: [...(prevState.accuracies), currentModelScore]
+    }))
   }
 
   componentDidMount() {

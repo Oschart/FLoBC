@@ -115,12 +115,7 @@ class StatusPage extends Component {
     trainerInfoEntries() {
         let entries = []
         let { scoresArray, trainersStatus } = this.props
-        scoresArray = [1, 2, 3]
-        trainersStatus = {
-            1: 1,
-            2: 0,
-            3: 1
-        }
+
         for (let i = 0; i < scoresArray.length; ++i) {
             let name = `Trainer ${i + 1}`
             let hasSubmitted = trainersStatus[i + 1] == 1
@@ -145,7 +140,7 @@ class StatusPage extends Component {
                 <div className="content">
                     <Row>
                         <Col xs="12">
-                            <GrowthGraph accuracies={[0.1, 0.5, 0.6, 0.66, 0.99]} />
+                            <GrowthGraph maxIterations={this.props.maxIterations} accuracies={this.props.accuracies}/>
                         </Col>
                     </Row>
                     <Row>
