@@ -10,6 +10,7 @@ class InitializationPage extends Component {
             validators: null,
             period: null,
             version: null,
+            noise:null,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -29,6 +30,7 @@ class InitializationPage extends Component {
         let syncScheme = this.state.syncScheme;
         let period = parseInt(this.state.period);
         let version = parseInt(this.state.version);
+        let noise = parseFloat(this.state.noise);
         // Validating that trainers and validators numbers are greater than 1
         if (trainers < 1 || validators < 1 || Number.isNaN(trainers) || Number.isNaN(validators)) {
             alert("Trainers and Validators must be a number greater than or equal to 1");
@@ -52,6 +54,10 @@ class InitializationPage extends Component {
             message += "\nWill not automatically stop training";
         } else {
             url += `&version=${version}`;
+        }
+
+        if (Number.isNaN(noise) == false){
+            url += `&noise=${noise}`;
         }
 
         const options = { method: "GET" };
@@ -103,6 +109,11 @@ class InitializationPage extends Component {
                         <label>
                             Stop at Version:
                 <input type="number" name="version" onChange={this.handleChange} />
+                        </label>
+                        <br />
+                        <label>
+                            Noise Step:
+                <input type="number" step="0.01" name="noise" onChange={this.handleChange} />
                         </label>
                         <br />
                         <input type="submit" value="Submit" />
