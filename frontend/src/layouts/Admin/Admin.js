@@ -121,6 +121,7 @@ function Admin(props) {
               trainersNum={props.trainersNum}
               validatorsNum={props.validatorsNum}
               syncPolicy={props.syncPolicy}
+              terminationCallback={props.terminationCallback}
             />
             <div className="main-panel" ref={mainPanelRef} data={color}>
               <AdminNavbar

@@ -231,7 +231,8 @@ function Sidebar(props) {
                           .then(data => {
                               console.log(data)
                           })
-                      alert("Terminated");
+                          props.terminationCallback()
+                          alert("Terminated");
                     }
                   }
                 >

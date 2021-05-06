@@ -92,6 +92,8 @@ class App extends Component {
     trainersStatus: {},
   })
 
+  terminationCallback = () => this.setState({ isRunning: false })
+
 
   render() {
     return (
@@ -99,7 +101,7 @@ class App extends Component {
         <BackgroundColorWrapper>
           <BrowserRouter>
             <Switch>
-              <Route path="/admin" render={(props) => <AdminLayout {...{ ...this.state, startPolling: this.pollingCallback }} />} />
+              <Route path="/admin" render={(props) => <AdminLayout {...{ ...this.state, startPolling: this.pollingCallback, terminationCallback: this.terminationCallback }} />} />
               <Redirect from="/" to="/admin/spawn" />
             </Switch>
           </BrowserRouter>
