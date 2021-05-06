@@ -224,6 +224,7 @@ function Sidebar(props) {
                     {
                       let terminals = (props.syncPolicy == "BAP") ? 0 : 1;
                       terminals += parseInt(props.validatorsNum) + parseInt(props.trainersNum);
+                      terminals += 1;
                       let url = `http://localhost:24587/terminate?terminals=${terminals}`;
                       const options = { method: "GET" };
                       fetch(url, options)
