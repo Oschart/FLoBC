@@ -30,20 +30,20 @@ app.get('/terminate', (req, res) => {
     let terminals = req.query.terminals;
     console.log("Terminate ", terminals, " terminals");
     
-    // let args = ["../../../scripts/spawn/spawn.sh", "-b","-c", "-j", "-l", "-n", validators, "-t", trainers, "-s", syncScheme, "-d", period];
+    let args = ["./terminate.sh", terminals];
     
-    // let child = spawn("bash", args);
-    // child.stdout.on('data', function (data) {
-    //     console.log(data.toString());
-    // });
+    let child = spawn("bash", args);
+    child.stdout.on('data', function (data) {
+        console.log(data.toString());
+    });
     
-    // child.stderr.on('data', function (data) {
-    //     console.log(data.toString());
-    // });
+    child.stderr.on('data', function (data) {
+        console.log(data.toString());
+    });
     
-    // child.on('exit', function (code) {
-    //     console.log('child process exited with code ' + code.toString());
-    // });
+    child.on('exit', function (code) {
+        console.log('child process exited with code ' + code.toString());
+    });
 })
 
 app.get('/runSpawn', (req, res) => {
