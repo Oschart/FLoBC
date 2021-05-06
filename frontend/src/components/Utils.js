@@ -34,7 +34,7 @@ async function getLatestModelIndex(){
     })
 }
 
-async function getScoreByIndex(index){
+export async function getScoreByIndex(index){
     let option = '?version=' + index;
     return await new Promise((resolve, reject) => {
         HTTPGet(model_score, option)

@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import InitializationPage from './components/InitializationPage';
 import StatusPage from './components/StatusPage';
-import { retrieveStatusInfo } from './components/Utils';
+import { retrieveStatusInfo, getScoreByIndex } from './components/Utils';
 
 import "assets/scss/black-dashboard-react.scss";
 import "assets/css/nucleo-icons.css";
@@ -45,6 +45,11 @@ class App extends Component {
     let updatedScoresArray = this.state.scoresArray;
 
     if (currentModelIndex > this.lastIndex) {
+      while(this.lastIndex + 1 < currentModelIndex){
+        this.lastIndex++;
+        let inBetweenScore = await getScoreByIndex(this.lastIndex);
+        updatedScoresArray = [...updatedScoresArray, inBetweenScore]
+      }
       this.lastIndex = currentModelIndex;
       updatedScoresArray = [...updatedScoresArray, currentModelScore]
     }
