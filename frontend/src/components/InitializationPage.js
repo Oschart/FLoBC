@@ -57,13 +57,15 @@ class InitializationPage extends Component {
             alert("Period will not be used for BAP");
         }
 
-        let url = `http://localhost:24587/runSpawn?trainers=${trainers}&validators=${validators}&sync=${syncScheme}&period=${period}`;
-        let message = "System spawning in progress";
         if (version == 0 || Number.isNaN(version)) {
-            message += "\nWill not automatically stop training";
-        } else {
-            url += `&version=${version}`;
+            alert("Must input stopping version");
+            return;
         }
+
+
+
+        let url = `http://localhost:24587/runSpawn?trainers=${trainers}&validators=${validators}&sync=${syncScheme}&period=${period}&version=${version}`;
+        let message = "System spawning in progress";
 
         if (Number.isNaN(noise) == false) {
             url += `&noise=${noise}`;
