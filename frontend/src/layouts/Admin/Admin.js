@@ -104,6 +104,7 @@ function Admin(props) {
     }
     return "Brand";
   };
+  
   return (
     <BackgroundColorContext.Consumer>
       {({ color, changeColor }) => (
@@ -131,11 +132,11 @@ function Admin(props) {
               />
               <Switch>
                 {getRoutes(routes)}
-                <Redirect from="*" to="/admin/dashboard" />
+                <Redirect from="*" to="/admin/spawn" />
               </Switch>
               {
                 // we don't want the Footer to be rendered on map page
-                location.pathname === "/admin/maps" ? null : <Footer fluid />
+                location.pathname === "/admin/spawn" ? null : <Footer fluid />
               }
             </div>
           </div>

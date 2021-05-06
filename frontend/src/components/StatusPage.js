@@ -78,7 +78,6 @@ let chart1_2_options = {
     },
 };
 
-let bigChartData = "data1"
 
 class StatusPage extends Component {
     constructor(props) {
@@ -115,7 +114,7 @@ class StatusPage extends Component {
     trainerInfoEntries() {
         let entries = []
         let { trainersStatus } = this.props
-
+        console.warn('trainersStatus', trainersStatus)
         let n = Object.keys(trainersStatus).length
         for (let i = 0; i < n; ++i) {
             let trainerInfo = trainersStatus[i + 1]
