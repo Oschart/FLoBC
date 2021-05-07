@@ -232,7 +232,8 @@ function Sidebar(props) {
                           .then(data => {
                               console.log(data)
                           })
-                          props.terminationCallback()
+                          // props.terminationCallback()
+                          window.location.reload();
                           alert("Terminated");
                     }
                   }

@@ -118,18 +118,20 @@ class StatusPage extends Component {
         let n = Object.keys(trainersStatus).length
         for (let i = 0; i < n; ++i) {
             let trainerInfo = trainersStatus[i + 1]
-            let name = `Trainer ${i + 1}`
-            let hasSubmitted = trainerInfo[1] == 1
-            let status = this.statusIcon(hasSubmitted)
-            let row = (
-                <tr style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    <td>{name}</td>
-                    <td className="text-center">{status}</td>
-                    <td className="text-center">{trainerInfo[0]}</td>
-                </tr>
-            )
+            if (trainerInfo != undefined){
+                let name = `Trainer ${i + 1}`
+                let hasSubmitted = trainerInfo[1] == 1
+                let status = this.statusIcon(hasSubmitted)
+                let row = (
+                    <tr style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <td>{name}</td>
+                        <td className="text-center">{status}</td>
+                        <td className="text-center">{trainerInfo[0]}</td>
+                    </tr>
+                )
 
-            entries.push(row)
+                entries.push(row)
+            }
         }
         return entries
     }

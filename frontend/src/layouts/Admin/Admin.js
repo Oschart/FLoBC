@@ -134,10 +134,6 @@ function Admin(props) {
                 {getRoutes(routes)}
                 <Redirect from="*" to="/admin/spawn" />
               </Switch>
-              {
-                // we don't want the Footer to be rendered on map page
-                location.pathname === "/admin/spawn" ? null : <Footer fluid />
-              }
             </div>
           </div>
           <FixedPlugin bgColor={color} handleBgClick={changeColor} />

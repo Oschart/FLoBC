@@ -8,9 +8,9 @@ import warnings
 import tensorflow as tf
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"      # To disable using GPU
-tf.get_logger().setLevel('ERROR')
-warnings.filterwarnings('ignore')
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"      # To disable using GPU
+#tf.get_logger().setLevel('ERROR')
+#warnings.filterwarnings('ignore')
 
 MODELS_DIR = '../src/models/'
 
