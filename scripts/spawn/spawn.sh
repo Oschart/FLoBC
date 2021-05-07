@@ -124,7 +124,7 @@ do
     echo $start_public_port
     trainer_noise=$(echo "$i * $accumulated_error_scale" | bc)
     rm $lightclient/ModelMetadata
-    openTab $command_start "npm start --prefix $lightclient -- $assigned_trainer_port models/MNIST28X28/data.csv $trainer_noise $modelName"
+    openTab $command_start "npm start --prefix $lightclient -- 9000 models/MNIST28X28/data.csv $trainer_noise $modelName"
     sleep 10
 done
 

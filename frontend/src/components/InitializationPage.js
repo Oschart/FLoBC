@@ -77,7 +77,7 @@ class InitializationPage extends Component {
         fetch(url, options)
             .then(res => res.json())
             .then(data => {
-                console.log(data)
+                alert(data)
             })
         alert(message);
         this.props.startPolling(this.state.modelName, this.state.syncScheme, this.state.validators, this.state.trainers, this.state.version);

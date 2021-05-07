@@ -54,7 +54,7 @@ app.get('/runSpawn', (req, res) => {
     let version =  req.query.version;
     let noise =  req.query.noise;
 
-    let args = ["../../../scripts/spawn/spawn.sh", "-c", "-l", "-n", validators, "-t", trainers, "-s", syncScheme, "-d", period];
+    let args = ["../../../scripts/spawn/spawn.sh", "-b", "-j", "-c", "-l", "-n", validators, "-t", trainers, "-s", syncScheme, "-d", period];
     if (version != undefined){
         args.push("-r");
         args.push("-e");
