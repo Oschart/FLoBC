@@ -29,6 +29,8 @@ class InitializationPage extends Component {
     handleChange(event) {
         let nam = event.target.name;
         let val = event.target.value;
+        if (nam == "modelName")
+            val = event.target.files[0].webkitRelativePath.split("/")[0]
         this.setState({ [nam]: val });
     }
 
@@ -93,15 +95,17 @@ class InitializationPage extends Component {
                             <CardBody style={{ alignItems: 'center', justifyContent: 'space-around' }}>
                                 <form onSubmit={this.handleSubmit}>
                                     <label>
-                                        Model Name:
-                <select name="modelName" value={this.state.modelName} onChange={this.handleChange}>
-                                            <option selected value="MNIST28X28">MNIST28X28</option>
-                                            <option value="MNIST20X20">MNIST20X20</option>
-                                        </select>
+                                        Training Scripts Directory:
+                <input type="file" name="modelName" directory = "" webkitdirectory="" onChange={this.handleChange} />
                                     </label>
                                     <br />
                                     <label>
-                                        Synchronization Scheme:
+                                        Validation Scripts Directory:
+                <input type="file" name="modelName" directory = "" webkitdirectory="" onChange={this.handleChange} />
+                                    </label>
+                                    <br />
+                                    <label>
+                                Synchronization Scheme:
                 <select name="syncScheme" value={this.state.syncScheme} onChange={this.handleChange}>
                                             <option selected value="BAP">BAP</option>
                                             <option value="BSP">BSP</option>

@@ -228,13 +228,16 @@ function Sidebar(props) {
                       let url = `http://localhost:24587/terminate?terminals=${terminals}`;
                       const options = { method: "GET" };
                       fetch(url, options)
-                          .then(res => res.json())
+                          .then(res => {
+                            res.json()
+                            window.location.reload();
+                          })
                           .then(data => {
                               console.log(data)
+                              window.location.reload();
                           })
+                          .then(window.location.reload())
                           // props.terminationCallback()
-                          window.location.reload();
-                          alert("Terminated");
                     }
                   }
                 >
