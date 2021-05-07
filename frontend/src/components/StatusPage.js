@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import GrowthGraph from './GrowthGraph'
-
+import { chartColors } from './colors'
 import classNames from "classnames";
 // react plugin used to create charts
-import { Line, Bar } from "react-chartjs-2";
+import { Pie } from "react-chartjs-2";
 // reactstrap components
 import {
     Button,
@@ -106,7 +106,7 @@ class StatusPage extends Component {
         let statusStr = hasSubmitted ? "SUBMITTED" : "TRAINING"
         return (
             <>
-                <h1 style={{ color: colorClass, fontFamily: 'inherit', fontSize: 15, textAlign: 'center'}}>{statusStr}</h1>
+                <h1 style={{ color: colorClass, fontFamily: 'inherit', fontSize: 15, textAlign: 'center' }}>{statusStr}</h1>
             </>
         )
     }
@@ -114,7 +114,7 @@ class StatusPage extends Component {
     trainerInfoEntries() {
         let entries = []
         let { trainersStatus } = this.props
-        console.warn('trainersStatus', trainersStatus)
+        let trainerLabels = [], trainerScores = []
         let n = Object.keys(trainersStatus).length
         for (let i = 0; i < n; ++i) {
             let trainerInfo = trainersStatus[i + 1]
@@ -130,18 +130,24 @@ class StatusPage extends Component {
             )
 
             entries.push(row)
+
+            trainerLabels.push(name)
+            trainerScores.push(trainerInfo[0])
         }
-        return entries
+
+        return {entries, trainerLabels, trainerScores}
     }
 
     render() {
+
+        let {entries, trainerLabels, trainerScores} = this.trainerInfoEntries()
 
         return (
             <>
                 <div className="content">
                     <Row>
                         <Col xs="12">
-                            <GrowthGraph maxIterations={this.props.maxIterations} accuracies={this.props.scoresArray}/>
+                            <GrowthGraph maxIterations={this.props.maxIterations} accuracies={this.props.scoresArray} />
                         </Col>
                     </Row>
                     <Row>
@@ -151,7 +157,7 @@ class StatusPage extends Component {
                                     <CardTitle tag="h4">Trainer Status</CardTitle>
                                 </CardHeader>
                                 <CardBody>
-                                    <Table className="tablesorter" responsive style={{height: 200}}>
+                                    <Table className="tablesorter" responsive style={{ height: 200 }}>
                                         <thead className="text-primary">
                                             <tr>
                                                 <th>Trainer ID</th>
@@ -160,14 +166,36 @@ class StatusPage extends Component {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {this.trainerInfoEntries()}
+                                            {entries}
                                         </tbody>
                                     </Table>
                                 </CardBody>
                             </Card>
                         </Col>
 
-                        
+                        <Col >
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle tag="h4">Trainer Scores</CardTitle>
+                                </CardHeader>
+                                <CardBody>
+                                    <Pie data={{
+                                        maintainAspectRatio: false,
+                                        responsive: true,
+                                        labels: trainerLabels,
+                                        datasets: [
+                                            {
+                                                data: trainerScores,
+                                                backgroundColor: chartColors,
+                                                hoverBackgroundColor: chartColors
+                                            }
+                                        ]
+                                    }} />
+                                </CardBody>
+                            </Card>
+                        </Col>
+
+
                     </Row>
 
                 </div>
