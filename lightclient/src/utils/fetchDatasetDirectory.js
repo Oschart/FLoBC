@@ -14,10 +14,7 @@ export function fetchImposterState(){
     return parseFloat(process.argv[4].trim());
 }
 
-export function fetchPortNumber(isVal=false){
-    if (isVal){
-        return 9000+parseInt(process.argv[4].trim());
-    }
+export function fetchPortNumber(){
     if (process.argv.length < 3){
         console.log("Error: No port number detected");
         process.exit();

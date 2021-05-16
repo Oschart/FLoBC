@@ -45,7 +45,7 @@ pub const LAMBDA: f64 = 4.0;
 /// Minimum ratio of a majority of clients
 pub const MAJORITY_RATIO: f32 = 1.0 ;
 /// Maximum allowable ratio of decay from previous model
-pub const MAX_SCORE_DECAY: f32 = 0.6;
+pub const MAX_SCORE_DECAY: f32 = 0.0 ;
 /// Maximum allowable number of retrain rounds
 pub const MAX_RETRAIN: u8 = 3;
 

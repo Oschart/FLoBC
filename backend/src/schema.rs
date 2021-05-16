@@ -38,7 +38,7 @@ use std::{
     convert::{TryFrom, TryInto},
     fs,
 };
-
+use std::collections::HashMap;
 use colored::*;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
@@ -104,6 +104,16 @@ impl<T: Access> SchemaImpl<T> {
     pub fn _get_trainer_status_(&self, trainer_addr: &Address) -> u8 {
         let trst = self.pending_transactions.contains(&trainer_addr);
         return trst as u8;
+    }
+
+    pub fn _get_all_trainers_status_(&self) -> HashMap<Address, (String, u8)> {
+        let mut trst_map = HashMap::new();
+        for trainer_addr in self.trainers_scores.keys() {
+            let trst = self.pending_transactions.contains(&trainer_addr) as u8;
+            let tr_score = self.trainers_scores.get(&trainer_addr).unwrap();
+            trst_map.insert(trainer_addr, (tr_score, trst));
+        }
+        return trst_map;
     }
 
     pub fn _get_retrain_quota_(&self, trainer_addr: &Address) -> u8 {

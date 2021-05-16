@@ -7,16 +7,16 @@ const MODELS_CACHE = "cached_model";
 import {fetchPortNumber} from './fetchDatasetDirectory';
 import { store_encoded_vector, read_encoded_vector } from './store_encoded_vector';
 
-const latest_model_index_fmt = (isVal=false) => {
-    let port_number = fetchPortNumber(isVal);
+const latest_model_index_fmt = () => {
+    let port_number = fetchPortNumber();
     return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/models/latestmodel`
 }
-const get_model_by_index_fmt = (isVal=false) => {
-    let port_number = fetchPortNumber(isVal);
+const get_model_by_index_fmt = () => {
+    let port_number = fetchPortNumber();
     return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/models/getmodel`
 }
-const get_retrain_quote_fmt = (isVal=false) => {
-    let port_number = fetchPortNumber(isVal);
+const get_retrain_quote_fmt = () => {
+    let port_number = fetchPortNumber();
     return `http://127.0.0.1:${port_number}/api/services/ml_service/v1/trainer/retrain_quota`
 }
 
@@ -102,7 +102,7 @@ function getMinScoreByIndex(index){
 function getRetrainQuote(trainerKey){
     let option = '?trainer_addr=' + trainerKey;
     return new Promise((resolve, reject) => {
-        HTTPGet(get_retrain_quote_fmt(true), option)
+        HTTPGet(get_retrain_quote_fmt(), option)
         .then(res => {
             resolve(parseInt(res));
         })

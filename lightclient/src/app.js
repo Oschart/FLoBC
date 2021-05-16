@@ -106,7 +106,7 @@ function timeout(s) {
 }
 
 function randomizeDuration(){
-    let secs = Math.round(Math.random() * 6) * 10; //from 0 to 60 in a steps of 10
+    let secs = Math.round(Math.random() * 6) ; //from 0 to 60 in a steps of 10
     intervalDuration = secs;
 }
 
