@@ -23,4 +23,3 @@ $ sh fixedN.sh -n <number of nodes> -s <starting number of nodes> -b -l -e <targ
 - -s: for starting number of agents/nodes
 - -e: [OPTIONAL] spawns a tracker script for dumping accuracy data when reaching a specific version (positive int) or for a certain number of minutes (negative int)
 - -r: [OPTIONAL] When tracking done, will terminate all terminals opened before the tracker, except for the terminal initiating the spawn script
-#### You don't need to specify -p if you'll use the lightclient directory and the backend directory in the root
