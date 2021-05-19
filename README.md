@@ -4,7 +4,7 @@ This project supports the training of stochastic gradient descent models over bl
 Training and validation is performed on the user's local data. Nodes share insights or gradients rather than data. <br>
 The system utilizes a reward/punishment policy to incentivize legitimate training, and to punish and hinder malicious trainers. <br>
 As it can be seen in [the figure] (./pictures/systemView.png). Trainers perform training, then share their updates with the validators that validate the updates and perform consensus. After which trainers are given a trust reward or pentaly, and a new model is added to the blockchain. <br>
-For more details about the system, check [the slides] (https://docs.google.com/presentation/d/1koIePQY4zOhS8jltEeFZ27Q99Ua_KlZIDUb6Zcn_VCI/edit?usp=sharing) and [this video](https://drive.google.com/file/d/1e6TVJ5_nI7mPKt9JTVXy2bMrMx7xXkqG/view?usp=sharing). 
+For more details about the system, check [the slides](https://docs.google.com/presentation/d/1koIePQY4zOhS8jltEeFZ27Q99Ua_KlZIDUb6Zcn_VCI/edit?usp=sharing) and [this video](https://drive.google.com/file/d/1e6TVJ5_nI7mPKt9JTVXy2bMrMx7xXkqG/view?usp=sharing). 
 
 ## Prerequisites
 - git clone https://github.com/Oschart/FDMMLS.git
@@ -95,9 +95,9 @@ or download it from [here] (https://drive.google.com/drive/folders/1tOyb5J4kDwkO
 - N.B. Place test data in ./backend/tx_validator/src/models/MODEL_NAME/data.csv
 
 ## Authors
-* **Eslam Soliman** [Eslam-Soliman](https://github.com/Eslam-Soliman)
+* **Mohamed Oscar** [Oschart](https://github.com/Oschart)
 * **Fadi Adel** [theRadFad](https://github.com/theRadFad)
 * **Habiba Gamal** [habibagamal](https://github.com/habibagamal)
-* **Mohamed Oscar** [Oschart](https://github.com/Oschart)
+* **Eslam Soliman** [Eslam-Soliman](https://github.com/Eslam-Soliman)
 * Dr. Hossam Sharara
 * Dr. Tamer ElBatt
