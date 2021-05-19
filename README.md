@@ -88,8 +88,7 @@ $ npm start -- <validator port number> <dataset past> <trainer noise> <model dir
 https://www.kaggle.com/oddrationale/mnist-in-csv
 
 ## To use the provided MNIST 20x20 models:
-resize the downloaded data using [this script](./dataset&#32utils/MNIST_resize.py) <br>
-or download it from [here](https://drive.google.com/drive/folders/1tOyb5J4kDwkOA8ML0Ub-gmj-b44LvMzU?usp=sharing)
+resize the downloaded data using [this script](./dataset&#32;utils/MNIST_resize.py), or download it from [here](https://drive.google.com/drive/folders/1tOyb5J4kDwkOA8ML0Ub-gmj-b44LvMzU?usp=sharing)
 
 - N.B. Place training data in ./lightclient/models/MODEL_NAME/
 - N.B. Place test data in ./backend/tx_validator/src/models/MODEL_NAME/data.csv
