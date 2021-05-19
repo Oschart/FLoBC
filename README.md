@@ -33,10 +33,10 @@ $ npm start
 
 ##### Initialization Form
 To configure the system
-![Initialization Page](./pictures/form.png "System Configuration Page" | width=100)
+![Initialization Page](./pictures/form.png "System Configuration Page" width=100)
 
 ##### Progress Monitoring
-![Progress Monitoring](./pictures/monitor.png "Progress Monitoring" | width=100)
+![Progress Monitoring](./pictures/monitor.png "Progress Monitoring" width=100)
 
 #### Demo Video
 <a href="https://drive.google.com/file/d/1indstlHqPbDn9WctNczFZVVRBCU-5qbf/view?usp=sharing"><img src="https://github.com/Oschart/FDMMLS/blob/main/pictures/thumbnail.png" 
