@@ -89,7 +89,7 @@ For the npm start command, use 0 as the impostor status if honest, 1 if impostor
 https://www.kaggle.com/oddrationale/mnist-in-csv
 
 ## To use the provided MNIST 20x20 models:
-resize the downloaded data using [this script](./ML_models/resize_MNIST) <br>
+resize the downloaded data using [this script](./dataset\ utils/resize_MNIST) <br>
 or download it from [here](https://drive.google.com/drive/folders/1tOyb5J4kDwkOA8ML0Ub-gmj-b44LvMzU?usp=sharing)
 
 - N.B. Place training data in ./lightclient/models/MODEL_NAME/
