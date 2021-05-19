@@ -1,5 +1,10 @@
-# FDMMLS
-Fully Decentralized Multi-Agent Machine Learning System
+# FLoBC
+Federated Learning over Blockchain. <br>
+This project supports the training of stochastic gradient descent models over blockchain. <br>
+Training and validation is performed on the user's local data. Nodes share insights or gradients rather than data. <br>
+The system utilizes a reward/punishment policy to incentivize legitimate training, and to punish and hinder malicious trainers. <br>
+As it can be seen in [the figure] (./pictures/systemView.png). Trainers perform training, then share their updates with the validators that validate the updates and perform consensus. After which trainers are given a trust reward or pentaly, and a new model is added to the blockchain. <br>
+For more details about the system, check [the slides] (https://docs.google.com/presentation/d/1koIePQY4zOhS8jltEeFZ27Q99Ua_KlZIDUb6Zcn_VCI/edit?usp=sharing) and [this video](https://drive.google.com/file/d/1e6TVJ5_nI7mPKt9JTVXy2bMrMx7xXkqG/view?usp=sharing). 
 
 ## Prerequisites
 - git clone https://github.com/Oschart/FDMMLS.git
@@ -43,10 +48,10 @@ To configure the system
 alt="demo video" width="360" height="240" border="10" /></a>
 
 ### Using Scripts
+Using the [spawn script] (./scripts/spawn/spawn.sh), you can run the system with certain number of trainers, validators, synchronization scheme and training period.
+For instructions on how to run the spawn script, [check] (./scripts/spawn/README.md)
 
 ### Manually
-
-### To install babel (needed to build node.js validator)
 
 ### To build the rust code and/or the validating node
 ``` shell
@@ -61,14 +66,14 @@ $ cd ..
 ### To run the validating node
 ``` shell
 $ cd backend
-$ sh run_node <node number> <sync scheme> <scoring flag>
+$ sh run_node <node number> <sync scheme> <scoring flag> <model directory name>
 $ cd ..
 ````
 ### To build the lightclient 
 ``` shell
 $ cd lightclient
 $ npm install
-$ npm start -- <validator port number> path/to/data.csv 0
+$ npm start -- <validator port number> <dataset past> <trainer noise> <model directory name> 
 ```
 For the npm start command, use 0 as the impostor status if honest, 1 if impostor. 
 
@@ -83,7 +88,16 @@ For the npm start command, use 0 as the impostor status if honest, 1 if impostor
 https://www.kaggle.com/oddrationale/mnist-in-csv
 
 ## To use the provided MNIST 20x20 models:
-resize the downloaded data using [this script](./ML_models/resize_MNIST)
+resize the downloaded data using [this script](./ML_models/resize_MNIST) <br>
+or download it from [here] (https://drive.google.com/drive/folders/1tOyb5J4kDwkOA8ML0Ub-gmj-b44LvMzU?usp=sharing)
 
 - N.B. Place training data in ./lightclient/models/MODEL_NAME/
 - N.B. Place test data in ./backend/tx_validator/src/models/MODEL_NAME/data.csv
+
+## Authors
+* **Eslam Soliman** [Eslam-Soliman](https://github.com/Eslam-Soliman)
+* **Fadi Adel** [theRadFad](https://github.com/theRadFad)
+* **Habiba Gamal** [habibagamal](https://github.com/habibagamal)
+* **Mohamed Oscar** [Oschart](https://github.com/Oschart)
+* Dr. Hossam Sharara
+* Dr. Tamer ElBatt
