@@ -40,7 +40,7 @@ To configure the system
 
 #### Demo Video
 <a href="https://drive.google.com/file/d/1indstlHqPbDn9WctNczFZVVRBCU-5qbf/view?usp=sharing"><img src="https://github.com/Oschart/FDMMLS/blob/main/pictures/thumbnail.png" 
-alt="demo video" width="240" height="180" border="10" /></a>
+alt="demo video" width="360" height="240" border="10" /></a>
 
 ### Using Scripts
 
