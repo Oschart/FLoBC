@@ -49,8 +49,8 @@ To configure the system
 alt="demo video" width="480" height="360" border="10" /></a>
 
 ### Using Scripts
-Using the [spawn script] (./scripts/spawn/spawn.sh), you can run the system with certain number of trainers, validators, synchronization scheme and training period.
-For instructions on how to run the spawn script, [check] (./scripts/spawn/README.md)
+Using the [spawn script](./scripts/spawn/spawn.sh), you can run the system with certain number of trainers, validators, synchronization scheme and training period.
+For instructions on how to run the spawn script, [check](./scripts/spawn/README.md)
 
 ### Manually
 
