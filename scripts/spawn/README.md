@@ -17,4 +17,5 @@ $ sh spawn.sh -n <number of validators> -t <number of trainers> -p <optional pat
 - -d: [OPTIONAL] duration of 1 training iteration. Needed for BSP and SSP. --> default is 60 seconds
 - -f: [OPTIONAL] scoring flag. 1 to enable scoring, otherwise disable scoring. --> default is enabled scoring
 - -a: [OPTIONAL] Growing noise scale. Trainer 0 has 0 noise, trainer n has n*a noise. --> default is 0
+- -m: [OPTIONAL] Model Name
 #### You don't need to specify -p if you'll use the lightclient directory and the backend directory in the root
