@@ -33,8 +33,7 @@ $ npm start
 
 ##### Initialization Form
 To configure the system
-<!-- ![Initialization Page](./pictures/form.png "System Configuration Page" width=100) -->
-<a href="url"><img src="https://github.com/Oschart/FDMMLS/blob/main/pictures/form.png" align="left" height="480" width="360" ></a>
+![Initialization Page](./pictures/form.png "System Configuration Page" width=100)
 
 ##### Progress Monitoring
 ![Progress Monitoring](./pictures/monitor.png "Progress Monitoring" width=100)
