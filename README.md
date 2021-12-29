@@ -94,7 +94,7 @@ resize the downloaded data using [this script](./dataset&#32;utils/MNIST_resize.
 - N.B. Place test data in ./backend/tx_validator/src/models/MODEL_NAME/data.csv
 
 ## Authors
-* **Mohamed Oscar** [Oschart](https://github.com/Oschart)
+* **Mohamed Ghanem** [Oschart](https://github.com/Oschart)
 * **Fadi Adel** [theRadFad](https://github.com/theRadFad)
 * **Habiba Gamal** [habibagamal](https://github.com/habibagamal)
 * **Eslam Soliman** [Eslam-Soliman](https://github.com/Eslam-Soliman)
