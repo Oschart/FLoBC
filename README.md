@@ -11,8 +11,8 @@ This repository is an implementation of [FLoBC: A Decentralized Blockchain-Based
 }
 ```
 
-This project supports the training of stochastic gradient descent models over blockchain. <br><br>
-Training and validation is performed on the user's local data. Nodes share insights or gradients rather than data. <br><br>
+This project supports the training of stochastic gradient descent models over blockchain.
+Training and validation is performed on the user's local data. Nodes share insights or gradients rather than data.
 The system utilizes a reward/punishment policy to incentivize legitimate training, and to punish and hinder malicious trainers. <br><br>
 ![System View](./pictures/systemView.png "System View")<br><br>
 As it can be seen in the figure. Trainers perform training, then share their updates with the validators that validate the updates and perform consensus. After which trainers are given a trust reward or pentaly, and a new model is added to the blockchain. <br><br>
