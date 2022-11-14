@@ -15,7 +15,7 @@ This project supports the training of stochastic gradient descent models over bl
 Training and validation is performed on the user's local data. Nodes share insights or gradients rather than data.
 The system utilizes a reward/punishment policy to incentivize legitimate training, and to punish and hinder malicious trainers. <br><br>
 ![System View](./pictures/systemView.png "System View")<br><br>
-As it can be seen in the figure. Trainers perform training, then share their updates with the validators that validate the updates and perform consensus. After which trainers are given a trust reward or pentaly, and a new model is added to the blockchain. <br><br>
+As shown in the figure, trainers nodes perform local training, then share their updates with the validators that evaluate their updates and carry out the consensus process to update the global model on the blockchain. Subsequently, trainers are given a trust reward or pentaly, and a new model is added to the blockchain. <br><br>
 For more details about the system, check [the slides](https://docs.google.com/presentation/d/1koIePQY4zOhS8jltEeFZ27Q99Ua_KlZIDUb6Zcn_VCI/edit?usp=sharing) and [this video](https://drive.google.com/file/d/1e6TVJ5_nI7mPKt9JTVXy2bMrMx7xXkqG/view?usp=sharing). 
 
 ## Prerequisites
