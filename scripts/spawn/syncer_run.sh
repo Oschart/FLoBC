@@ -2,7 +2,7 @@ sleep 5
 path=$1
 period=$2
 cur_path=$(pwd)
-cd "${cur_path%FDMMLS*}/FDMMLS"
+cd "${cur_path%FLoBC*}/FLoBC"
 if [[ $path != "./" ]]
 then 
     cp -R -v ./backend/syncBarrier $path/backend/syncBarrier

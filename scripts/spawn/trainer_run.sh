@@ -23,5 +23,5 @@ fi
 cd $cd_path
 rm ModelMetadata
 # cur_path=$(pwd)
-# source "${cur_path%FDMMLS*}/FDMMLS/scripts/utils/newTab.sh"
+# source "${cur_path%FLoBC*}/FLoBC/scripts/utils/newTab.sh"
 # openTab $command_start "npm start --prefix $path -- 9000 models/test_model/data.csv 0"
