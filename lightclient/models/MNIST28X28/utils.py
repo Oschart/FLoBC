@@ -2,6 +2,11 @@
 import sys
 import pandas as pd
 import numpy as np
+import GPyOpt
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import accuracy_score
 # %%
 ################################
 # Formatted print back to node
@@ -71,7 +76,8 @@ def flattenWeights(model):
 # %%
 def trainModel(model, data_train, label_train):
     model.fit(data_train, label_train, epochs=1, verbose=1)
-    return model
+    loss, accuracy = model.evaluate(data_train, label_train, verbose=0)
+    return model, loss
 
 # %%
 def rebuildModel(new_model, list):
@@ -92,3 +98,44 @@ def rebuildModel(new_model, list):
         if (bound > 0):
             new_model.layers[i].set_weights(weights)
     return new_model
+
+#%%
+# Define the objective function to be optimized
+def objective_function(hyperparameters, X_train, y_train, X_valid, y_valid):
+    
+    #kernel allows for a very flexible function that can model a wide variety of functions.
+    kernel = RBF(length_scale=hyperparameters['length_scale'])
+    
+    regressor = GaussianProcessRegressor(kernel=kernel)
+    regressor.fit(X_train, y_train)
+    y_pred = regressor.predict(X_valid)
+    score = accuracy_score(y_valid, y_pred.round())
+    return score
+
+#%%
+# Define the RFMS-BO algorithm
+def rfms_bo(X, y, kernel=None, num_iters=10):
+    if kernel is None:
+        kernel = RBF()
+
+    # Initialize the GP with the initial set of hyperparameters
+    gp = GaussianProcessRegressor(kernel=kernel)
+    gp.fit(X, y)
+
+    # Run the RFMS-BO algorithm for the specified number of iterations
+    for i in range(num_iters):
+        # Select the next hyperparameters to evaluate using expected improvement
+        x_next = None # TODO: Implement selection of next hyperparameters
+
+        # Evaluate the model with the selected hyperparameters
+        y_next = None # TODO: Implement evaluation of model with selected hyperparameters
+
+        # Add the new hyperparameters and their corresponding performance to the training data
+        X = np.vstack((X, x_next))
+        y = np.append(y, y_next)
+
+        # Retrain the GP on the expanded dataset
+        gp.fit(X, y)
+
+    # Return the best hyperparameters found by the algorithm
+    return X[np.argmax(y)]
