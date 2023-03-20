@@ -103,7 +103,7 @@ def rebuildModel(new_model, list):
 # Define the objective function to be optimized
 def objective_function(hyperparameters, X_train, y_train, X_valid, y_valid):
     
-    #kernel allows for a very flexible function that can model a wide variety of functions.
+    #kernel allows for a very flexible function that can model a wide variety of functions..
     kernel = RBF(length_scale=hyperparameters['length_scale'])
     
     regressor = GaussianProcessRegressor(kernel=kernel)
