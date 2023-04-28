@@ -2,10 +2,11 @@
 import sys
 import pandas as pd
 import numpy as np
-import GPyOpt
+import GPyOpt #sudo pip3 install -U GPyOpt
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.model_selection import GridSearchCV
+from bayes_opt import BayesianOptimization
 from sklearn.metrics import accuracy_score
 # %%
 ################################
@@ -36,7 +37,7 @@ def read_input(index):
         raise Exception('No dataset path found')
 
     df = pd.read_csv(sys.argv[index])
-    # df = pd.read_csv("data.csv")
+
     if len(df) == 0:
         raise Exception('Empty dataset')
     return df
@@ -99,43 +100,33 @@ def rebuildModel(new_model, list):
             new_model.layers[i].set_weights(weights)
     return new_model
 
-#%%
-# Define the objective function to be optimized
-def objective_function(hyperparameters, X_train, y_train, X_valid, y_valid):
+def BO(model, X_train, y_train):
+    def loss_func(weights):
+        model.set_weights(weights)
+        loss = model.evaluate(X_train, y_train, verbose=0)[0]
+        return loss
+
+    pbounds = {'num_units': (16, 128),
+               'dropout_rate': (0.1, 0.5),
+               'learning_rate': (0.001, 0.01)}
     
-    #kernel allows for a very flexible function that can model a wide variety of functions..
-    kernel = RBF(length_scale=hyperparameters['length_scale'])
-    
-    regressor = GaussianProcessRegressor(kernel=kernel)
-    regressor.fit(X_train, y_train)
-    y_pred = regressor.predict(X_valid)
-    score = accuracy_score(y_valid, y_pred.round())
-    return score
+    optimizer = BayesianOptimization(
+        f=loss_func,
+        pbounds=pbounds,
+        random_state=42,
+        verbose=2
+    )
 
-#%%
-# Define the RFMS-BO algorithm
-def rfms_bo(X, y, kernel=None, num_iters=10):
-    if kernel is None:
-        kernel = RBF()
+    optimizer.maximize(
+        init_points=5,
+        n_iter=25,
+    )
 
-    # Initialize the GP with the initial set of hyperparameters
-    gp = GaussianProcessRegressor(kernel=kernel)
-    gp.fit(X, y)
+    best_params = optimizer.max['params']
+    weights = [best_params[f'w{i}'] for i in range(len(best_params))]
 
-    # Run the RFMS-BO algorithm for the specified number of iterations
-    for i in range(num_iters):
-        # Select the next hyperparameters to evaluate using expected improvement
-        x_next = None # TODO: Implement selection of next hyperparameters
+    print(weights)
 
-        # Evaluate the model with the selected hyperparameters
-        y_next = None # TODO: Implement evaluation of model with selected hyperparameters
+    model.set_weights(weights)
 
-        # Add the new hyperparameters and their corresponding performance to the training data
-        X = np.vstack((X, x_next))
-        y = np.append(y, y_next)
-
-        # Retrain the GP on the expanded dataset
-        gp.fit(X, y)
-
-    # Return the best hyperparameters found by the algorithm
-    return X[np.argmax(y)]
+    return model
