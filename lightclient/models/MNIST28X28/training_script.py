@@ -58,8 +58,8 @@ data_train, label_train = reshapeData(2)
 list_ = read_weights(3)
 model = createModel()
 model = rebuildModel(model, list_)
-model, loss = trainModel(model, data_train, label_train)
-#model = BO(model, data_train, label_train)
+#model, loss = trainModel(model, data_train, label_train)
+model = BO(model, data_train, label_train)
 # ################################
 # # 2) Flattening
 # ################################

@@ -101,32 +101,26 @@ def rebuildModel(new_model, list):
     return new_model
 
 def BO(model, X_train, y_train):
-    def loss_func(weights):
-        model.set_weights(weights)
+    def loss_func(loss):
+        model.fit(X_train, y_train, epochs=1, verbose=1)
         loss = model.evaluate(X_train, y_train, verbose=0)[0]
-        return loss
+        return -loss
 
-    pbounds = {'num_units': (16, 128),
-               'dropout_rate': (0.1, 0.5),
-               'learning_rate': (0.001, 0.01)}
+    pbounds = {'loss': (0, 1)}
     
     optimizer = BayesianOptimization(
         f=loss_func,
         pbounds=pbounds,
-        random_state=42,
         verbose=2
     )
 
-    optimizer.maximize(
-        init_points=5,
-        n_iter=25,
-    )
+    optimizer.maximize(init_points=5, n_iter=25)
 
     best_params = optimizer.max['params']
-    weights = [best_params[f'w{i}'] for i in range(len(best_params))]
+    #weights = [best_params[f'w{i}'] for i in range(len(best_params))]
 
-    print(weights)
+    print(best_params)
 
-    model.set_weights(weights)
+    #model.set_weights(weights)
 
     return model
