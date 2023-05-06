@@ -66,16 +66,7 @@ for i, data in enumerate(split_data_list):
     data_train, label_train = split_data(data)
     model = createModel()
     model = BO(model, data_train, label_train)
-
-    # ar = model.get_weights()
-    # print(ar)
-    # print(type(ar))
-    # print(len(ar))
-    # flattened_list = [item for sublist in ar for item in sublist]
-    # print(flattened_list)
-    # print(type(flattened_list))
-    # print(len(flattened_list))
-
+    
     new_list = flattenWeights(model)
 
     delimiter = "|"
