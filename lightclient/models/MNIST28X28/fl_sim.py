@@ -42,11 +42,14 @@ def createModel():
     return model
 
 def flattenWeights(model):
-  arr = np.array(model.get_weights())
+  weights = model.get_weights()
+  flattened_list = [arr.flatten() for arr in weights]
+  homogeneous_list = np.concatenate(flattened_list)
+  arr = np.array(homogeneous_list)
   for i in range (0, len(arr)):
-          arr[i] = arr[i].flatten()
-
-  arr = np.concatenate(arr)
+    arr[i] = arr[i].flatten()
+  
+  #arr = np.concatenate(arr)
   list = arr.tolist()
   return list
 
@@ -63,12 +66,20 @@ for i, data in enumerate(split_data_list):
     data_train, label_train = split_data(data)
     model = createModel()
     model = BO(model, data_train, label_train)
-    
-    print(model.get_weights())
+
+    # ar = model.get_weights()
+    # print(ar)
+    # print(type(ar))
+    # print(len(ar))
+    # flattened_list = [item for sublist in ar for item in sublist]
+    # print(flattened_list)
+    # print(type(flattened_list))
+    # print(len(flattened_list))
+
     new_list = flattenWeights(model)
 
     delimiter = "|"
 
-    with open(f'weights_{i}.txt' "w") as f:
+    with open(f'weights_{i}.txt',"w") as f:
         weights_str = delimiter.join(str(w) for w in new_list)
         f.write(weights_str)
