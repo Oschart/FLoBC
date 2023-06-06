@@ -59,6 +59,7 @@ list_ = read_weights(3)
 model = createModel()
 model = rebuildModel(model, list_)
 model, loss = trainModel(model, data_train, label_train)
+print(loss)
 #model = BO(model, data_train, label_train)
 # ################################
 # # 2) Flattening

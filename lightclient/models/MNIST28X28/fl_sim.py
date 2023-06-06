@@ -54,7 +54,7 @@ def flattenWeights(model):
   return list
 
 # load the csv file
-df = pd.read_csv('lightclient/models/MNIST28X28/data.csv')
+df = pd.read_csv('/home/seif/Documents/FLoBC/FLoBC/lightclient/models/MNIST28X28/data.csv')
 
 # split the data into 10 parts
 split_data_list = np.array_split(df, NUM_CLIENTS)

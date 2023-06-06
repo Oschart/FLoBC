@@ -27,7 +27,7 @@ all_weights = []
 
 for i in range(0,NUM_CLIENTS-1):
     print("i: ", i)
-    filename = './lightclient/models/MNIST28X28/weights/'+f'weights_{i}.txt'
+    filename = './weights/'+f'weights_{i}.txt'
     l = read_weights(filename)
     all_weights.append(l)
 
@@ -35,6 +35,6 @@ averaged_weights = federated_averaging(all_weights)
 
 delimiter = "|"
 
-with open('./lightclient/models/MNIST28X28/weights/'+f'weights_fed_avg.txt',"w") as f:
+with open('./weights/'+f'weights_fed_avg.txt',"w") as f:
     weights_str = delimiter.join(str(w) for w in averaged_weights)
     f.write(weights_str)
