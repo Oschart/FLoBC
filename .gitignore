@@ -24,3 +24,5 @@ RP Experiment/dist
 **/*.csv
 lightclient/models_cache/last_validator_model
 lightclient/models_cache/python_bus
+
+lightclient/models/MNIST28X28/data.csv

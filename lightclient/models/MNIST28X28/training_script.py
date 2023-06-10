@@ -1,4 +1,3 @@
-# %%
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -16,7 +15,9 @@ warnings.filterwarnings('ignore')
 
 INPUT_SHAPE = (28, 28, 1)
 
-# %%
+import os
+os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
+
 
 def reshapeData(index):
     df = read_input(index)
@@ -44,9 +45,8 @@ def createModel():
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model
 
-# ###############################
 # 1) Training
-# ###############################
+
 newModel_flag = str(readNewModel_flag(1))
 if (newModel_flag == "true"):
     newModel_flag = 1
@@ -59,11 +59,11 @@ list_ = read_weights(3)
 model = createModel()
 model = rebuildModel(model, list_)
 model, loss = trainModel(model, data_train, label_train)
-print(loss)
+
 #model = BO(model, data_train, label_train)
-# ################################
-# # 2) Flattening
-# ################################
+
+# 2) Flattening
+
 new_list = flattenWeights(model)
 
 delimiter = "|"

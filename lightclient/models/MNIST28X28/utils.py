@@ -8,6 +8,10 @@ from sklearn.gaussian_process.kernels import RBF
 from sklearn.model_selection import GridSearchCV
 from bayes_opt import BayesianOptimization
 from sklearn.metrics import accuracy_score
+NUM_CLIENTS = 2
+
+import os
+os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 # %%
 ################################
 # Formatted print back to node
