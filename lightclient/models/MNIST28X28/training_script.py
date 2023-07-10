@@ -5,7 +5,6 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 from utils import send_to_node, read_input, read_weights, flattenWeights, trainModel, rebuildModel, readNewModel_flag, BO
-
 import warnings
 import logging
 import os
@@ -17,7 +16,6 @@ INPUT_SHAPE = (28, 28, 1)
 
 import os
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
-
 
 def reshapeData(index):
     df = read_input(index)

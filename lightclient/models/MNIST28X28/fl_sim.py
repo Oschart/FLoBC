@@ -16,6 +16,46 @@ INPUT_SHAPE = (28, 28, 1)
 
 NUM_CLIENTS = int(sys.argv[4])
 
+#import train test split
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+import bnlearn as bn
+
+
+def get_acc(model, df, col):
+    # Get accuracy score by the model for the validation dataset df with target col
+    pred = bn.predict(model, df, variables=[col])
+    print(pred)
+    acc = accuracy_score(df[col], pred[col])
+    print('Accuracy -', acc)
+    return acc
+
+def create_bayesian_networks_model():
+    train = pd.read_csv('./lightclient/models/MNIST28X28/titanic/train.csv').set_index('PassengerId')
+    test = pd.read_csv('./lightclient/models/MNIST28X28/titanic/test.csv').set_index('PassengerId')
+    
+    dfhot_train, dfnum_train = bn.df2onehot(train)
+    dfhot_test, dfnum_test = bn.df2onehot(test)
+
+    dfnum_target = dfnum_train.pop('Survived')
+
+    Xtrain, Xval, Ztrain, Zval = train_test_split(dfnum_train, dfnum_target, test_size=0.2, random_state=0)
+    valid = pd.concat([Xval, Zval], axis='columns')
+    dfnum = pd.concat([Xtrain, Ztrain], axis='columns')
+    
+
+    # Structure learning
+    DAG = bn.structure_learning.fit(dfnum, methodtype='hc', root_node='Survived', bw_list_method='nodes', verbose=3)
+
+    # Plot
+    G = bn.plot(DAG)
+
+    # Parameter learning
+    model = bn.parameter_learning.fit(DAG, dfnum, verbose=3)
+
+    return model
+
 def split_data(df):
     df = df.sample(int(0.3*len(df)))
     label = df.iloc[:, 0]
