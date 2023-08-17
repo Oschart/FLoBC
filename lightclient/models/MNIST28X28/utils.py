@@ -2,6 +2,16 @@
 import sys
 import pandas as pd
 import numpy as np
+import GPyOpt #sudo pip3 install -U GPyOpt
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.model_selection import GridSearchCV
+from bayes_opt import BayesianOptimization
+from sklearn.metrics import accuracy_score
+NUM_CLIENTS = 2
+
+import os
+os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 # %%
 ################################
 # Formatted print back to node
@@ -31,7 +41,7 @@ def read_input(index):
         raise Exception('No dataset path found')
 
     df = pd.read_csv(sys.argv[index])
-    # df = pd.read_csv("data.csv")
+
     if len(df) == 0:
         raise Exception('Empty dataset')
     return df
@@ -71,7 +81,8 @@ def flattenWeights(model):
 # %%
 def trainModel(model, data_train, label_train):
     model.fit(data_train, label_train, epochs=1, verbose=1)
-    return model
+    loss, accuracy = model.evaluate(data_train, label_train, verbose=0)
+    return model, loss
 
 # %%
 def rebuildModel(new_model, list):
@@ -92,3 +103,28 @@ def rebuildModel(new_model, list):
         if (bound > 0):
             new_model.layers[i].set_weights(weights)
     return new_model
+
+def BO(model, X_train, y_train):
+    def loss_func(loss):
+        model.fit(X_train, y_train, epochs=1, verbose=1)
+        loss = model.evaluate(X_train, y_train, verbose=0)[0]
+        return -loss
+
+    pbounds = {'loss': (0, 1)}
+    
+    optimizer = BayesianOptimization(
+        f=loss_func,
+        pbounds=pbounds,
+        verbose=2
+    )
+
+    optimizer.maximize(init_points=5, n_iter=25)
+
+    best_params = optimizer.max['params']
+    #weights = [best_params[f'w{i}'] for i in range(len(best_params))]
+
+    print(best_params)
+
+    #model.set_weights(weights)
+
+    return model

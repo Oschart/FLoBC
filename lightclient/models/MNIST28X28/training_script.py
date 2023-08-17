@@ -1,12 +1,10 @@
-# %%
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
-from utils import send_to_node, read_input, read_weights, flattenWeights, trainModel, rebuildModel, readNewModel_flag
-
+from utils import send_to_node, read_input, read_weights, flattenWeights, trainModel, rebuildModel, readNewModel_flag, BO
 import warnings
 import logging
 import os
@@ -16,7 +14,8 @@ warnings.filterwarnings('ignore')
 
 INPUT_SHAPE = (28, 28, 1)
 
-# %%
+import os
+os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 
 def reshapeData(index):
     df = read_input(index)
@@ -44,9 +43,8 @@ def createModel():
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model
 
-# ###############################
 # 1) Training
-# ###############################
+
 newModel_flag = str(readNewModel_flag(1))
 if (newModel_flag == "true"):
     newModel_flag = 1
@@ -58,9 +56,17 @@ data_train, label_train = reshapeData(2)
 list_ = read_weights(3)
 model = createModel()
 model = rebuildModel(model, list_)
-model = trainModel(model, data_train, label_train)
-# ################################
-# # 2) Flattening
-# ################################
+model, loss = trainModel(model, data_train, label_train)
+
+#model = BO(model, data_train, label_train)
+
+# 2) Flattening
+
 new_list = flattenWeights(model)
-send_to_node(newModel_flag, list_, new_list)
+
+delimiter = "|"
+with open("weights.txt", "w") as f:
+    weights_str = delimiter.join(str(w) for w in new_list)
+    f.write(weights_str)
+
+#send_to_node(newModel_flag, list_, new_list)
